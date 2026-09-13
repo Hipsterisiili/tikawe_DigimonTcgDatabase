@@ -8,10 +8,10 @@
 <body>
   <p>
     Korttien määrä: {{ count }}
-    Viimeisin lisätty kortti: {{ latestCard }}
+    Viimeisin lisätty kortti: {{ latest_card }}
   </p>
   <hr />
-  {% for card in cardList %}
+  {% for card in card_list %}
   <p>
     {{ card["name"] }}
   </p>

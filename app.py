@@ -1,8 +1,10 @@
+"""
+Main application file
+"""
 import random
 
-from flask import Flask
+from flask import Flask, redirect, render_template, request
 import db
-from flask import redirect, render_template, request
 import sqlite3
 
 app = Flask(__name__)
@@ -13,16 +15,18 @@ def index():
     count = result[0][0]
     return "Kortteja on tietokannassa yhteensä " + str(count) + " kappaletta"
 
-
 @app.route("/cards")
 def cards():
 
-    cardAmount = db.query("SELECT COUNT(*) FROM cards")
-    cardList = db.query("SELECT name FROM cards")
-    latestCard = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+    card_amount = db.query("SELECT COUNT(*) FROM cards")
+    card_list = db.query("SELECT name FROM cards")
+    latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
 
-    return render_template("cards.html", count = cardAmount[0][0], cardList = cardList, latest_card = latestCard[0][0])
-
+    return render_template(
+        "cards.html", 
+        count = card_amount[0][0],
+        card_list = card_list,
+        latest_card = latest_card[0][0])
 
 @app.route("/newcard")
 def new():
@@ -38,13 +42,13 @@ def send():
     db.close()
     return redirect("/cards")
 
-@app.route("/randomcard")
-def randomCard():
-    addRandomCard()
+@app.route("/random_card")
+def random_card():
+    add_random_card()
     return redirect("/cards")
 
-def addRandomCard():
-    cardnames = [
+def add_random_card():
+    card_names = [
             "Agumon",
             "Gabumon",
             "Patamon",
@@ -54,16 +58,16 @@ def addRandomCard():
             "Gomamon",
             "Biyomon"
         ]
-    
-    randomCardName = random.choice(cardnames)
-    
+
+    random_card_name = random.choice(card_names)
+
     db.execute(
         "INSERT INTO cards (name) VALUES (?)",
-        (randomCardName,)
+        (random_card_name,)
     )
 
-@app.route("/deletecard")
-def deletecard():
+@app.route("/delete_card")
+def delete_card():
     db.execute(
             "DELETE FROM cards WHERE id = (SELECT MAX(id) FROM cards)"
         )
