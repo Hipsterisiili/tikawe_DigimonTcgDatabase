@@ -1,6 +1,7 @@
 import random
 
 from flask import Flask
+import db
 from flask import redirect, render_template, request
 import sqlite3
 
@@ -8,45 +9,19 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    db = sqlite3.connect("database.db")
-    db.execute("INSERT INTO visits (visited_at) VALUES (datetime('now'))")
-    db.commit()
-    result = db.execute("SELECT COUNT(*) FROM visits").fetchone()
-    count = result[0]
-    db.close()
-    return "Sivua on ladattu " + str(count) + " kertaa"
+    result = db.query("SELECT COUNT(*) FROM cards")
+    count = result[0][0]
+    return "Kortteja on tietokannassa yhteensä " + str(count) + " kappaletta"
 
 
 @app.route("/cards")
 def cards():
-    cardnames = [
-        "Agumon",
-        "Gabumon",
-        "Patamon",
-        "Gatomon",
-        "Tentomon",
-        "Palmon",
-        "Gomamon",
-        "Biyomon"
-    ]
 
-    randomCardName = random.choice(cardnames)
+    cardAmount = db.query("SELECT COUNT(*) FROM cards")
+    cardList = db.query("SELECT name FROM cards")
+    latestCard = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
 
-    db = sqlite3.connect("database.db")
-
-    db.execute(
-        "INSERT INTO cards (name) VALUES (?)",
-        (randomCardName,)
-    )
-    db.commit()
-
-    cardAmount = db.execute("SELECT COUNT(*) FROM cards").fetchone()
-    cardList = db.execute("SELECT name FROM cards").fetchall()
-    latestCard = db.execute("SELECT name FROM cards ORDER BY id DESC LIMIT 1").fetchone()
-
-    db.close()
-
-    return render_template("cards.html", count = cardAmount[0], cardList = cardList, latest_card = latestCard[0])
+    return render_template("cards.html", count = cardAmount[0][0], cardList = cardList, latest_card = latestCard[0][0])
 
 
 @app.route("/newcard")
@@ -61,4 +36,35 @@ def send():
     db.execute("INSERT INTO cards (name) VALUES (?)", (content,))
     db.commit()
     db.close()
+    return redirect("/cards")
+
+@app.route("/randomcard")
+def randomCard():
+    addRandomCard()
+    return redirect("/cards")
+
+def addRandomCard():
+    cardnames = [
+            "Agumon",
+            "Gabumon",
+            "Patamon",
+            "Gatomon",
+            "Tentomon",
+            "Palmon",
+            "Gomamon",
+            "Biyomon"
+        ]
+    
+    randomCardName = random.choice(cardnames)
+    
+    db.execute(
+        "INSERT INTO cards (name) VALUES (?)",
+        (randomCardName,)
+    )
+
+@app.route("/deletecard")
+def deletecard():
+    db.execute(
+            "DELETE FROM cards WHERE id = (SELECT MAX(id) FROM cards)"
+        )
     return redirect("/cards")

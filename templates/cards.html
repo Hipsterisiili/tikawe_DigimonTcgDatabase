@@ -13,13 +13,20 @@
   <hr />
   {% for card in cardList %}
   <p>
-    {{ card[0] }}
+    {{ card["name"] }}
   </p>
   <hr />
   {% endfor %}
   
   <p>
     <a href="/newcard">Lisää kortti tietokantaan</a>
+  </p>
+
+  <p>
+    <a href="/randomcard">Lisää satunnainen kortti tietokantaan</a>
+  </p>
+  <p>
+    <a href="/deletecard">Poista viimeisin kortti</a>
   </p>
 </body>
 
