@@ -3,8 +3,8 @@ Main application file
 """
 import random
 
-from flask import Flask, redirect, render_template, request
-from werkzeug.security import generate_password_hash
+from flask import Flask, redirect, render_template, request, session
+from werkzeug.security import generate_password_hash, check_password_hash
 import db
 import sqlite3
 
@@ -37,18 +37,27 @@ def create():
 
     return "Tunnus luotu"
 
-
-
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    if request.method == "GET":
+        return render_template("login.html")
 
+    username = request.form["username"]
+    password = request.form["password"]
 
+    sql = "SELECT password_hash FROM users WHERE username = ?"
+    result = db.query(sql, [username])
+    if len(result) == 0:
+        return "VIRHE: käyttäjätunnusta ei löydy"
+    stored_hash = result[0]["password_hash"]
+    if not check_password_hash(stored_hash, password):
+        return "VIRHE: väärä salasana"
+    return redirect("/")
 
-def check_password_hash(stored_hash, password):
-    # This is a placeholder for password hash checking logic.
-    # In a real application, you should use a secure hashing algorithm.
-    return stored_hash == "hashed_" + password
+@app.route("/logout")
+def logout():
+    del session["username"]
+    return redirect("/")
 
 
 @app.route("/cards")
