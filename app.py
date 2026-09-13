@@ -4,6 +4,7 @@ Main application file
 import random
 
 from flask import Flask, redirect, render_template, request
+from werkzeug.security import generate_password_hash
 import db
 import sqlite3
 
@@ -14,6 +15,41 @@ def index():
     result = db.query("SELECT COUNT(*) FROM cards")
     count = result[0][0]
     return "Kortteja on tietokannassa yhteensä " + str(count) + " kappaletta"
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
+
+@app.route("/create", methods=["POST"])
+def create():
+    username = request.form["username"]
+    password1 = request.form["password1"]
+    password2 = request.form["password2"]
+    if password1 != password2:
+        return "VIRHE: salasanat eivät ole samat"
+    password_hash = generate_password_hash(password1)
+
+    try:
+        sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+        db.execute(sql, [username, password_hash])
+    except sqlite3.IntegrityError:
+        return "VIRHE: tunnus on jo varattu"
+
+    return "Tunnus luotu"
+
+
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+
+
+def check_password_hash(stored_hash, password):
+    # This is a placeholder for password hash checking logic.
+    # In a real application, you should use a secure hashing algorithm.
+    return stored_hash == "hashed_" + password
+
 
 @app.route("/cards")
 def cards():
