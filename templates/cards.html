@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Korttilista</title>
+</head>
+
+<body>
+  <p>
+    Korttien määrä: {{ count }}
+    Viimeisin lisätty kortti: {{ latestCard }}
+  </p>
+  <hr />
+  {% for card in cardList %}
+  <p>
+    {{ card[0] }}
+  </p>
+  <hr />
+  {% endfor %}
+  
+  <p>
+    <a href="/newcard">Lisää kortti tietokantaan</a>
+  </p>
+</body>
+
+</html>
