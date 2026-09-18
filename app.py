@@ -2,19 +2,27 @@
 Main application file
 """
 import random
-
+import sqlite3
 from flask import Flask, redirect, render_template, request, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
-import sqlite3
 
 app = Flask(__name__)
 
+username = ""
+
 @app.route("/")
 def index():
-    result = db.query("SELECT COUNT(*) FROM cards")
-    count = result[0][0]
-    return "Kortteja on tietokannassa yhteensä " + str(count) + " kappaletta"
+
+    card_amount = db.query("SELECT COUNT(*) FROM cards")
+    card_list = db.query("SELECT name FROM cards")
+    latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+
+    return render_template(
+        "index.html", 
+        count = card_amount[0][0],
+        card_list = card_list,
+        latest_card = latest_card[0][0])
 
 @app.route("/register")
 def register():
@@ -35,7 +43,7 @@ def create():
     except sqlite3.IntegrityError:
         return "VIRHE: tunnus on jo varattu"
 
-    return "Tunnus luotu"
+    return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -57,18 +65,16 @@ def login():
 @app.route("/logout")
 def logout():
     del session["username"]
-    return redirect("/")
+    return redirect("/cards")
 
-
-@app.route("/cards")
-def cards():
-
+@app.route("/personalcardlist")
+def personalcardlist():
     card_amount = db.query("SELECT COUNT(*) FROM cards")
     card_list = db.query("SELECT name FROM cards")
     latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
-
+    
     return render_template(
-        "cards.html", 
+        "personalcardlist.html", 
         count = card_amount[0][0],
         card_list = card_list,
         latest_card = latest_card[0][0])
