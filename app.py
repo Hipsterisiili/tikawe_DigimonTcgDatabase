@@ -84,15 +84,14 @@ def logout():
 
 @app.route("/personalcardlist")
 def personalcardlist():
-    if(username == ""):
-        return "Et ole kirjautunut sisään"
-    
-    card_amount = db.query("SELECT COUNT(*) FROM {private_table_name}")
-    card_list = db.query("SELECT name FROM {private_table_name}")
-    latest_card = db.query("SELECT name FROM {private_table_name} ORDER BY id DESC LIMIT 1")
-    
+    #temporary method until creation of private table can be implemented correctly
+    private_table_name = "cards"
+    card_amount = db.query("SELECT COUNT(*) FROM cards")
+    card_list = db.query("SELECT name FROM cards")
+    latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+
     return render_template(
-        "personalcardlist.html", 
+            "personalcardlist.html", 
         count = card_amount[0][0],
         card_list = card_list,
         latest_card = latest_card[0][0])

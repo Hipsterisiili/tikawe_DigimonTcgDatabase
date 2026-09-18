@@ -5,6 +5,19 @@
   <title>Korttilista</title>
 </head>
 
+{% if session.username %}
+  <p>
+    Olet kirjautunut nimellä {{ session.username }}
+  </p>
+  <p>
+    <a href="/logout">Kirjaudu ulos</a>
+  </p>
+  {% else %}
+  <p>
+    Et ole vielä kirjautunut sisään
+  </p>
+  {% endif %}
+
 <body>
   <p>
     Korttien määrä: {{ count }}
