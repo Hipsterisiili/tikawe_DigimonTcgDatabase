@@ -50,7 +50,12 @@ def create():
         db.execute(sql, [username, password_hash])
     except sqlite3.IntegrityError:
         return "VIRHE: tunnus on jo varattu"
-    db.execute("CREATE TABLE '{username}' (id INTEGER PRIMARY KEY, name TEXT)")
+    
+    try:
+        db.execute("CREATE TABLE IF NOT EXISTS '{username}' (id INTEGER PRIMARY KEY, name TEXT)")
+    except Exception as e:
+        return f"Error creating a table for user: {str(e)}"
+    
     update_name(username)
     return redirect("/")
 
@@ -75,7 +80,7 @@ def login():
 @app.route("/logout")
 def logout():
     del session["username"]
-    return redirect("/cards")
+    return redirect("/")
 
 @app.route("/personalcardlist")
 def personalcardlist():
