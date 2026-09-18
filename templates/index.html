@@ -6,14 +6,22 @@
 </head>
 
 <body>
-
+  {% if session.username %}
   <p>
-    <p>
-    <a href="/login">Kirjaudu sisään</a>
-    <p>
-    <a href="/register">Luo tunnus</a>
+    Olet kirjautunut nimellä {{ session.username }}
   </p>
+  <p>
+    <a href="/logout">Kirjaudu ulos</a>
   </p>
+  {% endif %}
+  <p>
+    Olet kirjautunut sisään käyttäjänimellä: {{ username }}
+    <p>
+      <a href="/login">Kirjaudu sisään</a>
+      <p>
+        <a href="/register">Luo tunnus</a>
+      </p>
+    </p>
 
   </p>
 

@@ -10,16 +10,22 @@ import db
 app = Flask(__name__)
 
 username = ""
+private_table_name = ""
+
+def update_name(word):
+    username = word
+    private_table_name = username.replace(" ", "_").replace("-", "_")
 
 @app.route("/")
 def index():
-
+    
     card_amount = db.query("SELECT COUNT(*) FROM cards")
     card_list = db.query("SELECT name FROM cards")
     latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
 
     return render_template(
-        "index.html", 
+        "index.html",
+        username = username,
         count = card_amount[0][0],
         card_list = card_list,
         latest_card = latest_card[0][0])
@@ -42,7 +48,8 @@ def create():
         db.execute(sql, [username, password_hash])
     except sqlite3.IntegrityError:
         return "VIRHE: tunnus on jo varattu"
-
+    db.execute("CREATE TABLE '{username}' (id INTEGER PRIMARY KEY, name TEXT)")
+    update_name(username)
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -60,6 +67,7 @@ def login():
     stored_hash = result[0]["password_hash"]
     if not check_password_hash(stored_hash, password):
         return "VIRHE: väärä salasana"
+    session["username"] = username
     return redirect("/")
 
 @app.route("/logout")
@@ -69,9 +77,12 @@ def logout():
 
 @app.route("/personalcardlist")
 def personalcardlist():
-    card_amount = db.query("SELECT COUNT(*) FROM cards")
-    card_list = db.query("SELECT name FROM cards")
-    latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+    if(username == ""):
+        return "Et ole kirjautunut sisään"
+    
+    card_amount = db.query("SELECT COUNT(*) FROM {private_table_name}")
+    card_list = db.query("SELECT name FROM {private_table_name}")
+    latest_card = db.query("SELECT name FROM {private_table_name} ORDER BY id DESC LIMIT 1")
     
     return render_template(
         "personalcardlist.html", 
@@ -122,4 +133,4 @@ def delete_card():
     db.execute(
             "DELETE FROM cards WHERE id = (SELECT MAX(id) FROM cards)"
         )
-    return redirect("/cards")
+    return redirect("/")
