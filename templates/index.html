@@ -13,9 +13,12 @@
   <p>
     <a href="/logout">Kirjaudu ulos</a>
   </p>
+  {% else %}
+  <p>
+    Et ole vielä kirjautunut sisään
+  </p>
   {% endif %}
   <p>
-    Olet kirjautunut sisään käyttäjänimellä: {{ username }}
     <p>
       <a href="/login">Kirjaudu sisään</a>
       <p>

@@ -6,9 +6,11 @@ import sqlite3
 from flask import Flask, redirect, render_template, request, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
+import secrets
 
 app = Flask(__name__)
 
+app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 username = ""
 private_table_name = ""
 
