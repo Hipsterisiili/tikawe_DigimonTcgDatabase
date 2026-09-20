@@ -12,3 +12,13 @@ The application contains a personal page for an user showing their current colle
 Users will be able to browse the collections of other users, but only edit their own collection.
 
 Admin level users should be able to edit the entire database.
+
+Sovelluksen voi käynnistää virtuaaliympäristössä suorittamalla juurihakemistossa komennot
+
+$ source venv/bin/activate
+
+$ pip install flask
+
+$ flask run
+
+Tällöin sovellus pyörii portissa 5000
