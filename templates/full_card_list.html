@@ -15,19 +15,19 @@
   </p>
   {% else %}
   <p>
-    Et ole vielä kirjautunut sisään
+    Not yet logged in
     <p>
-      <a href="/login">Kirjaudu sisään</a>
+      <a href="/login">Log in</a>
       <p>
-        <a href="/register">Luo tunnus</a>
+        <a href="/register">Register</a>
       </p>
     </p>
   </p>
   {% endif %}
 
   <p>
-    Korttien määrä: {{ count }}
-    Viimeisin lisätty kortti: {{ latest_card }}
+    Amount of cards: {{ count }}
+    Latest added card: {{ latest_card }}
   </p>
   <hr />
   {% for card in card_list %}
@@ -38,17 +38,17 @@
   {% endfor %}
   
   <p>
-    <a href="/newcard">Lisää kortti tietokantaan</a>
+    <a href="/newcard">Add a card to the database</a>
   </p>
 
   <p>
-    <a href="/random_card">Lisää satunnainen kortti tietokantaan</a>
+    <a href="/random_card">Add a random card to the database</a>
   </p>
   <p>
-    <a href="/delete_card">Poista viimeisin kortti</a>
+    <a href="/delete_card">Delete the latest aded card</a>
   </p>
   <p>
-    <a href="/personal_card_list">Henkilökohtainen kokoelmasi</a>
+    <a href="/personal_card_list">Your private collection</a>
   </p>
 </body>
 

@@ -2,38 +2,38 @@
 <html>
 
 <head>
-  <title>Etusivu</title>
+  <title>Front page</title>
 </head>
 
 <body>
   <p>
-    Tervetuloa Digimonkorttitietokantaan!
+    Welcome in the Digimon card database!
   </p>
 
   {% if session.username %}
   <p>
-    Olet kirjautunut nimellä {{ session.username }}
+    You are logged in as {{ session.username }}
   </p>
   <p>
     <a href="/personal_card_list">Henkilökohtainen kokoelmasi</a>
   </p>
   <p>
-    <a href="/logout">Kirjaudu ulos</a>
+    <a href="/logout">Log out</a>
   </p>
   {% else %}
   <p>
-    Et ole vielä kirjautunut sisään
+    you are not yet logged in!
     <p>
-      <a href="/login">Kirjaudu sisään</a>
+      <a href="/login">Log out</a>
       <p>
-        <a href="/register">Luo tunnus</a>
+        <a href="/register">Register</a>
       </p>
     </p>
   </p>
   {% endif %}
 
   <p>
-    <a href="/full_card_list">Koko korttitietokanta</a>
+    <a href="/full_card_list">The public card database</a>
   </p>
 </body>
 
