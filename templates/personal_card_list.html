@@ -11,25 +11,25 @@
   </p>
   <p>
     <a href="/logout">Kirjaudu ulos</a>
+
+    <body>
+  <p>
+    Korttien määrä kokoelmassasi: {{ count }}
+  </p>
+  <hr />
+  {% for card in card_list %}
+  <p>
+    {{ card[0] }}, {{ card[1] }}
+  </p>
+  <hr />
+  {% endfor %}
+</body>
+
   </p>
   {% else %}
   <p>
     Et ole vielä kirjautunut sisään
   </p>
   {% endif %}
-
-<body>
-  <p>
-    Korttien määrä: {{ count }}
-    Viimeisin lisätty kortti: {{ latest_card }}
-  </p>
-  <hr />
-  {% for card in card_list %}
-  <p>
-    {{ card["name"] }}
-  </p>
-  <hr />
-  {% endfor %}
-</body>
 
 </html>

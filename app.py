@@ -52,11 +52,9 @@ def create():
         return "VIRHE: tunnus on jo varattu"
     
     try:
-        db.execute("CREATE TABLE IF NOT EXISTS '{username}' (id INTEGER PRIMARY KEY, name TEXT)")
+        db.execute(f"CREATE TABLE IF NOT EXISTS `{username}` (id INTEGER PRIMARY KEY, name TEXT)")
     except Exception as e:
-        return f"Error creating a table for user: {str(e)}"
-    
-    update_name(username)
+        return f"Virhe käyttäjän taulun luomisessa: {str(e)}"
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -74,7 +72,8 @@ def login():
     stored_hash = result[0]["password_hash"]
     if not check_password_hash(stored_hash, password):
         return "VIRHE: väärä salasana"
-    session["username"] = username
+    session["username"] = username    
+    update_name(username)
     return redirect("/")
 
 @app.route("/logout")
@@ -82,16 +81,16 @@ def logout():
     del session["username"]
     return redirect("/")
 
-@app.route("/personalcardlist")
-def personalcardlist():
+@app.route("/personal_card_list")
+def personal_card_list():
     #temporary method until creation of private table can be implemented correctly
     private_table_name = "cards"
     card_amount = db.query("SELECT COUNT(*) FROM cards")
-    card_list = db.query("SELECT name FROM cards")
+    card_list = db.query("SELECT id, name FROM cards")
     latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
 
     return render_template(
-            "personalcardlist.html", 
+            "personal_card_list.html", 
         count = card_amount[0][0],
         card_list = card_list,
         latest_card = latest_card[0][0])
@@ -108,12 +107,12 @@ def send():
     db.execute("INSERT INTO cards (name) VALUES (?)", (content,))
     db.commit()
     db.close()
-    return redirect("/cards")
+    return redirect("/")
 
 @app.route("/random_card")
 def random_card():
     add_random_card()
-    return redirect("/cards")
+    return redirect("/")
 
 def add_random_card():
     card_names = [
