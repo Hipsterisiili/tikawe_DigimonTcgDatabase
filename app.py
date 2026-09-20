@@ -44,7 +44,7 @@ def personal_card_list():
     latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
     if card_amount == 0:
-        return "Tietokantasi on tyhjä"
+        return "Your collection is empty"
     else:
         return render_template(
                 "personal_card_list.html", 
@@ -62,19 +62,19 @@ def create():
     password1 = request.form["password1"]
     password2 = request.form["password2"]
     if password1 != password2:
-        return "VIRHE: salasanat eivät ole samat"
+        return "ERROR: Passwords don't match"
     password_hash = generate_password_hash(password1)
 
     try:
         sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
         db.execute(sql, [username, password_hash])
     except sqlite3.IntegrityError:
-        return "VIRHE: tunnus on jo varattu"
+        return "ERROR: Username already taken"
     
     try:
         db.execute(f"CREATE TABLE IF NOT EXISTS `{username}` (id INTEGER PRIMARY KEY, name TEXT)")
     except Exception as e:
-        return f"Virhe käyttäjän taulun luomisessa: {str(e)}"
+        return f"ERROR: Error creationg a new table: {str(e)}"
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -88,10 +88,10 @@ def login():
     sql = "SELECT password_hash FROM users WHERE username = ?"
     result = db.query(sql, [username])
     if len(result) == 0:
-        return "VIRHE: käyttäjätunnusta ei löydy"
+        return "ERROR: Username not found"
     stored_hash = result[0]["password_hash"]
     if not check_password_hash(stored_hash, password):
-        return "VIRHE: väärä salasana"
+        return "ERROR: wrong password"
     session["username"] = username    
     update_name(username)
     return redirect("/")
