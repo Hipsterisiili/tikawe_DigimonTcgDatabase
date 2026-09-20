@@ -38,19 +38,22 @@ def full_card_list():
 @app.route("/personal_card_list")
 def personal_card_list():
     private_table_name = session["username"]
+    
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0 
+    
     card_list = db.query(f"SELECT id, name FROM `{private_table_name}`")
+    
     latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
-    if card_amount == 0:
-        return "Your collection is empty"
-    else:
-        return render_template(
-                "personal_card_list.html", 
-            count = card_amount[0][0],
-            card_list = card_list,
-            latest_card = latest_card[0][0])
+
+    return render_template(
+        "personal_card_list.html", 
+        count=card_amount,
+        card_list=card_list,
+        latest_card=latest_card
+    )
+
 
 @app.route("/register")
 def register():
@@ -101,9 +104,13 @@ def logout():
     del session["username"]
     return redirect("/")
 
-@app.route("/newcard")
-def new():
-    return render_template("newcard.html")
+@app.route("/new_card")
+def new_card():
+    return render_template("new_card.html")
+
+@app.route("/new_card_personal")
+def new_card_personal():
+    return render_template("new_card_personal.html", username = session["username"])
 
 @app.route("/send", methods=["POST"])
 def send():
@@ -113,6 +120,16 @@ def send():
     db.commit()
     db.close()
     return redirect("/")
+
+@app.route("/send_personal", methods=["POST"])
+def send_personal():
+    content = request.form["content"]
+    db = sqlite3.connect("database.db")
+    private_table_name = session["username"]
+    db.execute(f"INSERT INTO `{private_table_name}` (name) VALUES (?)", (content,))
+    db.commit()
+    db.close()
+    return redirect("/personal_card_list")
 
 @app.route("/random_card")
 def random_card():

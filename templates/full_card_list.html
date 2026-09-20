@@ -2,54 +2,55 @@
 <html>
 
 <head>
-  <title>Koko korttilista</title>
+    <title>Full card list</title>
 </head>
 
 <body>
-  {% if session.username %}
-  <p>
-    Olet kirjautunut nimellä {{ session.username }}
-  </p>
-  <p>
-    <a href="/logout">Kirjaudu ulos</a>
-  </p>
-  {% else %}
-  <p>
-    Not yet logged in
+    {% if session.username %}
+        <p>
+            You are logged in as {{ session.username }}
+        </p>
+        <p>
+            <a href="/logout">Log out</a>
+        </p>
+    {% else %}
+        <p>
+            Not yet logged in
+        </p>
+        <p>
+            <a href="/login">Log in</a>
+        </p>
+        <p>
+            <a href="/register">Register</a>
+        </p>
+    {% endif %}
+
     <p>
-      <a href="/login">Log in</a>
-      <p>
-        <a href="/register">Register</a>
-      </p>
+        Amount of cards: {{ count }}<br>
+        Latest added card: {{ latest_card }}
     </p>
-  </p>
-  {% endif %}
+    <hr />
+    
+    {% for card in card_list %}
+        <p>{{ card['id'] }}, {{ card['name'] }}</p>
+        <hr />
+    {% endfor %}
+    
+    <p>
+        <a href="/new_card">Add a card to the database</a>
+    </p>
 
-  <p>
-    Amount of cards: {{ count }}
-    Latest added card: {{ latest_card }}
-  </p>
-  <hr />
-  {% for card in card_list %}
-  <p>
-    {{ card["name"] }}
-  </p>
-  <hr />
-  {% endfor %}
-  
-  <p>
-    <a href="/newcard">Add a card to the database</a>
-  </p>
-
-  <p>
-    <a href="/random_card">Add a random card to the database</a>
-  </p>
-  <p>
-    <a href="/delete_card">Delete the latest aded card</a>
-  </p>
-  <p>
-    <a href="/personal_card_list">Your private collection</a>
-  </p>
+    <p>
+        <a href="/random_card">Add a random card to the database</a>
+    </p>
+    
+    <p>
+        <a href="/delete_card">Delete the latest added card</a>
+    </p>
+    
+    <p>
+        <a href="/personal_card_list">Your private collection</a>
+    </p>
 </body>
 
 </html>
