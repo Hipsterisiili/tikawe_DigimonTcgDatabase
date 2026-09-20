@@ -2,14 +2,10 @@
 <html>
 
 <head>
-  <title>Etusivu</title>
+  <title>Koko korttilista</title>
 </head>
 
 <body>
-  <p>
-    Tervetuloa Digimonkorttitietokantaan!
-  </p>
-
   {% if session.username %}
   <p>
     Olet kirjautunut nimellä {{ session.username }}
@@ -30,7 +26,26 @@
   {% endif %}
 
   <p>
-    <a href="/full_card_list">Koko korttitietokanta</a>
+    Korttien määrä: {{ count }}
+    Viimeisin lisätty kortti: {{ latest_card }}
+  </p>
+  <hr />
+  {% for card in card_list %}
+  <p>
+    {{ card["name"] }}
+  </p>
+  <hr />
+  {% endfor %}
+  
+  <p>
+    <a href="/newcard">Lisää kortti tietokantaan</a>
+  </p>
+
+  <p>
+    <a href="/random_card">Lisää satunnainen kortti tietokantaan</a>
+  </p>
+  <p>
+    <a href="/delete_card">Poista viimeisin kortti</a>
   </p>
   <p>
     <a href="/personal_card_list">Henkilökohtainen kokoelmasi</a>

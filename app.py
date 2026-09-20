@@ -20,17 +20,37 @@ def update_name(word):
 
 @app.route("/")
 def index():
-    
+    return render_template("index.html")
+
+@app.route("/full_card_list")
+def full_card_list():
     card_amount = db.query("SELECT COUNT(*) FROM cards")
     card_list = db.query("SELECT name FROM cards")
     latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
-
+    
     return render_template(
-        "index.html",
+        "full_card_list.html",
         username = username,
         count = card_amount[0][0],
         card_list = card_list,
         latest_card = latest_card[0][0])
+
+@app.route("/personal_card_list")
+def personal_card_list():
+    private_table_name = session["username"]
+    card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
+    card_amount = card_amount_result[0][0] if card_amount_result else 0 
+    card_list = db.query(f"SELECT id, name FROM `{private_table_name}`")
+    latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
+    latest_card = latest_card_result[0][0] if latest_card_result else None
+    if card_amount == 0:
+        return "Tietokantasi on tyhjä"
+    else:
+        return render_template(
+                "personal_card_list.html", 
+            count = card_amount[0][0],
+            card_list = card_list,
+            latest_card = latest_card[0][0])
 
 @app.route("/register")
 def register():
@@ -80,24 +100,6 @@ def login():
 def logout():
     del session["username"]
     return redirect("/")
-
-@app.route("/personal_card_list")
-def personal_card_list():
-    #temporary method until creation of private table can be implemented correctly
-    private_table_name = session["username"]
-    card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
-    card_amount = card_amount_result[0][0] if card_amount_result else 0 
-    card_list = db.query(f"SELECT id, name FROM `{private_table_name}`")
-    latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
-    latest_card = latest_card_result[0][0] if latest_card_result else None
-    if card_amount == 0:
-        return "Tietokantasi on tyhjä"
-    else:
-        return render_template(
-                "personal_card_list.html", 
-            count = card_amount[0][0],
-            card_list = card_list,
-            latest_card = latest_card[0][0])
 
 @app.route("/newcard")
 def new():
