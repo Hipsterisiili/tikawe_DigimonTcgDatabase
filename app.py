@@ -24,16 +24,18 @@ def index():
 
 @app.route("/full_card_list")
 def full_card_list():
-    card_amount = db.query("SELECT COUNT(*) FROM cards")
+    card_amount_result = db.query("SELECT COUNT(*) FROM cards")
+    card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query("SELECT name FROM cards")
-    latest_card = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+    latest_card_result = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+    latest_card = latest_card_result[0][0] if latest_card_result else None
     
     return render_template(
         "full_card_list.html",
-        username = username,
-        count = card_amount[0][0],
-        card_list = card_list,
-        latest_card = latest_card[0][0])
+        count=card_amount,
+        card_list=card_list,
+        latest_card=latest_card
+    )
 
 @app.route("/personal_card_list")
 def personal_card_list():
@@ -41,7 +43,6 @@ def personal_card_list():
     
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0 
-    
     card_list = db.query(f"SELECT id, name FROM `{private_table_name}`")
     
     latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
@@ -134,7 +135,7 @@ def send_personal():
 @app.route("/random_card")
 def random_card():
     add_random_card()
-    return redirect("/")
+    return redirect("/full_card_list")
 
 def add_random_card():
     card_names = [
