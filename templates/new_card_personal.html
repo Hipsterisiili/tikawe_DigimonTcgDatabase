@@ -1,20 +1,21 @@
-<!DOCTYPE html>
+<!doctype html>
+
+<!--Merge this with new_card later -->
 <html>
+    <head>
+        <title>Add a card to your database</title>
+    </head>
 
-<head>
-  <title>Add a card to your database</title>
-</head>
-
-<body>
-  <form action="/send_personal" method="post">
-    <p>
-      Name of the card: <br />
-      <textarea name="content" rows="3" cols="40"></textarea>
-    </p>
-    <p>
-      <input type="submit" value="Send" />
-    </p>
-  </form>
-</body>
-
+    <body>
+        <form action="/send_personal" method="post">
+            <p>
+                Name of the card:
+                <br />
+                <textarea name="content" rows="3" cols="40"></textarea>
+            </p>
+            <p>
+                <input type="submit" value="Send" />
+            </p>
+        </form>
+    </body>
 </html>

@@ -1,56 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+    <head>
+        <title>Full card list</title>
+    </head>
 
-<head>
-    <title>Full card list</title>
-</head>
+    <body>
+        {% if session.username %}
+        <p>You are logged in as: {{ session.username }}</p>
+        <p><a href="/logout">Log out</a></p>
+        {% else %}
+        <p>Not yet logged in</p>
+        <p><a href="/login">Log in</a></p>
+        <p><a href="/register">Register</a></p>
+        {% endif %}
 
-<body>
-    {% if session.username %}
         <p>
-            You are logged in as {{ session.username }}
+            Amount of cards: {{ count }}
+            <br />
+            Latest added card: {{ latest_card }}
         </p>
-        <p>
-            <a href="/logout">Log out</a>
-        </p>
-    {% else %}
-        <p>
-            Not yet logged in
-        </p>
-        <p>
-            <a href="/login">Log in</a>
-        </p>
-        <p>
-            <a href="/register">Register</a>
-        </p>
-    {% endif %}
+        <hr />
 
-    <p>
-        Amount of cards: {{ count }}<br>
-        Latest added card: {{ latest_card }}
-    </p>
-    <hr />
-    
-    {% for card in card_list %}
+        {% if card_list and card_list|length > 0 %} {% for card in card_list %}
         <p>{{ card['id'] }}, {{ card['name'] }}</p>
         <hr />
-    {% endfor %}
-    
-    <p>
-        <a href="/new_card">Add a card to the database</a>
-    </p>
+        {% endfor %} {% else %}
+        <p>Your collection is empty. Add new cards!</p>
+        {% endif %}
 
-    <p>
-        <a href="/random_card">Add a random card to the database</a>
-    </p>
-    
-    <p>
-        <a href="/delete_card">Delete the latest added card</a>
-    </p>
-    
-    <p>
-        <a href="/personal_card_list">Your private collection</a>
-    </p>
-</body>
-
+        <p><a href="/new_card">Add a card to the database</a></p>
+        <p><a href="/random_card">Add a random card to the database</a></p>
+        <p><a href="/delete_card">Delete the latest added card</a></p>
+        <p><a href="/personal_card_list">Your private collection</a></p>
+        <p><a href="/">Back to the front page</a></p>
+    </body>
 </html>

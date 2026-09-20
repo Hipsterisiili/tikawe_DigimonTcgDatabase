@@ -1,32 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>{{ session.username }}'s card list</title>
-</head>
+    <head>
+        <title>{{ session.username }}'s card list</title>
+    </head>
 
-<body>
+    <body>
+        {% if session.username %}
+        <p>You are logged in as: {{ session.username }}</p>
+        <p><a href="/logout">Log out</a></p>
 
-{% if session.username %}
-  <p>You are logged in as: {{ session.username }}</p>
-  <p><a href="/logout">Log out</a></p>
+        <p>Amount of cards in your collection: {{ count }}</p>
+        <hr />
 
-  <p>Amount of cards in your collection: {{ count }}</p>
-  <hr />
+        {% if card_list and card_list|length > 0 %} {% for card in card_list %}
+        <p>{{ card['id'] }}, {{ card['name'] }}</p>
+        <hr />
+        {% endfor %} {% else %}
+        <p>Your collection is empty. Add new cards!</p>
+        {% endif %}
 
-  {% if card_list and card_list|length > 0 %}
-    {% for card in card_list %}
-      <p>{{ card['id'] }}, {{ card['name'] }}</p>
-      <hr />
-    {% endfor %}
-  {% else %}
-    <p>Your collection is empty. Add new cards!</p>
-  {% endif %}
+        <p><a href="/new_card_personal">Add a card to the database</a></p>
 
-  <p><a href="/new_card_personal">Add a card to the database</a></p>
+        {% else %}
+        <p>You are not yet logged in!</p>
+        {% endif %}
 
-{% else %}
-  <p>You are not yet logged in!</p>
-{% endif %}
-
-</body>
+        <p>
+            <a href="/">Back to the front page</a>
+        </p>
+    </body>
 </html>
