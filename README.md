@@ -16,7 +16,9 @@ Admin level users should be able to edit the entire database.
 Before starting the application, the user must create a file named database.db in the database in the project's root directory. This is done using sqlite3 in the following way:
 
 $ sqlite3 database.db
+
 sqlite> CREATE TABLE cards (id INTEGER PRIMARY KEY, name TEXT);
+
 sqlite> .quit
 
 You can start the application in a virtual environment by running the following commands in the project root:

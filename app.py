@@ -3,7 +3,7 @@ Main application file
 """
 import random
 import sqlite3
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
 import secrets
@@ -92,10 +92,12 @@ def login():
     sql = "SELECT password_hash FROM users WHERE username = ?"
     result = db.query(sql, [username])
     if len(result) == 0:
-        return "ERROR: Username not found"
+        flash("ERROR: Username not found")
+        return redirect("/login")
     stored_hash = result[0]["password_hash"]
     if not check_password_hash(stored_hash, password):
-        return "ERROR: wrong password"
+        flash("ERROR: wrong  password")
+        return redirect("/login")
     session["username"] = username    
     update_name(username)
     return redirect("/")

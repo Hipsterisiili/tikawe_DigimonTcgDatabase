@@ -7,15 +7,27 @@
 
 <body>
 
+  {% if session.username %}
   <p>
+    You are logged in as {{ session.username }}
+  </p>
+  <p>
+    <a href="/personal_card_list">Your private collection</a>
+  </p>
+  <p>
+    <a href="/logout">Log out</a>
+  </p>
+  {% else %}
+  <p>
+    you are not yet logged in!
     <p>
-    <a href="/login">Kirjaudu sisään</a>
-    <p>
-    <a href="/register">Luo tunnus</a>
+      <a href="/login">Log in</a>
+      <p>
+        <a href="/register">Register</a>
+      </p>
+    </p>
   </p>
-  </p>
-
-  </p>
+  {% endif %}
 
   <p>
     Korttien määrä: {{ count }}
