@@ -3,7 +3,7 @@ Main application file
 """
 import random
 import sqlite3
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
 import secrets
@@ -47,7 +47,8 @@ def full_card_list():
         "full_card_list.html",
         count=card_amount,
         card_list=card_list,
-        latest_card=latest_card
+        latest_card=latest_card,
+        target="global"
     )
 
 """
@@ -67,11 +68,17 @@ def personal_card_list():
     latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
 
+    target = "global"
+    if(session["username"]):
+        target = session["username"]
+        
+
     return render_template(
         "personal_card_list.html", 
         count=card_amount,
         card_list=card_list,
-        latest_card=latest_card
+        latest_card=latest_card,
+        target=target
     )
 
 """
@@ -147,48 +154,52 @@ def logout():
     del session["username"]
     return redirect("/")
 
-"""
-Method that let's user add a card to the global collection.
-User is asked for the card's name, then /send is called from .html
-"""
+
 @app.route("/new_card")
 def new_card():
-    return render_template("new_card.html")
+    # get target from query string, default to global
+    target = request.args.get("target", "global")
+    if target == "personal" and "username" not in session:
+        flash("Please log in to add to your personal collection.")
+        return redirect(url_for("login"))
+    return render_template("new_card.html", target=target)
 
-"""
-Method that adds a card to the global database.
-The card's name is taken as the value of content.
-"""
-@app.route("/send", methods=["POST"])
-def send():
-    content = request.form["content"]
-    db = sqlite3.connect("database.db")
-    db.execute("INSERT INTO cards (name) VALUES (?)", (content,))
-    db.commit()
-    db.close()
-    return redirect("/")
+@app.route("/send_card", methods=["POST"])
+def send_card():
+    content = request.form.get("content", "").strip()
+    target = request.form.get("target", "global")
 
-"""
-Method that let's user add a card to the personal collection.
-User is asked for the card's name, then /send is called from .html
-"""
-@app.route("/new_card_personal")
-def new_card_personal():
-    return render_template("new_card_personal.html", username = session["username"])
+    if not content:
+        flash("No card name provided.")
+        return redirect(url_for("new_card", target=target))
 
-"""
-Method that adds a card to the personal database.
-The card's name is taken as the value of content.
-"""
-@app.route("/send_personal", methods=["POST"])
-def send_personal():
-    content = request.form["content"]
-    db = sqlite3.connect("database.db")
-    private_table_name = session["username"]
-    db.execute(f"INSERT INTO `{private_table_name}` (name) VALUES (?)", (content,))
-    db.commit()
-    db.close()
-    return redirect("/personal_card_list")
+    if target == "global":
+        table_name = "cards"
+    elif target == "personal":
+        if "username" not in session:
+            flash("You must be logged in.")
+            return redirect(url_for("login"))
+        if not table_name:
+            flash("Invalid username/table name.")
+            return redirect(url_for("new_card", target="personal"))
+        table_name = session["username"]
+    else:
+        flash("Invalid target.")
+        return redirect(url_for("new_card"))
+
+    # Optionally ensure the personal table exists
+    if target == "personal":
+        db.execute(f"CREATE TABLE IF NOT EXISTS `{table_name}` (id INTEGER PRIMARY KEY, name TEXT)")
+
+    # Use parameter substitution for values; table name was validated above
+    db.execute(f"INSERT INTO `{table_name}` (name) VALUES (?)", (content,))
+
+    flash("Card added.")
+    if target == "global":
+        return redirect(url_for("full_card_list"))
+    else:
+        return redirect(url_for("personal_card_list"))
+
 
 """
 Page that let's user add a random card to the global collection.

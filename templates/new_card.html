@@ -1,18 +1,17 @@
 <!doctype html>
 <html>
-    <!--Implement this to add to any desired table later -->
-
     <head>
-        <title>Add a card to the public database</title>
+        <title>Add a card to a {___} database</title>
     </head>
 
     <body>
-        <form action="/send" method="post">
+        <form action="/send_card" method="post">
             <p>
                 Name of the card:
                 <br />
                 <textarea name="content" rows="3" cols="40"></textarea>
             </p>
+            <input type="hidden" name="target" value="{{ target }}" />
             <p>
                 <input type="submit" value="Send" />
             </p>
