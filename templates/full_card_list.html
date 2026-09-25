@@ -6,7 +6,7 @@
 
     <body>
         {% if session.username %}
-        <p>You are logged in as: {{ session.username }}</p>
+        <p>Logged in as: {{ session.username }}</p>
         <p><a href="/logout">Log out</a></p>
         {% else %}
         <p>Not yet logged in</p>

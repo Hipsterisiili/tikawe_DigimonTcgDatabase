@@ -13,19 +13,19 @@
         </ul>
         {% endif %} {% endwith %} {% if session.username %}
 
-        <p>Olet kirjautunut nimellä {{ session.username }}</p>
+        <p>Logged in as: {{ session.username }}</p>
         <p>
-            <a href="/logout">Kirjaudu ulos</a>
+            <a href="/logout">Log out</a>
         </p>
         {% else %}
         <form action="/login" method="post">
             <p>
-                Tunnus:
+                Username:
                 <br />
                 <input type="text" name="username" />
             </p>
             <p>
-                Salasana:
+                Password:
                 <br />
                 <input type="password" name="password" />
             </p>
