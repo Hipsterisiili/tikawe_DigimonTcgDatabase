@@ -13,12 +13,14 @@ Users will be able to browse the collections of other users, but only edit their
 
 Admin level users should be able to edit the entire database.
 
-Sovelluksen voi käynnistää virtuaaliympäristössä suorittamalla juurihakemistossa komennot
+Before starting the application, the user must create a file named database.db in the database in the project's root directory. This is done using sqlite3 in the following way:
 
-$ source venv/bin/activate
+$ sqlite3 database.db
+sqlite> CREATE TABLE cards (id INTEGER PRIMARY KEY, name TEXT);
+sqlite> .quit
 
-$ pip install flask
+You can start the application in a virtual environment by running the following commands in the project root:
 
-$ flask run
+$ source venv/bin/activate $ pip install flask $ flask run
 
-Tällöin sovellus pyörii portissa 5000
+The application will then run on port 5000.
