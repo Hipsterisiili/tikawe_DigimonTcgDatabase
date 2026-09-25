@@ -1,31 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+    <head>
+        <title>Kirjautuminen</title>
+    </head>
 
-<head>
-  <title>Kirjautuminen</title>
-</head>
+    <body>
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %} {% endwith %} {% if session.username %}
 
-<body>
-  {% if session.username %}
-  <p>
-    Olet kirjautunut nimellä {{ session.username }}
-  </p>
-  <p>
-    <a href="/logout">Kirjaudu ulos</a>
-  </p>
-  {% else %}
-  <form action="/login" method="post">
-    <p>
-      Tunnus: <br />
-      <input type="text" name="username" />
-    </p>
-    <p>
-      Salasana: <br />
-      <input type="password" name="password" />
-    </p>
-    <input type="submit" value="Kirjaudu" />
-  </form>
-  {% endif %}
-</body>
-
+        <p>Olet kirjautunut nimellä {{ session.username }}</p>
+        <p>
+            <a href="/logout">Kirjaudu ulos</a>
+        </p>
+        {% else %}
+        <form action="/login" method="post">
+            <p>
+                Tunnus:
+                <br />
+                <input type="text" name="username" />
+            </p>
+            <p>
+                Salasana:
+                <br />
+                <input type="password" name="password" />
+            </p>
+            <input type="submit" value="Kirjaudu" />
+        </form>
+        {% endif %}
+    </body>
 </html>
