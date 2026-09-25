@@ -1,28 +1,44 @@
 # tikawe_DigimonTcgDatabase
-A database for storing information about Digimon cards and their classifications.
 
-The application accesses a database containing cards from Digimon Card Game. The cards as database entities have a couple attributes such as rarity, level and color. There exists a general table of cards accessible to all users, which contains a broad list of cards.
+A database-backed Flask application for storing information about Digimon cards and user collections.
 
-Users can also store and browse their virtual collection of cards in the database as an another table. In future versions of the app their collection can be added to and cards can be removed from the collection.
+## Overview
 
-With the finished product user might be able to have the application output their collection as a CSV file which they can copy/paste to a different application such as digimoncarddev.com.
+The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). There is a global `cards` table accessible to all users and each user has a personal collection stored as a separate table (current design). Users can view other users' collections (read-only) and view their own (editable). Admin users can edit the entire database.
 
-The application contains a personal page for an user showing their current collection. Other users' collections can be viewed, but not edited.
+Planned features include adding/removing cards from personal collections and exporting a personal collection as CSV.
 
-Users will be able to browse the collections of other users, but only edit their own collection.
+## Features
 
-Admin level users should be able to edit the entire database.
+- Global `cards` table (catalog)
+- Per-user personal collection tables
+- View your own collection and other users' collections
+- (Planned) Add/remove cards from personal collections
+- (Planned) Export personal collections as CSV
+- Admin-level editing
 
-Before starting the application, the user must create a file named database.db in the database in the project's root directory. This is done using sqlite3 in the following way:
+## Database setup
 
-$ sqlite3 database.db
+Create the SQLite database file `database.db` in the project root and create the initial `cards` table:
 
+```bash
+sqlite3 database.db
+```
+
+Inside the sqlite prompt:
+
+```bash
 sqlite> CREATE TABLE cards (id INTEGER PRIMARY KEY, name TEXT);
 
 sqlite> .quit
+```
+
+## Starting the application
 
 You can start the application in a virtual environment by running the following commands in the project root:
 
+```bash
 $ source venv/bin/activate $ pip install flask $ flask run
+```
 
 The application will then run on port 5000.
