@@ -10,12 +10,13 @@ Planned features include adding/removing cards from personal collections and exp
 
 ## Features
 
-- Global `cards` table (catalog)
+- Global `cards` table (catalog) which every user can view, add to and remove from
 - Per-user personal collection tables
-- View your own collection and other users' collections
-- (Planned) Add/remove cards from personal collections
+- View your own collection and (planned) other users' collections
+- Add and remove cards from personal collection
+- Add/remove cards from personal collections
 - (Planned) Export personal collections as CSV
-- Admin-level editing
+- (Planned) Admin-level editing
 
 ## Database setup
 
