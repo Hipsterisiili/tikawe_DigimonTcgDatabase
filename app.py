@@ -18,10 +18,23 @@ def update_name(word):
     username = word
     private_table_name = username.replace(" ", "_").replace("-", "_")
 
+
+"""
+Front page of the app containing: 
+- info on whether the user is logged in or not
+- link to the global collection
+- link to the private collection if logged in
+"""
 @app.route("/")
 def index():
     return render_template("index.html")
 
+"""
+This page displays the global collection.
+User may:
+- Add either specific or random cards to the global collection
+- Delete cards from global collection
+"""
 @app.route("/full_card_list")
 def full_card_list():
     card_amount_result = db.query("SELECT COUNT(*) FROM cards")
@@ -37,6 +50,12 @@ def full_card_list():
         latest_card=latest_card
     )
 
+"""
+This page displays the user's own collection.
+User may:
+- Add specific or random cards to their own collection
+- Delete cards from thwir own collection
+"""
 @app.route("/personal_card_list")
 def personal_card_list():
     private_table_name = session["username"]
@@ -55,11 +74,19 @@ def personal_card_list():
         latest_card=latest_card
     )
 
-
+"""
+Page for creating a new user for the app.
+"""
 @app.route("/register")
 def register():
     return render_template("register.html")
 
+"""
+Method for account creation.
+- Checks if the added username and password are valid.
+- If username and password are not valid, shows error message and redirects to /register
+- If username and password are valid, creates a new user, creates a table in database for their own collection and redirects to index
+"""
 @app.route("/create", methods=["POST"])
 def create():
     username = request.form["username"]
@@ -85,6 +112,12 @@ def create():
     flash("Account created!")
     return redirect("/")
 
+"""
+Method for logging in.
+- Checks if the added username and password are valid.
+- If username and password are not valid, shows error message and redirects to /login
+- If username and password are valid, starts a session for the user and redirects to index
+"""
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -106,19 +139,26 @@ def login():
     update_name(username)
     return redirect("/")
 
+"""
+Method that ends the current user's session, then redirects to index
+"""
 @app.route("/logout")
 def logout():
     del session["username"]
     return redirect("/")
 
+"""
+Method that let's user add a card to the global collection.
+User is asked for the card's name, then /send is called from .html
+"""
 @app.route("/new_card")
 def new_card():
     return render_template("new_card.html")
 
-@app.route("/new_card_personal")
-def new_card_personal():
-    return render_template("new_card_personal.html", username = session["username"])
-
+"""
+Method that adds a card to the global database.
+The card's name is taken as the value of content.
+"""
 @app.route("/send", methods=["POST"])
 def send():
     content = request.form["content"]
@@ -128,6 +168,18 @@ def send():
     db.close()
     return redirect("/")
 
+"""
+Method that let's user add a card to the personal collection.
+User is asked for the card's name, then /send is called from .html
+"""
+@app.route("/new_card_personal")
+def new_card_personal():
+    return render_template("new_card_personal.html", username = session["username"])
+
+"""
+Method that adds a card to the personal database.
+The card's name is taken as the value of content.
+"""
 @app.route("/send_personal", methods=["POST"])
 def send_personal():
     content = request.form["content"]
@@ -138,11 +190,18 @@ def send_personal():
     db.close()
     return redirect("/personal_card_list")
 
+"""
+Page that let's user add a random card to the global collection.
+Calls for an another method add_random_card and tjen redirects back to the global card list.
+"""
 @app.route("/random_card")
 def random_card():
     add_random_card()
     return redirect("/full_card_list")
 
+"""
+Method that adds a random card from a list to the global database
+"""
 def add_random_card():
     card_names = [
             "Agumon",
@@ -161,7 +220,10 @@ def add_random_card():
         "INSERT INTO cards (name) VALUES (?)",
         (random_card_name,)
     )
-
+"""
+Page that deletes a card from the global collection.
+Then it redirects user to index.
+"""
 @app.route("/delete_card")
 def delete_card():
     db.execute(
