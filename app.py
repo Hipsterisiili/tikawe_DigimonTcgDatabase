@@ -67,7 +67,7 @@ def create():
     password2 = request.form["password2"]
     if password1 != password2:
         flash("ERROR: Passwords don't match")
-        return redirect("/create")
+        return redirect("/register")
     password_hash = generate_password_hash(password1)
 
     try:
@@ -75,12 +75,14 @@ def create():
         db.execute(sql, [username, password_hash])
     except sqlite3.IntegrityError:
         flash("ERROR: Username already taken")
-        return redirect("/create")
+        return redirect("/register")
     
     try:
         db.execute(f"CREATE TABLE IF NOT EXISTS `{username}` (id INTEGER PRIMARY KEY, name TEXT)")
     except Exception as e:
         return f"ERROR: Error creationg a new table: {str(e)}"
+    
+    flash("Account created!")
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])

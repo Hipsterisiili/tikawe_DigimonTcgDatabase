@@ -1,26 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+    <head>
+        <title>Rekisteröinti</title>
+    </head>
 
-<head>
-  <title>Rekisteröinti</title>
-</head>
+    <body>
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
 
-<body>
-  <form action="/create" method="post">
-    <p>
-      Tunnus: <br />
-      <input type="text" name="username" />
-    </p>
-    <p>
-      Salasana: <br />
-      <input type="password" name="password1" />
-    </p>
-    <p>
-      Salasana uudestaan: <br />
-      <input type="password" name="password2" />
-    </p>
-    <input type="submit" value="Luo tunnus" />
-  </form>
-</body>
-
+        <form action="/create" method="post">
+            <p>
+                Username:
+                <br />
+                <input type="text" name="username" />
+            </p>
+            <p>
+                Password:
+                <br />
+                <input type="password" name="password1" />
+            </p>
+            <p>
+                Repeat password:
+                <br />
+                <input type="password" name="password2" />
+            </p>
+            <input type="submit" value="Luo tunnus" />
+        </form>
+    </body>
 </html>
