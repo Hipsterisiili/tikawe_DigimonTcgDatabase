@@ -66,14 +66,16 @@ def create():
     password1 = request.form["password1"]
     password2 = request.form["password2"]
     if password1 != password2:
-        return "ERROR: Passwords don't match"
+        flash("ERROR: Passwords don't match")
+        return redirect("/create")
     password_hash = generate_password_hash(password1)
 
     try:
         sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
         db.execute(sql, [username, password_hash])
     except sqlite3.IntegrityError:
-        return "ERROR: Username already taken"
+        flash("ERROR: Username already taken")
+        return redirect("/create")
     
     try:
         db.execute(f"CREATE TABLE IF NOT EXISTS `{username}` (id INTEGER PRIMARY KEY, name TEXT)")
