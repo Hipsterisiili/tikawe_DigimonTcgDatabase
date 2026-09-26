@@ -259,7 +259,6 @@ Page that edits a requested data element based on user's actions
 """
 @app.route("/edit_card", methods=["GET"])
 def edit_card_form():
-    # expects query params: id and target (target='global' or 'personal')
     card_id = request.args.get("id")
     target = request.args.get("target", "global")
 
@@ -273,7 +272,6 @@ def edit_card_form():
         flash("Invalid card id")
         return redirect(url_for("full_card_list"))
 
-    # pick table
     if target == "personal":
         if "username" not in session:
             flash("Please log in")
@@ -282,7 +280,6 @@ def edit_card_form():
     else:
         table = "public_digimon_cards"
 
-    # fetch the card row
     row = db.query(f'SELECT id, name, card_number, rarity FROM "{table}" WHERE id = ?', (card_id_int,))
     if not row:
         flash("Card not found")
