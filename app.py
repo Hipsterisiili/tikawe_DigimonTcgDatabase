@@ -157,9 +157,7 @@ def logout():
 @app.route("/new_card")
 def new_card():
     # get target from query string, default to global
-    print("Asking for target")
     target = request.args.get("target", "global")
-    print("target is: " + target)
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
