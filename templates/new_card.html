@@ -3,7 +3,7 @@
     <head>
         <title>
             Add a card to {{ 'personal' if target=='personal' else 'global' }}
-            database
+            collection
         </title>
     </head>
 
@@ -19,8 +19,7 @@
                 Rarity:
                 <br />
                 <select name="rarity">
-                    <option value="">(none)</option>
-                    <option value="C">C</option>
+                    <option value="C" selected>C</option>
                     <option value="U">U</option>
                     <option value="R">R</option>
                     <option value="UR">UR</option>
@@ -34,21 +33,22 @@
                 Set:
                 <br />
                 <select name="card_set">
-                    <option value="">(none)</option>
-                    <option value="BT1">BT1</option>
+                    <option value="BT1" selected>BT1</option>
                     <option value="BT2">BT2</option>
                     <option value="BT3">BT3</option>
                 </select>
             </p>
 
             <p>
-                Card number suffix (e.g. 001) — optional:
+                Card number suffix (for example 001):
                 <br />
                 <input
                     type="text"
                     name="card_number_suffix"
-                    pattern="\d*"
+                    pattern="\d{1,6}"
                     maxlength="6"
+                    value="001"
+                    inputmode="numeric"
                 />
             </p>
 
