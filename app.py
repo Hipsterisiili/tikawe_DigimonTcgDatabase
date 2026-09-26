@@ -11,13 +11,6 @@ import secrets
 app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
-username = ""
-private_table_name = ""
-
-def update_name(word):
-    username = word
-    private_table_name = username.replace(" ", "_").replace("-", "_")
-
 
 """
 Front page of the app containing: 
@@ -42,7 +35,7 @@ def full_card_list():
     card_list = db.query("SELECT id, name, card_number, rarity FROM public_digimon_cards ORDER BY card_number")
     latest_card_result = db.query("SELECT name FROM public_digimon_cards ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
-    
+
     return render_template(
         "cards/full_card_list.html",
         count=card_amount,
@@ -59,12 +52,12 @@ User may:
 @app.route("/personal_card_list")
 def personal_card_list():
     private_table_name = session["username"]
-    
+
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
-    card_amount = card_amount_result[0][0] if card_amount_result else 0 
+    card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
 
-    if(session["username"]):
+    if session["username"]:
         target = "private"
     else:
         target = "global"
@@ -104,7 +97,7 @@ def create():
     except sqlite3.IntegrityError:
         flash("ERROR: Username already taken")
         return redirect("/register")
-    
+
     try:
         db.execute(
             f"CREATE TABLE IF NOT EXISTS \"{username}\" ("
@@ -117,7 +110,7 @@ def create():
 
     except Exception as e:
         return f"ERROR: Error creating a new table: {str(e)}"
-    
+
     flash("Account created!")
     return redirect("/")
 
@@ -144,8 +137,7 @@ def login():
     if not check_password_hash(stored_hash, password):
         flash("ERROR: wrong  password")
         return redirect("/login")
-    session["username"] = username    
-    update_name(username)
+    session["username"] = username
     return redirect("/")
 
 """
@@ -164,7 +156,7 @@ def new_card():
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
-    
+
     return render_template("cards/new_card.html", target=target)
 
 @app.route("/send_card", methods=["POST"])
@@ -189,13 +181,13 @@ def send_card():
         card_number = card_set + "-" + "001"
 
     table_name = ""
-    
+
     if target == "private":
         if "username" not in session:
             flash("You must be logged in to add to personal collection.")
             return redirect(url_for("login"))
         table_name = session["username"]
-        
+
     elif target == "global":
         table_name = "public_digimon_cards"
     else:
@@ -214,7 +206,7 @@ def send_card():
         f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
         (content, card_number, rarity)
     )
-        
+
     if target == "private":
         flash(content + " added to personal collection.")
         return redirect("/personal_card_list")
@@ -255,7 +247,6 @@ def add_random_card():
         )
     except sqlite3.IntegrityError:
         flash("Tried to add an already existing card.")
-        pass
 
 """
 Page that edits a requested data element based on user's actions
@@ -288,7 +279,7 @@ def edit_card_form():
         flash("Card not found")
         return redirect(url_for("full_card_list" if target=="global" else "personal_card_list"))
 
-    card = row[0] 
+    card = row[0]
 
     card_set = ""
     suffix = ""
@@ -344,11 +335,10 @@ def edit_card_submit():
     if table == "public_digimon_cards":
         flash(f"{name} updated in public collection.")
         return redirect("/full_card_list")
-    else:
-        flash(f"{name} updated in private collection.")
-        return redirect("/personal_card_list")
+    flash(f"{name} updated in private collection.")
+    return redirect("/personal_card_list")
 
-    
+
 
 """
 Page that deletes a card from the global collection.
@@ -362,9 +352,9 @@ def delete_card():
     id_str = request.form.get("id")
 
     print("Testing target name")
-    if(target == "global"):
+    if target == "global":
         table_name = "public_digimon_cards"
-    elif(target == "private"):
+    elif target == "private":
         table_name = session["username"]
     else:
         flash(f"Incorrect table name, {target} given")
@@ -379,11 +369,10 @@ def delete_card():
     except ValueError:
         flash("Invalid id")
         return redirect("/")
-    
+
     db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
     if table_name == "public_digimon_cards":
         flash(f"{name} deleted from public collection.")
         return redirect("/full_card_list")
-    else:
-        flash(f"{name} deleted from private collection.")
-        return redirect("/personal_card_list")
+    flash(f"{name} deleted from private collection.")
+    return redirect("/personal_card_list")
