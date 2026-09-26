@@ -80,8 +80,15 @@ button:hover,
 input[type='submit']:hover {
     filter: brightness(0.95);
 }
+.btn-edit {
+    background: #3b82f6;
+    color: white;
+}
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
 
-/* Forms */
 form p {
     margin-bottom: 0.75rem;
 }
@@ -96,31 +103,24 @@ select {
     background: var(--card);
 }
 
-/* Card list appearance */
 .card-row {
-    padding: 0.6rem;
-    background: var(--card);
-    border-radius: 6px;
-    border: 1px solid #e6e9ef;
-    margin: 0.6rem 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-.card-info {
-    flex: 1;
-}
-.card-actions {
-    margin-left: 1rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
 }
 
-/* Small utilities */
-.small {
-    color: var(--muted);
-    font-size: 0.9rem;
+.card-info {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.hr {
-    height: 1px;
-    background: #e6e9ef;
-    margin: 0.8rem 0;
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }
