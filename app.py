@@ -257,16 +257,28 @@ def add_random_card():
 Page that deletes a card from the global collection.
 Then it redirects user to index.
 """
-@app.route("/delete_card")
+@app.route("/delete_card", methods=["POST"])
 def delete_card():
     ##placeholder
     table_name = "public_digimon_cards"
-    content = request.form.get("name")
-    id = request.form.get("id")
-    db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', (id) )
+    name = request.args.get("name", "")
+    id_str = request.form.get("id")
+
+    if not id_str:
+        flash("No id provided")
+        return redirect("/")
+
+    try:
+        id_int = int(id_str)
+    except ValueError:
+        flash("Invalid id")
+        return redirect("/")
+    
+    print("Trying to execute")
+    db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
     if table_name == "public_digimon_cards":
-        flash(content + " deleted from public collection.")
-        return redirect("/personal_card_list")
-    else:
-        flash(content + " deleted from private collection.")
+        flash(f"{name} deleted from public collection.")
         return redirect("/full_card_list")
+    else:
+        flash(f"{name} deleted from private collection.")
+        return redirect("/personal_card_list")

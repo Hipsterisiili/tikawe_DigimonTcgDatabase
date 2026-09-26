@@ -32,7 +32,7 @@
         <p>
             {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
             [Edit]
-            <form action="{{ url_for('delete_card') }}" method="post" style="display:inline">
+            <form action="/delete_card" method="post" style="display:inline">
                 <input type="hidden" name="id" value="{{ card['id'] }}">
                 <input type="hidden" name="name" value="{{ card['name'] }}">
                 <button type="submit" onclick="return confirm('Delete this card from the public database?')">Delete</button>
