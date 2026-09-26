@@ -37,10 +37,10 @@ User may:
 """
 @app.route("/full_card_list")
 def full_card_list():
-    card_amount_result = db.query("SELECT COUNT(*) FROM cards")
+    card_amount_result = db.query("SELECT COUNT(*) FROM public_digimon_cards")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query("SELECT id, name FROM cards")
-    latest_card_result = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
+    card_list = db.query("SELECT id, name FROM public_digimon_cards")
+    latest_card_result = db.query("SELECT name FROM public_digimon_cards ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
     
     return render_template(
@@ -54,7 +54,7 @@ def full_card_list():
 This page displays the user's own collection.
 User may:
 - Add specific or random cards to their own collection
-- Delete cards from thwir own collection
+- Delete cards from their own collection
 """
 @app.route("/personal_card_list")
 def personal_card_list():
@@ -111,9 +111,17 @@ def create():
         return redirect("/register")
     
     try:
-        db.execute(f"CREATE TABLE IF NOT EXISTS `{username}` (id INTEGER PRIMARY KEY, name TEXT)")
+        db.execute(
+            f"CREATE TABLE IF NOT EXISTS \"{username}\" ("
+            "id INTEGER PRIMARY KEY, "
+            "name TEXT NOT NULL, "
+            "card_number TEXT UNIQUE, "
+            "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
+            ")"
+        )
+
     except Exception as e:
-        return f"ERROR: Error creationg a new table: {str(e)}"
+        return f"ERROR: Error creating a new table: {str(e)}"
     
     flash("Account created!")
     return redirect("/")
@@ -174,6 +182,8 @@ def send_card():
         return redirect("/")
 
     table_name = ""
+    card_number_value = "BT1-001"
+    rarity_value = "C"
     
     if target == "private":
         if "username" not in session:
@@ -182,13 +192,23 @@ def send_card():
         table_name = session["username"]
         
     elif target == "global":
-        table_name = "cards"
+        table_name = "public_digimon_cards"
     else:
         flash("Couldn't add a card, no valid table name received")
         return redirect("/")
 
-    db.execute(f"CREATE TABLE IF NOT EXISTS `{table_name}` (id INTEGER PRIMARY KEY, name TEXT)")
-    db.execute(f"INSERT INTO `{table_name}` (name) VALUES (?)", (content,))
+    db.execute(
+        f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
+        "id INTEGER PRIMARY KEY, "
+        "name TEXT NOT NULL, "
+        "card_number TEXT UNIQUE, "
+        "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
+        ")"
+    )
+    db.execute(
+        f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
+        (content, card_number_value, rarity_value)
+    )
         
     if target == "private":
         flash(content + " added to personal collection.")
@@ -225,7 +245,7 @@ def add_random_card():
     random_card_name = random.choice(card_names)
 
     db.execute(
-        "INSERT INTO cards (name) VALUES (?)",
+        "INSERT INTO public_digimon_cards (name) VALUES (?)",
         (random_card_name,)
     )
 """
@@ -235,6 +255,6 @@ Then it redirects user to index.
 @app.route("/delete_card")
 def delete_card():
     db.execute(
-            "DELETE FROM cards WHERE id = (SELECT MAX(id) FROM cards)"
+            "DELETE FROM public_digimon_cards WHERE id = (SELECT MAX(id) FROM public_digimon_cards)"
         )
     return redirect("/personal_card_list")
