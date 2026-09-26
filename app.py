@@ -47,8 +47,7 @@ def full_card_list():
         "full_card_list.html",
         count=card_amount,
         card_list=card_list,
-        latest_card=latest_card,
-        target="global"
+        latest_card=latest_card
     )
 
 """
@@ -68,17 +67,17 @@ def personal_card_list():
     latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
 
-    target = "global"
     if(session["username"]):
-        target = session["username"]
+        target = "private"
+    else:
+        target = "global"
         
 
     return render_template(
         "personal_card_list.html", 
         count=card_amount,
         card_list=card_list,
-        latest_card=latest_card,
-        target=target
+        latest_card=latest_card
     )
 
 """
@@ -158,10 +157,13 @@ def logout():
 @app.route("/new_card")
 def new_card():
     # get target from query string, default to global
+    print("Asking for target")
     target = request.args.get("target", "global")
-    if target == "personal" and "username" not in session:
+    print("target is: " + target)
+    if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
+    
     return render_template("new_card.html", target=target)
 
 @app.route("/send_card", methods=["POST"])
@@ -171,34 +173,31 @@ def send_card():
 
     if not content:
         flash("No card name provided.")
-        return redirect(url_for("new_card", target=target))
+        return redirect("/")
 
-    if target == "global":
-        table_name = "cards"
-    elif target == "personal":
+    table_name = ""
+    
+    if target == "private":
         if "username" not in session:
-            flash("You must be logged in.")
+            flash("You must be logged in to add to personal collection.")
             return redirect(url_for("login"))
-        if not table_name:
-            flash("Invalid username/table name.")
-            return redirect(url_for("new_card", target="personal"))
         table_name = session["username"]
+        
+    elif target == "global":
+        table_name = "cards"
     else:
-        flash("Invalid target.")
-        return redirect(url_for("new_card"))
+        flash("Couldn't add a card, no valid table name received")
+        return redirect("/")
 
-    # Optionally ensure the personal table exists
-    if target == "personal":
-        db.execute(f"CREATE TABLE IF NOT EXISTS `{table_name}` (id INTEGER PRIMARY KEY, name TEXT)")
-
-    # Use parameter substitution for values; table name was validated above
+    db.execute(f"CREATE TABLE IF NOT EXISTS `{table_name}` (id INTEGER PRIMARY KEY, name TEXT)")
     db.execute(f"INSERT INTO `{table_name}` (name) VALUES (?)", (content,))
-
-    flash("Card added.")
-    if target == "global":
-        return redirect(url_for("full_card_list"))
+        
+    if target == "private":
+        flash(content + " added to personal collection.")
+        return redirect("/personal_card_list")
     else:
-        return redirect(url_for("personal_card_list"))
+        flash(content + " added to the public collection.")
+        return redirect("/full_card_list")
 
 
 """
@@ -240,4 +239,4 @@ def delete_card():
     db.execute(
             "DELETE FROM cards WHERE id = (SELECT MAX(id) FROM cards)"
         )
-    return redirect("/")
+    return redirect("/personal_card_list")

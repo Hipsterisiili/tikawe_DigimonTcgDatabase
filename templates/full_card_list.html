@@ -12,7 +12,14 @@
         <p>Not yet logged in</p>
         <p><a href="/login">Log in</a></p>
         <p><a href="/register">Register</a></p>
-        {% endif %}
+        {% endif %} {% with messages = get_flashed_messages() %} {% if messages
+        %}
+        <ul class="flashes">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
 
         <p>
             Amount of cards: {{ count }}
@@ -29,7 +36,7 @@
         {% endif %}
 
         <p>
-            <a href="/new_card" , target="global">Add a card to the database</a>
+            <a href="/new_card" ?target="global">Add a card to the database</a>
         </p>
         <p><a href="/random_card">Add a random card to the database</a></p>
         <p><a href="/delete_card">Delete the latest added card</a></p>
