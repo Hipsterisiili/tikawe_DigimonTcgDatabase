@@ -2,9 +2,11 @@
 <html>
     <head>
         <title>Full card list</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     </head>
 
     <body>
+        <div class="container">
         {% if session.username %}
         <p>Logged in as: {{ session.username }}</p>
         <p><a href="/logout">Log out</a></p>
@@ -30,7 +32,7 @@
         <p>
             <a href="/new_card" ?target="global">Add a card to the database</a>
         </p>
-        <p><a href="/random_card">Add a random card to the database</a></p>
+        <p><a href="/random_card">Add a random card to the database (testing feature only)</a></p>
         {% if session.username %}
         <p><a href="/personal_card_list">Your private collection</a></p>
         {% endif %}
@@ -59,5 +61,6 @@
         {% endfor %} {% else %}
         <p>Your collection is empty. Add new cards!</p>
         {% endif %}
+        </div>
     </body>
 </html>

@@ -1,0 +1,126 @@
+/* static/css/style.css */
+:root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --accent: #3b82f6;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --danger: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family:
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        'Helvetica Neue',
+        Arial;
+    margin: 0;
+    padding: 1.5rem;
+    background: linear-gradient(180deg, var(--bg), #eef2ff);
+    color: var(--text);
+    line-height: 1.45;
+}
+
+/* Center page content and constrain width */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: none;
+    padding: 1rem;
+}
+
+/* Headings & paragraphs */
+h1,
+h2 {
+    color: var(--accent);
+    margin-top: 0.25rem;
+}
+p {
+    margin: 0.6rem 0;
+}
+
+/* Flash messages */
+ul.flashes {
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0.75rem 0;
+    border-radius: 6px;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffe8a1;
+}
+
+/* Links & buttons */
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+.button,
+button,
+input[type='submit'] {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.button:hover,
+button:hover,
+input[type='submit']:hover {
+    filter: brightness(0.95);
+}
+
+/* Forms */
+form p {
+    margin-bottom: 0.75rem;
+}
+input[type='text'],
+input[type='password'],
+textarea,
+select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: var(--card);
+}
+
+/* Card list appearance */
+.card-row {
+    padding: 0.6rem;
+    background: var(--card);
+    border-radius: 6px;
+    border: 1px solid #e6e9ef;
+    margin: 0.6rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card-info {
+    flex: 1;
+}
+.card-actions {
+    margin-left: 1rem;
+}
+
+/* Small utilities */
+.small {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.hr {
+    height: 1px;
+    background: #e6e9ef;
+    margin: 0.8rem 0;
+}
