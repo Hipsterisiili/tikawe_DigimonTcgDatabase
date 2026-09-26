@@ -23,7 +23,13 @@
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
         <p>
             {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
-            [Edit] [Delete]
+            [Edit] 
+            <form action="/delete_card" method="post" style="display:inline">
+                <input type="hidden" name="id" value="{{ card['id'] }}">
+                <input type="hidden" name="name" value="{{ card['name'] }}">
+                <input type="hidden" target="target" value="private">
+                <button type="submit" onclick="return confirm('Delete this card from the public database?')">Delete</button>
+            </form>
         </p>
         <hr />
         {% endfor %} {% else %}
