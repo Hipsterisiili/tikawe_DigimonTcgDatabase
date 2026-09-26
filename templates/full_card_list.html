@@ -41,7 +41,16 @@
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
         <p>
             {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
-            [Edit]
+            <form action="{{ url_for('edit_card_form') }}" method="get" style="display:inline">
+                <input type="hidden" name="id" value="{{ card['id'] }}">
+                <input type="hidden" name="target" value="global">
+                <button type="submit"
+                        onclick="return confirm('Edit this card\'s data in the public database?')">
+                    Edit
+                </button>
+            </form>
+            
+
             <form action="/delete_card" method="post" style="display:inline">
                 <input type="hidden" name="id" value="{{ card['id'] }}">
                 <input type="hidden" name="name" value="{{ card['name'] }}">

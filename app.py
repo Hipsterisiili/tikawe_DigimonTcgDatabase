@@ -253,13 +253,110 @@ def add_random_card():
         "INSERT INTO public_digimon_cards (name) VALUES (?)",
         (random_card_name,)
     )
+
+"""
+Page that edits a requested data element based on user's actions
+"""
+@app.route("/edit_card", methods=["GET"])
+def edit_card_form():
+    # expects query params: id and target (target='global' or 'personal')
+    card_id = request.args.get("id")
+    target = request.args.get("target", "global")
+
+    if not card_id:
+        flash("No card id provided")
+        return redirect(url_for("full_card_list"))
+
+    try:
+        card_id_int = int(card_id)
+    except ValueError:
+        flash("Invalid card id")
+        return redirect(url_for("full_card_list"))
+
+    # pick table
+    if target == "personal":
+        if "username" not in session:
+            flash("Please log in")
+            return redirect(url_for("login"))
+        table = session["username"]
+    else:
+        table = "public_digimon_cards"
+
+    # fetch the card row
+    row = db.query(f'SELECT id, name, card_number, rarity FROM "{table}" WHERE id = ?', (card_id_int,))
+    if not row:
+        flash("Card not found")
+        return redirect(url_for("full_card_list" if target=="global" else "personal_card_list"))
+
+    card = row[0] 
+
+    card_set = ""
+    suffix = ""
+    if card["card_number"]:
+        parts = str(card["card_number"]).rsplit("-", 1)
+        if len(parts) == 2:
+            card_set, suffix = parts[0], parts[1]
+        else:
+            card_set = parts[0]
+
+    return render_template(
+        "edit_card.html",
+        target=target,
+        id=card["id"],
+        content=card["name"],
+        rarity=card["rarity"] or "",
+        card_set=card_set or "",
+        card_number_suffix=suffix or ""
+    )
+
+@app.route("/edit_card", methods=["POST"])
+def edit_card_submit():
+    id = request.form.get("id")
+    target = request.form.get("target", "global")
+    name = request.form.get("content", "").strip()
+    rarity = request.form.get("rarity") or None
+    card_set = request.form.get("card_set", "").strip()
+    suffix = request.form.get("card_number_suffix", "").strip()
+
+    try:
+        id_int = int(id)
+    except (TypeError, ValueError):
+        flash("Invalid id")
+        return redirect("/full_card_list")
+
+    card_number = card_set + "-" + suffix
+
+    if target == "personal":
+        if "username" not in session:
+            flash("Please log in")
+            return redirect("/login")
+        table = session["username"]
+    elif target == "global":
+        table = "public_digimon_cards"
+    else:
+        flash(f"Incorrect table name, {target} given")
+        return redirect("/")
+
+    db.execute(
+        f'UPDATE "{table}" SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
+        (name, card_number, rarity, id_int)
+    )
+
+    if table == "public_digimon_cards":
+        flash(f"{name} updated in public collection.")
+        return redirect("/full_card_list")
+    else:
+        flash(f"{name} updated in private collection.")
+        return redirect("/personal_card_list")
+
+    
+
 """
 Page that deletes a card from the global collection.
 Then it redirects user to index.
 """
 @app.route("/delete_card", methods=["POST"])
 def delete_card():
-    ##placeholder
     target = request.args.get("table")
     table_name = ""
     name = request.args.get("name", "")
@@ -270,7 +367,7 @@ def delete_card():
     elif(target == "private"):
         table_name = session["username"]
     else:
-        flash(f"Incorrect database name, {target} given")
+        flash(f"Incorrect table name, {target} given")
         return redirect("/")
 
     if not id_str:
