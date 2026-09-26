@@ -8,6 +8,8 @@
         {% if session.username %}
         <p>You are logged in as: {{ session.username }}</p>
         <p><a href="/logout">Log out</a></p>
+        <p><a href="/">Back to the front page</a></p>
+        <p><a href="/new_card?target=private">Add a card to your personal collection</a></p>
 
         {% with messages = get_flashed_messages() %} {% if messages %}
         <ul class="flashes">
@@ -35,18 +37,11 @@
         {% endfor %} {% else %}
         <p>Your collection is empty. Add new cards!</p>
         {% endif %}
-        <p>
-            <a href="/new_card?target=private">
-                Add a card to your personal collection
-            </a>
-        </p>
 
         {% else %}
         <p>You are not yet logged in!</p>
         {% endif %}
 
-        <p>
-            <a href="/">Back to the front page</a>
-        </p>
+        
     </body>
 </html>
