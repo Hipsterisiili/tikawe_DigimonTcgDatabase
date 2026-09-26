@@ -260,12 +260,21 @@ Then it redirects user to index.
 @app.route("/delete_card", methods=["POST"])
 def delete_card():
     ##placeholder
-    table_name = "public_digimon_cards"
+    target = request.args.get("table")
+    table_name = ""
     name = request.args.get("name", "")
     id_str = request.form.get("id")
 
+    if(target == "global"):
+        table_name = "public_digimon_cards"
+    elif(target == "private"):
+        table_name = session["username"]
+    else:
+        flash(f"Incorrect database name, {target} given")
+        return redirect("/")
+
     if not id_str:
-        flash("No id provided")
+        flash("No id received, cannot delete anything")
         return redirect("/")
 
     try:
@@ -274,7 +283,6 @@ def delete_card():
         flash("Invalid id")
         return redirect("/")
     
-    print("Trying to execute")
     db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
     if table_name == "public_digimon_cards":
         flash(f"{name} deleted from public collection.")

@@ -35,6 +35,7 @@
             <form action="/delete_card" method="post" style="display:inline">
                 <input type="hidden" name="id" value="{{ card['id'] }}">
                 <input type="hidden" name="name" value="{{ card['name'] }}">
+                <input type="hidden" target="target" value="global">
                 <button type="submit" onclick="return confirm('Delete this card from the public database?')">Delete</button>
             </form>
 
