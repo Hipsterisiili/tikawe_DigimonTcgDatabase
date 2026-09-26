@@ -360,14 +360,11 @@ def delete_card():
 
     print("Testing target name")
     if(target == "global"):
-        print("Global found")
         table_name = "public_digimon_cards"
     elif(target == "private"):
-        print("Private found")
         table_name = session["username"]
     else:
         flash(f"Incorrect table name, {target} given")
-        print(f"{target} found")
         return redirect("/")
 
     if not id_str:
