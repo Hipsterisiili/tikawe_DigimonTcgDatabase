@@ -39,7 +39,7 @@ User may:
 def full_card_list():
     card_amount_result = db.query("SELECT COUNT(*) FROM cards")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query("SELECT name FROM cards")
+    card_list = db.query("SELECT id, name FROM cards")
     latest_card_result = db.query("SELECT name FROM cards ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
     
