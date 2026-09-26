@@ -39,7 +39,7 @@ User may:
 def full_card_list():
     card_amount_result = db.query("SELECT COUNT(*) FROM public_digimon_cards")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query("SELECT id, name FROM public_digimon_cards")
+    card_list = db.query("SELECT name, card_number, rarity FROM public_digimon_cards ORDER BY card_number")
     latest_card_result = db.query("SELECT name FROM public_digimon_cards ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
     
@@ -62,22 +62,17 @@ def personal_card_list():
     
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0 
-    card_list = db.query(f"SELECT id, name FROM `{private_table_name}`")
-    
-    latest_card_result = db.query(f"SELECT name FROM `{private_table_name}` ORDER BY id DESC LIMIT 1")
-    latest_card = latest_card_result[0][0] if latest_card_result else None
+    card_list = db.query(f"SELECT name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
 
     if(session["username"]):
         target = "private"
     else:
         target = "global"
-        
 
     return render_template(
         "personal_card_list.html", 
         count=card_amount,
-        card_list=card_list,
-        latest_card=latest_card
+        card_list=card_list
     )
 
 """

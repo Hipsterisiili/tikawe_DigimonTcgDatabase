@@ -21,7 +21,9 @@
         <hr />
 
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
-        <p>{{ card['id'] }}, {{ card['name'] }}</p>
+        <p>
+            {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
+        </p>
         <hr />
         {% endfor %} {% else %}
         <p>Your collection is empty. Add new cards!</p>
