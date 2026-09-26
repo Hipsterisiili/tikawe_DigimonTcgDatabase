@@ -18,32 +18,18 @@ Planned features include adding/removing cards from personal collections and exp
 - (Planned) Export personal collections as CSV
 - (Planned) Admin-level editing
 
-## Database setup
-
-Create the SQLite database file `database.db` in the project root and create the initial `cards` table:
+## Minimal requirements
 
 ```bash
-sqlite3 database.db
+$ sudo apt install sqlite3
+$ pip install flask
 ```
 
-Inside the sqlite prompt:
+## Database setup
 
+Generate the database for the application using the file schema.sql in the project's root using the command:
 ```bash
-sqlite> CREATE TABLE public_digimon_cards (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL,
-  card_number TEXT NOT NULL UNIQUE,
-  rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))
-);
-sqlite> CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
-  username TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  is_admin INTEGER DEFAULT 0
-)
-
-sqlite> .quit
+$ sqlite3 database.db < schema.sql
 ```
 
 ## Starting the application
@@ -51,7 +37,9 @@ sqlite> .quit
 You can start the application in a virtual environment by running the following commands in the project root:
 
 ```bash
-$ source venv/bin/activate $ pip install flask $ flask run
+$ source venv/bin/activate 
+$ pip install flask 
+$ flask run
 ```
 
-The application will then run on port 5000.
+The application will run on port 5000.
