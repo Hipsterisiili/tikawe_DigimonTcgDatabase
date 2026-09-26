@@ -39,7 +39,7 @@ User may:
 def full_card_list():
     card_amount_result = db.query("SELECT COUNT(*) FROM public_digimon_cards")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query("SELECT name, card_number, rarity FROM public_digimon_cards ORDER BY card_number")
+    card_list = db.query("SELECT id, name, card_number, rarity FROM public_digimon_cards ORDER BY card_number")
     latest_card_result = db.query("SELECT name FROM public_digimon_cards ORDER BY id DESC LIMIT 1")
     latest_card = latest_card_result[0][0] if latest_card_result else None
     
@@ -62,7 +62,7 @@ def personal_card_list():
     
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0 
-    card_list = db.query(f"SELECT name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
+    card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
 
     if(session["username"]):
         target = "private"
@@ -259,7 +259,14 @@ Then it redirects user to index.
 """
 @app.route("/delete_card")
 def delete_card():
-    db.execute(
-            "DELETE FROM public_digimon_cards WHERE id = (SELECT MAX(id) FROM public_digimon_cards)"
-        )
-    return redirect("/personal_card_list")
+    ##placeholder
+    table_name = "public_digimon_cards"
+    content = request.form.get("name")
+    id = request.form.get("id")
+    db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', (id) )
+    if table_name == "public_digimon_cards":
+        flash(content + " deleted from public collection.")
+        return redirect("/personal_card_list")
+    else:
+        flash(content + " deleted from private collection.")
+        return redirect("/full_card_list")

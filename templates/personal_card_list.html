@@ -23,6 +23,7 @@
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
         <p>
             {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
+            [Edit] [Delete]
         </p>
         <hr />
         {% endfor %} {% else %}
