@@ -357,17 +357,21 @@ Then it redirects user to index.
 """
 @app.route("/delete_card", methods=["POST"])
 def delete_card():
-    target = request.args.get("table")
+    target = request.form.get("target", "global")
     table_name = ""
-    name = request.args.get("name", "")
+    name = request.form.get("name", "")
     id_str = request.form.get("id")
 
+    print("Testing target name")
     if(target == "global"):
+        print("Global found")
         table_name = "public_digimon_cards"
     elif(target == "private"):
+        print("Private found")
         table_name = session["username"]
     else:
         flash(f"Incorrect table name, {target} given")
+        print(f"{target} found")
         return redirect("/")
 
     if not id_str:
