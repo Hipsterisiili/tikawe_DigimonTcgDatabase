@@ -1,7 +1,10 @@
 <!doctype html>
 <html>
     <head>
-        <title>Add a card to a {___} database</title>
+        <title>
+            Add a card to {{ 'personal' if target=='personal' else 'global' }}
+            database
+        </title>
     </head>
 
     <body>
@@ -11,6 +14,44 @@
                 <br />
                 <textarea name="content" rows="3" cols="40"></textarea>
             </p>
+
+            <p>
+                Rarity:
+                <br />
+                <select name="rarity">
+                    <option value="">(none)</option>
+                    <option value="C">C</option>
+                    <option value="U">U</option>
+                    <option value="R">R</option>
+                    <option value="UR">UR</option>
+                    <option value="SEC">SEC</option>
+                    <option value="P">P</option>
+                    <option value="SR">SR</option>
+                </select>
+            </p>
+
+            <p>
+                Set:
+                <br />
+                <select name="card_set">
+                    <option value="">(none)</option>
+                    <option value="BT1">BT1</option>
+                    <option value="BT2">BT2</option>
+                    <option value="BT3">BT3</option>
+                </select>
+            </p>
+
+            <p>
+                Card number suffix (e.g. 001) — optional:
+                <br />
+                <input
+                    type="text"
+                    name="card_number_suffix"
+                    pattern="\d*"
+                    maxlength="6"
+                />
+            </p>
+
             <input type="hidden" name="target" value="{{ target }}" />
             <p>
                 <input type="submit" value="Send" />

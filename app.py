@@ -176,14 +176,24 @@ def new_card():
 def send_card():
     content = request.form.get("content", "").strip()
     target = request.form.get("target", "global")
+    rarity = request.form.get("rarity", "").strip() or None
+    card_set = request.form.get("card_set", "").strip() or None
+    suffix = request.form.get("card_number_suffix", "").strip()
 
     if not content:
         flash("No card name provided.")
-        return redirect("/")
+        return redirect("/new_card", target=target)
+
+    if rarity and rarity not in {"C","U","R","UR","SEC","P","SR"}:
+        flash("Invalid rarity selected.")
+        return redirect("/new_card", target=target)
+
+    if suffix:
+        card_number = card_set + "-" + suffix
+    else:
+        card_number = card_set + "-" + "001"
 
     table_name = ""
-    card_number_value = "BT1-001"
-    rarity_value = "C"
     
     if target == "private":
         if "username" not in session:
@@ -207,7 +217,7 @@ def send_card():
     )
     db.execute(
         f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
-        (content, card_number_value, rarity_value)
+        (content, card_number, rarity)
     )
         
     if target == "private":
