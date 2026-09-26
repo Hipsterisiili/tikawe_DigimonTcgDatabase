@@ -44,7 +44,7 @@ def full_card_list():
     latest_card = latest_card_result[0][0] if latest_card_result else None
     
     return render_template(
-        "full_card_list.html",
+        "cards/full_card_list.html",
         count=card_amount,
         card_list=card_list,
         latest_card=latest_card
@@ -70,7 +70,7 @@ def personal_card_list():
         target = "global"
 
     return render_template(
-        "personal_card_list.html", 
+        "cards/personal_card_list.html", 
         count=card_amount,
         card_list=card_list
     )
@@ -80,7 +80,7 @@ Page for creating a new user for the app.
 """
 @app.route("/register")
 def register():
-    return render_template("register.html")
+    return render_template("cards/register.html")
 
 """
 Method for account creation.
@@ -130,7 +130,7 @@ Method for logging in.
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("accounts/login.html")
 
     username = request.form["username"]
     password = request.form["password"]
@@ -165,7 +165,7 @@ def new_card():
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
     
-    return render_template("new_card.html", target=target)
+    return render_template("cards/new_card.html", target=target)
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
@@ -272,7 +272,7 @@ def edit_card_form():
         flash("Invalid card id")
         return redirect(url_for("full_card_list"))
 
-    if target == "personal":
+    if target == "private":
         if "username" not in session:
             flash("Please log in")
             return redirect(url_for("login"))
@@ -297,7 +297,7 @@ def edit_card_form():
             card_set = parts[0]
 
     return render_template(
-        "edit_card.html",
+        "cards/edit_card.html",
         target=target,
         id=card["id"],
         content=card["name"],
@@ -322,11 +322,10 @@ def edit_card_submit():
         return redirect("/full_card_list")
 
     card_number = card_set + "-" + suffix
-
-    if target == "personal":
+    if target == "private":
         if "username" not in session:
             flash("Please log in")
-            return redirect("/login")
+            return redirect("{{ url_for('login') }}")
         table = session["username"]
     elif target == "global":
         table = "public_digimon_cards"
