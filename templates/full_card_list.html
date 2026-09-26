@@ -26,6 +26,16 @@
             <br />
             Latest added card: {{ latest_card }}
         </p>
+
+        <p>
+            <a href="/new_card" ?target="global">Add a card to the database</a>
+        </p>
+        <p><a href="/random_card">Add a random card to the database</a></p>
+        {% if session.username %}
+        <p><a href="/personal_card_list">Your private collection</a></p>
+        {% endif %}
+
+        <p><a href="/">Back to the front page</a></p>
         <hr />
 
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
@@ -44,12 +54,5 @@
         {% endfor %} {% else %}
         <p>Your collection is empty. Add new cards!</p>
         {% endif %}
-
-        <p>
-            <a href="/new_card" ?target="global">Add a card to the database</a>
-        </p>
-        <p><a href="/random_card">Add a random card to the database</a></p>
-        <p><a href="/personal_card_list">Your private collection</a></p>
-        <p><a href="/">Back to the front page</a></p>
     </body>
 </html>
