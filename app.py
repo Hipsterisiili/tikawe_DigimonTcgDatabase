@@ -80,7 +80,7 @@ Page for creating a new user for the app.
 """
 @app.route("/register")
 def register():
-    return render_template("cards/register.html")
+    return render_template("accounts/register.html")
 
 """
 Method for account creation.
@@ -235,24 +235,27 @@ def random_card():
 """
 Method that adds a random card from a list to the global database
 """
+
 def add_random_card():
-    card_names = [
-            "Agumon",
-            "Gabumon",
-            "Patamon",
-            "Gatomon",
-            "Tentomon",
-            "Palmon",
-            "Gomamon",
-            "Biyomon"
-        ]
+    cards = [
+        ("Agumon", "P-001", "P"),
+        ("Biyomon", "P-002", "P"),
+        ("Gabumon", "P-003", "P"),
+        ("Gomamon", "P-004", "P"),
+        ("Patamon", "P-005", "P"),
+        ("Gatomon", "P-006", "P")
+    ]
 
-    random_card_name = random.choice(card_names)
+    name, card_number, rarity = random.choice(cards)
 
-    db.execute(
-        "INSERT INTO public_digimon_cards (name) VALUES (?)",
-        (random_card_name,)
-    )
+    try:
+        db.execute(
+            "INSERT INTO public_digimon_cards (name, card_number, rarity) VALUES (?, ?, ?)",
+            (name, card_number, rarity)
+        )
+    except sqlite3.IntegrityError:
+        flash("Tried to add an already existing card.")
+        pass
 
 """
 Page that edits a requested data element based on user's actions
