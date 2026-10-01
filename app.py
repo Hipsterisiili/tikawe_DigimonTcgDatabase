@@ -104,7 +104,7 @@ def create():
             f"CREATE TABLE IF NOT EXISTS \"{username}\" ("
             "id INTEGER PRIMARY KEY, "
             "name TEXT NOT NULL, "
-            "card_number TEXT UNIQUE, "
+            "card_number TEXT, "
             "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
             ")"
         )
@@ -199,7 +199,7 @@ def send_card():
         f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
         "id INTEGER PRIMARY KEY, "
         "name TEXT NOT NULL, "
-        "card_number TEXT UNIQUE, "
+        "card_number TEXT, "
         "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
         ")"
     )
