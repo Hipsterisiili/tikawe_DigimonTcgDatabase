@@ -442,3 +442,13 @@ def delete_card():
         return redirect("/full_card_list")
     flash(f"{name} deleted from private collection.")
     return redirect("/personal_card_list")
+
+import re
+
+def sanitize_table_name(name):
+    """Return a safe table name or None if invalid."""
+    if not isinstance(name, str):
+        return None
+    s = re.sub(r'\W', '_', name)                      # non-word -> underscore
+    return s if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', s) else None
+
