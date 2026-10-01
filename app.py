@@ -84,7 +84,15 @@ def create():
     password2 = request.form["password2"]
     if password1 != password2:
         flash("ERROR: Passwords don't match")
-        return redirect("/register")
+        return redirect(url_for("register"))
+    if len(username) < 3:
+        flash("Your username must be at least 3 characters long")
+        return redirect(url_for("register"))
+
+    if len(password1) < 3:
+        flash("Your password must be at least 3 characters long")
+        return redirect(url_for("register"))
+    
     password_hash = generate_password_hash(password1)
 
     table_name = sanitize_table_name("personal_collection_"+ username)
