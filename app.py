@@ -186,15 +186,16 @@ def find_card_using_card_id(card_id, target):
     # rows[0] is an sqlite3.Row, so you can access by column name
     return rows[0]["id"]
 
-from flask import render_template
-
 @app.route("/users")
 def users():
     """
     A page for displaying a list of all current users for the app
     """
     rows = db.query("SELECT username, created_at, is_admin FROM users ORDER BY username")
-    return render_template("users.html", users=rows)
+    return render_template("accounts/users.html", users=rows)
+
+import sqlite3
+from flask import abort, flash, session, url_for, redirect
 
 @app.route("/new_card")
 def new_card():
