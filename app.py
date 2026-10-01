@@ -52,7 +52,7 @@ def personal_card_list():
     - Add specific or random cards to their own collection
     - Delete cards from their own collection
     """
-    private_table_name = session["username"]
+    private_table_name = "personal_collection_"+ request.form["username"]
 
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
@@ -87,6 +87,8 @@ def create():
         return redirect("/register")
     password_hash = generate_password_hash(password1)
 
+    table_name = sanitize_table_name("personal_collection_"+ username)
+
     try:
         sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
         db.execute(sql, [username, password_hash])
@@ -96,7 +98,7 @@ def create():
 
     try:
         db.execute(
-            f"CREATE TABLE IF NOT EXISTS \"{username}\" ("
+            f"CREATE TABLE IF NOT EXISTS \"{table_name}\" ("
             "id INTEGER PRIMARY KEY, "
             "name TEXT NOT NULL, "
             "card_number TEXT, "
@@ -159,7 +161,7 @@ def find_card_using_card_id(card_id, target):
         return 0
     table_name = ""
     if target == "private":
-        table_name = session["username"]
+        table_name = "personal_collection_"+ request.form["username"]
     else:
         table_name = "public_digimon_cards" 
     try:
@@ -217,7 +219,7 @@ def send_card():
         if "username" not in session:
             flash("You must be logged in to add to personal collection.")
             return redirect(url_for("login"))
-        table_name = session["username"]
+        table_name = "personal_collection_"+ request.form["username"]
 
     elif target == "global":
         table_name = "public_digimon_cards"
@@ -339,7 +341,7 @@ def edit_card_form():
         if "username" not in session:
             flash("Please log in")
             return redirect(url_for("login"))
-        table = session["username"]
+        table = "personal_collection_"+ request.form["username"]
     else:
         table = "public_digimon_cards"
 
@@ -389,7 +391,7 @@ def edit_card_submit():
         if "username" not in session:
             flash("Please log in")
             return redirect("{{ url_for('login') }}")
-        table = session["username"]
+        table = "personal_collection_"+ request.form["username"]
     elif target == "global":
         table = "public_digimon_cards"
     else:
@@ -421,7 +423,7 @@ def delete_card():
     if target == "global":
         table_name = "public_digimon_cards"
     elif target == "private":
-        table_name = session["username"]
+        table_name = "personal_collection_"+ request.form["username"]
     else:
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
