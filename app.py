@@ -162,13 +162,13 @@ def new_card():
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
-    content = request.form.get("content", "").strip()
+    card_name = request.form.get("card_name", "").strip()
     target = request.form.get("target", "global")
     rarity = request.form.get("rarity", "").strip() or None
     card_set = request.form.get("card_set", "").strip() or None
     suffix = request.form.get("card_number_suffix", "").strip()
 
-    if not content:
+    if not card_name:
         flash("No card name provided.")
         return redirect("/new_card", target=target)
 
@@ -205,14 +205,14 @@ def send_card():
     )
     db.execute(
         f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
-        (content, card_number, rarity)
+        (card_name, card_number, rarity)
     )
 
     if target == "private":
-        flash(content + " added to personal collection.")
+        flash(card_name + " added to personal collection.")
         return redirect("/personal_card_list")
     else:
-        flash(content + " added to the public collection.")
+        flash(card_name + " added to the public collection.")
         return redirect("/full_card_list")
 
 
@@ -333,7 +333,7 @@ def edit_card_form():
         "cards/edit_card.html",
         target=target,
         id=card["id"],
-        content=card["name"],
+        card_name=card["name"],
         rarity=card["rarity"] or "",
         card_set=card_set or "",
         card_number_suffix=suffix or ""
@@ -343,7 +343,7 @@ def edit_card_form():
 def edit_card_submit():
     id = request.form.get("id")
     target = request.form.get("target", "global")
-    name = request.form.get("content", "").strip()
+    name = request.form.get("card_name", "").strip()
     rarity = request.form.get("rarity") or None
     card_set = request.form.get("card_set", "").strip()
     suffix = request.form.get("card_number_suffix", "").strip()
