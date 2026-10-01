@@ -13,24 +13,24 @@ app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 
-"""
-Front page of the app containing: 
-- info on whether the user is logged in or not
-- link to the global collection
-- link to the private collection if logged in
-"""
 @app.route("/")
 def index():
+    """
+    Front page of the app containing: 
+    - info on whether the user is logged in or not
+    - link to the global collection
+    - link to the private collection if logged in
+    """
     return render_template("index.html")
 
-"""
-This page displays the global collection.
-User may:
-- Add either specific or random cards to the global collection
-- Delete cards from global collection
-"""
 @app.route("/full_card_list")
 def full_card_list():
+    """
+    This page displays the global collection.
+    User may:
+    - Add either specific or random cards to the global collection
+    - Delete cards from global collection
+    """
     card_amount_result = db.query("SELECT COUNT(*) FROM public_digimon_cards")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query("SELECT id, name, card_number, rarity FROM public_digimon_cards ORDER BY card_number")
@@ -44,14 +44,14 @@ def full_card_list():
         latest_card=latest_card
     )
 
-"""
-This page displays the user's own collection.
-User may:
-- Add specific or random cards to their own collection
-- Delete cards from their own collection
-"""
 @app.route("/personal_card_list")
 def personal_card_list():
+    """
+    This page displays the user's own collection.
+    User may:
+    - Add specific or random cards to their own collection
+    - Delete cards from their own collection
+    """
     private_table_name = session["username"]
 
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
@@ -69,21 +69,21 @@ def personal_card_list():
         card_list=card_list
     )
 
-"""
-Page for creating a new user for the app.
-"""
 @app.route("/register")
 def register():
+    """
+    Page for creating a new user for the app.
+    """
     return render_template("accounts/register.html")
 
-"""
-Method for account creation.
-- Checks if the added username and password are valid.
-- If username and password are not valid, shows error message and redirects to /register
-- If username and password are valid, creates a new user, creates a table in database for their own collection and redirects to index
-"""
 @app.route("/create", methods=["POST"])
 def create():
+    """
+    Method for account creation.
+    - Checks if the added username and password are valid.
+    - If username and password are not valid, shows error message and redirects to /register
+    - If username and password are valid, creates a new user, creates a table in database for their own collection and redirects to index
+    """
     username = request.form["username"]
     password1 = request.form["password1"]
     password2 = request.form["password2"]
@@ -115,14 +115,14 @@ def create():
     flash("Account created!")
     return redirect("/")
 
-"""
-Method for logging in.
-- Checks if the added username and password are valid.
-- If username and password are not valid, shows error message and redirects to /login
-- If username and password are valid, starts a session for the user and redirects to index
-"""
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """
+    Method for logging in.
+    - Checks if the added username and password are valid.
+    - If username and password are not valid, shows error message and redirects to /login
+    - If username and password are valid, starts a session for the user and redirects to index
+    """
     if request.method == "GET":
         return render_template("accounts/login.html")
 
@@ -141,11 +141,11 @@ def login():
     session["username"] = username
     return redirect("/")
 
-"""
-Method that ends the current user's session, then redirects to index
-"""
 @app.route("/logout")
 def logout():
+    """
+    Method that ends the current user's session, then redirects to index
+    """
     del session["username"]
     return redirect("/")
 
@@ -166,7 +166,7 @@ def find_card_using_card_id(card_id, target):
     if target == "private":
         table_name = session["username"]
     else:
-        table_name = "public_digimon_cards"    
+        table_name = "public_digimon_cards"   
     try:
         rows = db.query(
             f"SELECT id FROM {table_name} WHERE card_number = ? LIMIT 1",
@@ -251,12 +251,12 @@ def send_card():
         return redirect("/full_card_list")
 
 
-"""
-Page that let's user add a random card to the global collection.
-Calls for an another method add_random_card and tjen redirects back to the global card list.
-"""
 @app.route("/random_card")
 def random_card():
+    """
+    Page that let's user add a random card to the global collection.
+    Calls for an another method add_random_card and tjen redirects back to the global card list.
+    """
     add_random_card()
     return redirect("/full_card_list")
 
@@ -297,12 +297,12 @@ def sanitize_card_name(name: str) -> str:
     if not s:
         return ""
     s = s[0].upper() + s[1:]
-    return s  
+    return s 
 
-"""
-Method that adds a random card from a list to the global database
-"""
 def add_random_card():
+    """
+    Method that adds a random card from a list to the global database
+    """
     cards = [
         ("Agumon", "P-001", "P"),
         ("Biyomon", "P-002", "P"),
@@ -322,11 +322,12 @@ def add_random_card():
     except sqlite3.IntegrityError:
         flash("Tried to add an already existing card.")
 
-"""
-Page that edits a requested data element based on user's actions
-"""
+
 @app.route("/edit_card", methods=["GET"])
 def edit_card_form():
+    """
+    Page that edits a requested data element based on user's actions
+    """
     card_id = request.args.get("id")
     target = request.args.get("target", "global")
 
@@ -412,14 +413,12 @@ def edit_card_submit():
     flash(f"{name} updated in private collection.")
     return redirect("/personal_card_list")
 
-
-
-"""
-Page that deletes a card from the global collection.
-Then it redirects user to index.
-"""
 @app.route("/delete_card", methods=["POST"])
 def delete_card():
+    """
+    Page that deletes a card from the global collection.
+    Then it redirects user to index.
+    """
     target = request.form.get("target", "global")
     table_name = ""
     name = request.form.get("name", "")
