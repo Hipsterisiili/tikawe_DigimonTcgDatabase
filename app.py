@@ -149,6 +149,38 @@ def logout():
     del session["username"]
     return redirect("/")
 
+def find_card_using_card_id(card_id, target):
+    """
+    Look up the primary key id for a given card_number (card_id).
+    Returns:
+      - the integer primary key id if found
+      - -1 if not found or on invalid input / error
+    """
+
+    if not isinstance(card_id, str):
+        return -1
+    card_id = card_id.strip()
+    if not card_id:
+        return -1
+    table_name = ""
+    if target == "private":
+        table_name = session["username"]
+    else:
+        table_name = "public_digimon_cards"    
+    try:
+        rows = db.query(
+            "SELECT id FROM ? WHERE card_number = ? LIMIT 1",
+            (table_name, card_id,)
+        )
+    except Exception:
+        return -1
+
+    if not rows:
+        return -1
+
+    # rows[0] is an sqlite3.Row, so you can access by column name
+    return rows[0]["id"]
+
 
 @app.route("/new_card")
 def new_card():
@@ -180,6 +212,8 @@ def send_card():
         card_number = card_set + "-" + suffix
     else:
         card_number = card_set + "-" + "001"
+
+
 
     table_name = ""
 
