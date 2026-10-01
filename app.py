@@ -150,7 +150,6 @@ def logout():
     return redirect("/")
 
 def find_card_using_card_id(card_id, target):
-    print("Etsitään id: " + card_id + " kohteesta " + target)
     """
     Look up the primary key id for a given card_number (card_id).
     Returns:
@@ -159,11 +158,9 @@ def find_card_using_card_id(card_id, target):
     """
 
     if not isinstance(card_id, str):
-        print("NOLLA A")
         return 0
     card_id = card_id.strip()
     if not card_id:
-        print("NOLLA B")
         return 0
     table_name = ""
     if target == "private":
@@ -176,11 +173,9 @@ def find_card_using_card_id(card_id, target):
             (card_id,)
         )
     except Exception:
-        print("NOLLA C")
         return 0
 
     if not rows:
-        print("NOLLA D")
         return 0
 
     # rows[0] is an sqlite3.Row, so you can access by column name
@@ -217,10 +212,8 @@ def send_card():
         card_number = card_set + "-" + suffix
     else:
         card_number = card_set + "-" + "001"
-    print("TESTATAAN VOIKO HYVÄKSYÄ: "+ target + ", " + (str)(find_card_using_card_id(card_number, target)))
     if target == "global" and find_card_using_card_id(card_number, target) != 0:
         flash("A card with this id already exists in the public database")
-        print("Eihän tätä voi lisätä " + target)
         return redirect(url_for("new_card", target=target))
 
     table_name = ""
@@ -432,7 +425,6 @@ def delete_card():
     name = request.form.get("name", "")
     id_str = request.form.get("id")
 
-    print("Testing target name")
     if target == "global":
         table_name = "public_digimon_cards"
     elif target == "private":
