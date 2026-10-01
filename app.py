@@ -3,6 +3,7 @@ Main application file
 """
 import random
 import sqlite3
+import re
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
@@ -224,10 +225,48 @@ def random_card():
     add_random_card()
     return redirect("/full_card_list")
 
+def is_card_name_valid(name: str) -> bool:
+    """
+    Validate the raw input before any sanitization.
+    Rules:
+      - must be a str
+      - after trimming leading/trailing whitespace it must be non-empty
+      - the trimmed string must be at most 20 characters long
+
+    Returns True when valid, False otherwise.
+    """
+    if not isinstance(name, str):
+        return False
+    trimmed = name.strip()
+    if not trimmed:
+        return False
+    if len(trimmed) > 20:
+        return False
+    return True
+
+
+def sanitize_card_name(name: str) -> str:
+    """
+    Sanitize the input string (assumes caller already validated or chooses to call it).
+    Operations performed:
+      - non-strings -> returns empty string
+      - collapse consecutive whitespace into a single space
+      - strip leading/trailing whitespace
+      - ensure first character is uppercase (leaves the rest unchanged)
+
+    Returns the sanitized string (may be empty if input was not a string or all whitespace).
+    """
+    if not isinstance(name, str):
+        return ""
+    s = re.sub(r'\s+', ' ', name).strip()
+    if not s:
+        return ""
+    s = s[0].upper() + s[1:]
+    return s  
+
 """
 Method that adds a random card from a list to the global database
 """
-
 def add_random_card():
     cards = [
         ("Agumon", "P-001", "P"),
