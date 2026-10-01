@@ -168,14 +168,14 @@ def send_card():
     card_set = request.form.get("card_set", "").strip() or None
     suffix = request.form.get("card_number_suffix", "").strip()
 
-    if not card_name:
-        flash("No card name provided.")
-        return redirect("/new_card", target=target)
-
+    if card_name and is_card_name_valid(card_name):
+        card_name = sanitize_card_name(card_name)
+    else:
+        flash("No valid card name provided.")
+        return redirect(url_for("new_card", target=target))
     if rarity and rarity not in {"C","U","R","UR","SEC","P","SR"}:
         flash("Invalid rarity selected.")
-        return redirect("/new_card", target=target)
-
+        return redirect(url_for("new_card", target=target))
     if suffix:
         card_number = card_set + "-" + suffix
     else:
