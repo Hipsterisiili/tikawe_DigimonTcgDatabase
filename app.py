@@ -150,18 +150,21 @@ def logout():
     return redirect("/")
 
 def find_card_using_card_id(card_id, target):
+    print("Etsitään id: " + card_id + " kohteesta " + target)
     """
     Look up the primary key id for a given card_number (card_id).
     Returns:
       - the integer primary key id if found
-      - -1 if not found or on invalid input / error
+      - 0 if not found or on invalid input / error
     """
 
     if not isinstance(card_id, str):
-        return -1
+        print("NOLLA A")
+        return 0
     card_id = card_id.strip()
     if not card_id:
-        return -1
+        print("NOLLA B")
+        return 0
     table_name = ""
     if target == "private":
         table_name = session["username"]
@@ -169,14 +172,16 @@ def find_card_using_card_id(card_id, target):
         table_name = "public_digimon_cards"    
     try:
         rows = db.query(
-            "SELECT id FROM ? WHERE card_number = ? LIMIT 1",
-            (table_name, card_id,)
+            f"SELECT id FROM {table_name} WHERE card_number = ? LIMIT 1",
+            (card_id,)
         )
     except Exception:
-        return -1
+        print("NOLLA C")
+        return 0
 
     if not rows:
-        return -1
+        print("NOLLA D")
+        return 0
 
     # rows[0] is an sqlite3.Row, so you can access by column name
     return rows[0]["id"]
@@ -212,8 +217,11 @@ def send_card():
         card_number = card_set + "-" + suffix
     else:
         card_number = card_set + "-" + "001"
-
-
+    print("TESTATAAN VOIKO HYVÄKSYÄ: "+ target + ", " + (str)(find_card_using_card_id(card_number, target)))
+    if target == "global" and find_card_using_card_id(card_number, target) != 0:
+        flash("A card with this id already exists in the public database")
+        print("Eihän tätä voi lisätä " + target)
+        return redirect(url_for("new_card", target=target))
 
     table_name = ""
 
