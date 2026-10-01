@@ -4,10 +4,10 @@ Main application file
 import random
 import sqlite3
 import re
+import secrets
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
-import secrets
 
 app = Flask(__name__)
 
@@ -57,11 +57,6 @@ def personal_card_list():
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
-
-    if session["username"]:
-        target = "private"
-    else:
-        target = "global"
 
     return render_template(
         "cards/personal_card_list.html", 
@@ -166,7 +161,7 @@ def find_card_using_card_id(card_id, target):
     if target == "private":
         table_name = session["username"]
     else:
-        table_name = "public_digimon_cards"   
+        table_name = "public_digimon_cards" 
     try:
         rows = db.query(
             f"SELECT id FROM {table_name} WHERE card_number = ? LIMIT 1",
@@ -211,7 +206,7 @@ def send_card():
     if suffix:
         card_number = card_set + "-" + suffix
     else:
-        card_number = card_set + "-" + "001"
+        card_number = card_set + "-" + "000"
     if target == "global" and find_card_using_card_id(card_number, target) != 0:
         flash("A card with this id already exists in the public database")
         return redirect(url_for("new_card", target=target))
@@ -246,9 +241,8 @@ def send_card():
     if target == "private":
         flash(card_name + " added to personal collection.")
         return redirect("/personal_card_list")
-    else:
-        flash(card_name + " added to the public collection.")
-        return redirect("/full_card_list")
+    flash(card_name + " added to the public collection.")
+    return redirect("/full_card_list")
 
 
 @app.route("/random_card")
@@ -297,7 +291,7 @@ def sanitize_card_name(name: str) -> str:
     if not s:
         return ""
     s = s[0].upper() + s[1:]
-    return s 
+    return s
 
 def add_random_card():
     """
