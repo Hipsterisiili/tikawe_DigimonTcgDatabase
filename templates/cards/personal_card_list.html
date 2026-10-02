@@ -20,13 +20,6 @@ User may:
 
         <p><a href="/new_card?target=private">Add a card to your personal collection</a></p>
 
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <ul class="flashes">
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %} {% endwith %}
         {% if session.username %}
         <p>Amount of cards in your collection: {{ count }}</p>
         <hr />
