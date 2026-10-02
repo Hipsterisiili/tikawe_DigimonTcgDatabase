@@ -1,0 +1,19 @@
+{# templates/redirect_box.html - a reusable fragment #}
+<div class="redirect-box">
+    {% if session.username %}
+    <p>Logged in as: {{ session.username }}</p>
+    <p><a href="{{ url_for('logout') }}">Log out</a></p>
+    {% else %}
+    <p>Not yet logged in</p>
+    <p><a href="{{ url_for('login') }}">Log in</a></p>
+    <p><a href="{{ url_for('register') }}">Register</a></p>
+    {% endif %} {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul class="flashes">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+
+    <p><a href="{{ url_for('index') }}">Back to the front page</a></p>
+</div>
