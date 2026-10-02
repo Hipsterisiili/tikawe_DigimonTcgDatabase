@@ -121,7 +121,7 @@ def register():
     """
     Page for creating a new user for the app.
     """
-    return render_template(url_for("register"))
+    return render_template("accounts/register.html")
 
 @app.route("/create", methods=["POST"])
 def create():

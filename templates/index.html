@@ -34,9 +34,11 @@
     <p>
       you are not yet logged in!
       <p>
-        <a href="/login">Log in</a>
         <p>
-          <a href="/register">Register</a>
+          <a href="{{ url_for('login') }}">Log in</a>
+        </p>
+        <p>
+          <a href="{{ url_for('register') }}">Register</a>
         </p>
       </p>
     </p>
