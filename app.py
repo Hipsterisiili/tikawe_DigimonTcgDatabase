@@ -69,7 +69,7 @@ def personal_card_list():
     )
 
 @app.route("/user_collection/<username>")
-def user_collection(list_owner):
+def user_collection(username):
     """
     Function for finding an other user's collection (name given in url)
     User can view and comment (TODO) other user's collection 
@@ -77,13 +77,13 @@ def user_collection(list_owner):
     -If displaying logged in user's personal list: rendered personal_card_list.html
     -If displaying someone else's personal list: rendered user_collection.html
     """
-    
-    table_name = sanitize_table_name("personal_collection_" + list_owner)
+
+    table_name = sanitize_table_name("personal_collection_" + username)
     if not table_name:
         flash("Invalid username.")
         return redirect(url_for("users"))
 
-    user_exists = db.query("SELECT 1 FROM users WHERE username = ? LIMIT 1", (list_owner,))
+    user_exists = db.query("SELECT 1 FROM users WHERE username = ? LIMIT 1", (username,))
     if not user_exists:
         flash("User not found.")
         return redirect(url_for("users"))
@@ -99,15 +99,17 @@ def user_collection(list_owner):
         card_list = []
         latest_card = None
 
-    if ("username" in session and session["username"] == list_owner):
-        return render_template(
-                "cards/personal_card_list.html",
-                count=card_amount,
-                card_list=card_list,
-            )
-
+    if ("username" in session and session["username"] == username):
+            print("returning personal")
+            return render_template(
+                    "cards/personal_card_list.html",
+                    count=card_amount,
+                    card_list=card_list,
+                )
+    print("returning not personal")
     return render_template(
         "cards/user_collection.html",
+        owner=username,
         count=card_amount,
         card_list=card_list,
         latest_card=latest_card
@@ -119,7 +121,7 @@ def register():
     """
     Page for creating a new user for the app.
     """
-    return render_template("accounts/register.html")
+    return render_template(url_for("register"))
 
 @app.route("/create", methods=["POST"])
 def create():
