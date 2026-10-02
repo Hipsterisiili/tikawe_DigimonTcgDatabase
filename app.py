@@ -64,6 +64,27 @@ def personal_card_list():
         card_list=card_list
     )
 
+@app.route("/user_collection")
+def personal_card_list():
+    """
+    This page displays an other user's own collection.
+    User may:
+    - View collection
+    - Comment on the collection (TODO)
+    """
+    list_owner = ""
+    table_name = sanitize_table_name("personal_collection_"+ list_owner)
+
+    card_amount_result = db.query(f"SELECT COUNT(*) FROM `{table_name}`")
+    card_amount = card_amount_result[0][0] if card_amount_result else 0
+    card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number")
+
+    return render_template(
+        "cards/user_collection.html", 
+        count=card_amount,
+        card_list=card_list
+    )
+
 @app.route("/register")
 def register():
     """
@@ -293,6 +314,18 @@ def is_card_name_valid(name: str) -> bool:
         return False
     return True
 
+import re
+
+def sanitize_table_name(name):
+    """
+    Return a safe table name (same scheme used when creating per-user tables),
+    or None if invalid. Allows letters, digits and underscores, and no leading digit.
+    """
+    if not isinstance(name, str):
+        return None
+    s = re.sub(r'\W', '_', name)   # convert non-word chars to underscores
+    return s if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', s) else None
+
 
 def sanitize_card_name(name: str) -> str:
     """
@@ -462,13 +495,3 @@ def delete_card():
         return redirect("/full_card_list")
     flash(f"{name} deleted from private collection.")
     return redirect("/personal_card_list")
-
-import re
-
-def sanitize_table_name(name):
-    """Return a safe table name or None if invalid."""
-    if not isinstance(name, str):
-        return None
-    s = re.sub(r'\W', '_', name)                      # non-word -> underscore
-    return s if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', s) else None
-
