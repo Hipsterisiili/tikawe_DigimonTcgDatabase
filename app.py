@@ -52,12 +52,16 @@ def personal_card_list():
     - Add specific or random cards to their own collection
     - Delete cards from their own collection
     """
-    private_table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
+    print("def personal cl, username = " + session["username"])
+    private_table_name = "personal_collection_"+ session["username"]
+    print("private_table_name: ", private_table_name)
 
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
+    print("card_amount_result: ", card_amount_result)
     card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
 
+    print("returning pcl")
     return render_template(
         "cards/personal_card_list.html", 
         count=card_amount,
@@ -65,7 +69,7 @@ def personal_card_list():
     )
 
 @app.route("/user_collection/<username>")
-def user_collection(username):
+def user_collection(list_owner):
     """
     Function for finding an other user's collection (name given in url)
     User can view and comment (TODO) other user's collection 
@@ -73,8 +77,7 @@ def user_collection(username):
     -If displaying logged in user's personal list: rendered personal_card_list.html
     -If displaying someone else's personal list: rendered user_collection.html
     """
-
-    list_owner = username
+    
     table_name = sanitize_table_name("personal_collection_" + list_owner)
     if not table_name:
         flash("Invalid username.")
@@ -105,7 +108,6 @@ def user_collection(username):
 
     return render_template(
         "cards/user_collection.html",
-        owner=list_owner,
         count=card_amount,
         card_list=card_list,
         latest_card=latest_card
@@ -231,7 +233,6 @@ def find_card_using_card_id(card_id, target):
     if not rows:
         return 0
 
-    # rows[0] is an sqlite3.Row, so you can access by column name
     return rows[0]["id"]
 
 @app.route("/users")
@@ -247,7 +248,6 @@ from flask import abort, flash, session, url_for, redirect
 
 @app.route("/new_card")
 def new_card():
-    # get target from query string, default to global
     target = request.args.get("target", "global")
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
@@ -285,7 +285,7 @@ def send_card():
         if "username" not in session:
             flash("You must be logged in to add to personal collection.")
             return redirect(url_for("login"))
-        table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
+        table_name = sanitize_table_name("personal_collection_"+ session["username"])
 
     elif target == "global":
         table_name = "public_digimon_cards"
@@ -343,11 +343,12 @@ def is_card_name_valid(name: str) -> bool:
 
 import re
 
-def sanitize_table_name(name):
+def sanitize_table_name(name: str) -> str:
     """
     Return a safe table name (same scheme used when creating per-user tables),
     or None if invalid. Allows letters, digits and underscores, and no leading digit.
     """
+    print("Sanitizing")
     if not isinstance(name, str):
         return None
     s = re.sub(r'\W', '_', name)   # convert non-word chars to underscores
@@ -419,7 +420,7 @@ def edit_card_form():
         if "username" not in session:
             flash("Please log in")
             return redirect(url_for("login"))
-        table = sanitize_table_name("personal_collection_"+ request.form["username"])
+        table = sanitize_table_name("personal_collection_"+ session["username"])
     else:
         table = "public_digimon_cards"
 
@@ -469,7 +470,7 @@ def edit_card_submit():
         if "username" not in session:
             flash("Please log in")
             return redirect("{{ url_for('login') }}")
-        table = sanitize_table_name("personal_collection_"+ request.form["username"])
+        table = sanitize_table_name("personal_collection_"+ session["username"])
     elif target == "global":
         table = "public_digimon_cards"
     else:
@@ -501,7 +502,7 @@ def delete_card():
     if target == "global":
         table_name = "public_digimon_cards"
     elif target == "private":
-        table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
+        table_name = sanitize_table_name("personal_collection_"+ session["username"])
     else:
         flash(f"Incorrect table name, {target} given")
         return redirect("/")

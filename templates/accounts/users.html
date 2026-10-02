@@ -2,6 +2,10 @@
 <html>
     <head>
         <title>Users</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+        />
     </head>
     <body>
         <h1>Users</h1>
@@ -17,7 +21,13 @@
         <ul>
             {% for u in users %}
             <li>
-                <p>{{ u['username'] }}</p>
+                <strong>{{ u['username'] }}</strong>
+                <a
+                    href="{{ url_for('user_collection', username=u['username']) }}"
+                >
+                    View collection
+                </a>
+                <br />
                 <small>
                     joined {{ u['created_at'] }}{% if u['is_admin'] %} — admin{%
                     endif %}
