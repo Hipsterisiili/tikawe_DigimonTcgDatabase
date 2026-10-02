@@ -52,7 +52,7 @@ def personal_card_list():
     - Add specific or random cards to their own collection
     - Delete cards from their own collection
     """
-    private_table_name = "personal_collection_"+ request.form["username"]
+    private_table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
 
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
@@ -64,26 +64,53 @@ def personal_card_list():
         card_list=card_list
     )
 
-@app.route("/user_collection")
-def personal_card_list():
+@app.route("/user_collection/<username>")
+def user_collection(username):
     """
-    This page displays an other user's own collection.
-    User may:
-    - View collection
-    - Comment on the collection (TODO)
+    Function for finding an other user's collection (name given in url)
+    User can view and comment (TODO) other user's collection 
+    Returns 
+    -If displaying logged in user's personal list: rendered personal_card_list.html
+    -If displaying someone else's personal list: rendered user_collection.html
     """
-    list_owner = ""
-    table_name = sanitize_table_name("personal_collection_"+ list_owner)
 
-    card_amount_result = db.query(f"SELECT COUNT(*) FROM `{table_name}`")
-    card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number")
+    list_owner = username
+    table_name = sanitize_table_name("personal_collection_" + list_owner)
+    if not table_name:
+        flash("Invalid username.")
+        return redirect(url_for("users"))
+
+    user_exists = db.query("SELECT 1 FROM users WHERE username = ? LIMIT 1", (list_owner,))
+    if not user_exists:
+        flash("User not found.")
+        return redirect(url_for("users"))
+
+    try:
+        card_amount_result = db.query(f'SELECT COUNT(*) FROM "{table_name}"')
+        card_amount = card_amount_result[0][0] if card_amount_result else 0
+        card_list = db.query(f'SELECT id, name, card_number, rarity FROM "{table_name}" ORDER BY card_number')
+        latest_res = db.query(f'SELECT name FROM "{table_name}" ORDER BY id DESC LIMIT 1')
+        latest_card = latest_res[0][0] if latest_res else None
+    except sqlite3.OperationalError:
+        card_amount = 0
+        card_list = []
+        latest_card = None
+
+    if ("username" in session and session["username"] == list_owner):
+        return render_template(
+                "cards/personal_card_list.html",
+                count=card_amount,
+                card_list=card_list,
+            )
 
     return render_template(
-        "cards/user_collection.html", 
+        "cards/user_collection.html",
+        owner=list_owner,
         count=card_amount,
-        card_list=card_list
+        card_list=card_list,
+        latest_card=latest_card
     )
+
 
 @app.route("/register")
 def register():
@@ -190,7 +217,7 @@ def find_card_using_card_id(card_id, target):
         return 0
     table_name = ""
     if target == "private":
-        table_name = "personal_collection_"+ request.form["username"]
+        table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
     else:
         table_name = "public_digimon_cards" 
     try:
@@ -258,7 +285,7 @@ def send_card():
         if "username" not in session:
             flash("You must be logged in to add to personal collection.")
             return redirect(url_for("login"))
-        table_name = "personal_collection_"+ request.form["username"]
+        table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
 
     elif target == "global":
         table_name = "public_digimon_cards"
@@ -392,7 +419,7 @@ def edit_card_form():
         if "username" not in session:
             flash("Please log in")
             return redirect(url_for("login"))
-        table = "personal_collection_"+ request.form["username"]
+        table = sanitize_table_name("personal_collection_"+ request.form["username"])
     else:
         table = "public_digimon_cards"
 
@@ -442,7 +469,7 @@ def edit_card_submit():
         if "username" not in session:
             flash("Please log in")
             return redirect("{{ url_for('login') }}")
-        table = "personal_collection_"+ request.form["username"]
+        table = sanitize_table_name("personal_collection_"+ request.form["username"])
     elif target == "global":
         table = "public_digimon_cards"
     else:
@@ -474,7 +501,7 @@ def delete_card():
     if target == "global":
         table_name = "public_digimon_cards"
     elif target == "private":
-        table_name = "personal_collection_"+ request.form["username"]
+        table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
     else:
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
