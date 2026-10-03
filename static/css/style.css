@@ -165,6 +165,54 @@ select {
     }
 }
 
+.sidebar-row {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar {
+    flex: 0 0 auto; /* preserve natural width of redirect_box */
+}
+
+.sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* put button and count to the right */
+    gap: 0.35rem;
+    margin-left: 0.5rem;
+}
+
+.toggle-comments-checkbox {
+    display: none;
+}
+
+.comments-count {
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.show-comments-btn {
+    cursor: pointer;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* comments panel hidden by default; shown when checkbox is checked */
+.comments-panel {
+    display: none;
+    margin-top: 0.75rem;
+}
+.toggle-comments-checkbox:checked ~ .comments-panel {
+    display: block;
+}
+
 .comment-box summary {
     cursor: pointer;
     font-weight: bold;
