@@ -54,13 +54,11 @@ User alter the following info on the card:
                 Rarity:
                 <br />
                 <select name="rarity">
-                    <option value="C">C</option>
-                    <option value="U">U</option>
-                    <option value="R">R</option>
-                    <option value="UR">UR</option>
-                    <option value="SEC">SEC</option>
-                    <option value="P">P</option>
-                    <option value="SR">SR</option>
+                    {% for r in rarities %} {% if rarity == r %}
+                    <option value="{{ r }}" selected>{{ r }}</option>
+                    > {% else %}
+                    <option value="{{ r }}">{{ r }}</option>
+                    {% endif %} {% endfor %}
                 </select>
             </p>
 

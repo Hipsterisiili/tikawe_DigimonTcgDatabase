@@ -426,7 +426,8 @@ def edit_card_form():
         rarity=card["rarity"] or "",
         card_set=card_set or "",
         card_number_suffix=suffix or "",
-        sets = ALLOWED_SETS
+        sets = ALLOWED_SETS,
+        rarities = ALLOWED_RARITIES
     )
 
 @app.route("/edit_card", methods=["POST"])
