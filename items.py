@@ -92,6 +92,24 @@ def get_latest_card_from_table(table_name: str) -> str | None:
     except Exception:
         return None
 
+def add_card_to_table(table_name: str, name: str, card_number: str, rarity: str) -> None:
+    """
+    Add a card to the specified table.
+    Raises sqlite3.Error if insertion fails.
+    """
+    db.execute(
+            f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
+            "id INTEGER PRIMARY KEY, "
+            "name TEXT NOT NULL, "
+            "card_number TEXT, "
+            "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
+            ")"
+        )
+    db.execute(
+            f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
+            (name, card_number, rarity)
+        )
+
 def add_random_card():
     """
     Method that adds a random card from a list to the global database

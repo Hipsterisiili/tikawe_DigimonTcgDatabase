@@ -278,18 +278,7 @@ def send_card():
         flash("Couldn't add a card, no valid table name received")
         return redirect("/")
 
-    db.execute(
-        f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
-        "id INTEGER PRIMARY KEY, "
-        "name TEXT NOT NULL, "
-        "card_number TEXT, "
-        "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
-        ")"
-    )
-    db.execute(
-        f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
-        (card_name, card_number, rarity)
-    )
+    items.add_card_to_table(table_name, card_name, card_number, rarity)
 
     if target == "private":
         flash(card_name + " added to personal collection.")
