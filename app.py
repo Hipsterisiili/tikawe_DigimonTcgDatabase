@@ -111,6 +111,35 @@ def user_collection(username):
         latest_card=latest_card
     )
 
+@app.route('/add_comment', methods=['POST'])
+def add_comment():
+    if 'username' not in session:
+        flash('Please log in to comment')
+        return redirect(url_for('login'))
+
+    commenter_username = session['username']
+    receiver_username = request.form.get('receiver_username', '').strip()
+    comment_text = request.form.get('comment_text', '').strip()
+
+    if not receiver_username or not comment_text:
+        flash('Missing target or empty comment')
+        return redirect(request.referrer or url_for('index'))
+
+    commenter = users.get_user_by_username(db, commenter_username)
+    receiver = users.get_user_by_username(db, receiver_username)
+
+    if not commenter or not receiver:
+        flash('commenter or receiver not found')
+        return redirect(request.referrer or url_for('index'))
+
+    commenter_id = commenter['id']
+    receiver_id = receiver['id']
+
+    users.add_comment(db, commenter_id, receiver_id, comment_text)
+
+    flash('Comment posted')
+    return redirect(request.referrer or url_for('user_collection', username=receiver_username))
+
 
 @app.route("/register")
 def register():
