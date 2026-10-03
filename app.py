@@ -381,7 +381,6 @@ def edit_card_form():
     - If target is "global" or not provided, card will be edited in the global collection
     Renders the form if valid values are received.
     """
-    check_csrf()
     require_login()
     id = request.args.get("id")
     target = request.args.get("target", "global")
