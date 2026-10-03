@@ -5,6 +5,8 @@ import random
 import sqlite3
 import re
 import secrets
+import items
+import users
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import db
@@ -229,52 +231,41 @@ def register():
 
 @app.route("/create", methods=["POST"])
 def create():
-    """
-    Method for account creation.
-    - Checks if the added username and password are valid.
-    - If username and password are not valid, shows error message and redirects to /register
-    - If username and password are valid, creates a new user, creates a table in database for their own collection and redirects to index
-    """
-    username = request.form["username"]
+    username = request.form["username"].strip()
     password1 = request.form["password1"]
     password2 = request.form["password2"]
+
+    # basic validation (keep this in the route as it's request/UI logic)
     if password1 != password2:
         flash("ERROR: Passwords don't match")
         return redirect(url_for("register"))
     if len(username) < 3:
         flash("Your username must be at least 3 characters long")
         return redirect(url_for("register"))
-
     if len(password1) < 3:
         flash("Your password must be at least 3 characters long")
         return redirect(url_for("register"))
-    
+
     password_hash = generate_password_hash(password1)
 
-    table_name = sanitize_table_name("personal_collection_"+ username)
-
     try:
-        sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-        db.execute(sql, [username, password_hash])
+        users.insert_user(username, password_hash)
     except sqlite3.IntegrityError:
         flash("ERROR: Username already taken")
-        return redirect("/register")
+        return redirect(url_for("register"))
 
     try:
-        db.execute(
-            f"CREATE TABLE IF NOT EXISTS \"{table_name}\" ("
-            "id INTEGER PRIMARY KEY, "
-            "name TEXT NOT NULL, "
-            "card_number TEXT, "
-            "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
-            ")"
-        )
-
+        users.create_personal_table_for(username)
+    except ValueError:
+        flash("ERROR: Invalid username (cannot create personal table)")
+        return redirect(url_for("register"))
     except Exception as e:
-        return f"ERROR: Error creating a new table: {str(e)}"
+        flash(f"ERROR creating personal table: {e}")
+        return redirect(url_for("register"))
 
     flash("Account created!")
-    return redirect("/")
+    return redirect(url_for("index"))
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
