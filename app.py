@@ -3,7 +3,7 @@ Main application file
 """
 import sqlite3
 import secrets
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 import items
 import users
@@ -14,7 +14,9 @@ app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 
-
+def check_csrf():
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
 
 @app.route("/")
 def index():
@@ -234,6 +236,7 @@ def login():
         return redirect("/login")
 
     session["username"] = username
+    session["csrf_token"] = secrets.token_hex(16)
     return redirect("/")
 
 @app.route("/logout")
