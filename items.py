@@ -2,7 +2,28 @@ from curses import flash
 import re
 import random
 import sqlite3
+from flask import request
 import db
+
+def find_card_using_id(id, table_name, db=db):
+    """
+    Look up a card by its primary key id.
+    Returns:
+      - the card data if found
+      - None if not found or on invalid input / error
+    """
+    if not isinstance(id, int):
+        return None
+    try:
+        sql = f"SELECT id, name, card_number, rarity FROM {table_name} WHERE id = ?"
+        rows = db.query(sql, [id])
+    except Exception:
+        return None
+
+    if not rows:
+        return None
+
+    return rows[0]
 
 def find_card_using_card_id(card_id, target):
     """

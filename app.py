@@ -289,15 +289,15 @@ def edit_card_form():
     """
     Page that edits a requested data element based on user's actions
     """
-    card_id = request.args.get("id")
+    id = request.args.get("id")
     target = request.args.get("target", "global")
 
-    if not card_id:
+    if not id:
         flash("No card id provided")
         return redirect(url_for("full_card_list"))
 
     try:
-        card_id_int = int(card_id)
+        id_int = int(id)
     except ValueError:
         flash("Invalid card id")
         return redirect(url_for("full_card_list"))
@@ -306,21 +306,21 @@ def edit_card_form():
         if "username" not in session:
             flash("Please log in")
             return redirect(url_for("login"))
-        table = items.sanitize_table_name("personal_collection_"+ session["username"])
+        table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
     else:
-        table = "public_digimon_cards"
+        table_name = "public_digimon_cards"
 
-    row = db.query(f'SELECT id, name, card_number, rarity FROM "{table}" WHERE id = ?', (card_id_int,))
-    if not row:
+    card = items.find_card_using_id(id_int, table_name)
+    print("row: ", str(card[0]), ", ", str(card[1]), ", ", str(card[2]), ", ", str(card[3]))
+
+    if not card: 
         flash("Card not found")
         return redirect(url_for("full_card_list" if target=="global" else "personal_card_list"))
 
-    card = row[0]
-
     card_set = ""
     suffix = ""
-    if card["card_number"]:
-        parts = str(card["card_number"]).rsplit("-", 1)
+    if card[2]:
+        parts = str(card[2]).rsplit("-", 1)
         if len(parts) == 2:
             card_set, suffix = parts[0], parts[1]
         else:
