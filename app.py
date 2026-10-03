@@ -403,7 +403,7 @@ def delete_card():
         flash("Invalid id")
         return redirect("/")
 
-    db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
+    items.delete_card_from_table(table_name, id_int)
     if table_name == "public_digimon_cards":
         flash(f"{name} deleted from public collection.")
         return redirect("/full_card_list")

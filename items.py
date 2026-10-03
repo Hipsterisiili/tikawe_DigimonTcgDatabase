@@ -1,5 +1,7 @@
+from curses import flash
 import re
 import random
+import sqlite3
 import db
 
 def find_card_using_card_id(card_id, target):
@@ -105,3 +107,10 @@ def add_random_card():
         )
     except sqlite3.IntegrityError:
         flash("Tried to add an already existing card.")
+
+def delete_card_from_table(table_name: str, id_int: int) -> None:
+    """
+    Delete a card from the specified table by its primary key id.
+    Raises sqlite3.Error if deletion fails.
+    """
+    db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
