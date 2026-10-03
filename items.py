@@ -34,7 +34,6 @@ def sanitize_table_name(name: str) -> str:
     s = re.sub(r'\W', '_', name)   # convert non-word chars to underscores
     return s if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', s) else None
 
-
 def sanitize_card_name(name: str) -> str:
     """
     Sanitize the input string (assumes caller already validated or chooses to call it).
@@ -60,6 +59,9 @@ def get_card_list_from_table(table_name: str) -> list:
     Each card is represented as a dictionary with keys: id, name, card_number, rarity.
     Returns an empty list if the table does not exist or on error.
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     try:
         sql = f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number"
         rows = db.query(sql)
@@ -72,6 +74,9 @@ def get_card_number_from_table(table_name: str) -> int:
     Return the number of cards in the specified table.
     Returns 0 if the table does not exist or on error.
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     try:
         sql = f"SELECT COUNT(*) as count FROM `{table_name}`"
         rows = db.query(sql)
@@ -84,6 +89,9 @@ def get_latest_card_from_table(table_name: str) -> str | None:
     Return the name of the latest card added to the specified table.
     Returns None if the table does not exist, is empty, or on error.
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     try:
         sql = f"SELECT name FROM `{table_name}` ORDER BY id DESC LIMIT 1"
         rows = db.query(sql)
@@ -96,6 +104,9 @@ def add_card_to_table(table_name: str, name: str, card_number: str, rarity: str)
     Add a card to the specified table.
     Raises sqlite3.Error if insertion fails.
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     db.execute(
             f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
             "id INTEGER PRIMARY KEY, "
@@ -137,6 +148,9 @@ def edit_card_in_table(table_name: str, id_int: int, name: str, card_number: str
     Edit a card in the specified table by its primary key id.
     Raises sqlite3.Error if update fails.
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     db.execute(
         f'UPDATE "{table_name}" SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
         (name, card_number, rarity, id_int)
@@ -147,6 +161,9 @@ def delete_card_from_table(table_name: str, id_int: int) -> None:
     Delete a card from the specified table by its primary key id.
     Raises sqlite3.Error if deletion fails.
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
 
 def find_card_using_id(id, table_name):
@@ -156,6 +173,9 @@ def find_card_using_id(id, table_name):
       - the card data if found
       - None if not found or on invalid input / error
     """
+    table_name = sanitize_table_name(table_name)
+    if not table_name:
+        raise ValueError("Invalid table name")
     if not isinstance(id, int):
         return None
     try:
