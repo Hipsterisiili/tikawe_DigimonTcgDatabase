@@ -9,7 +9,7 @@ import items
 import users
 import comments
 import db
-from constants import ALL_SETS, ALLOWED_SETS
+from constants import ALLOWED_RARITIES, ALLOWED_SETS
 
 app = Flask(__name__)
 
@@ -284,7 +284,7 @@ def send_card():
     else:
         flash("No valid card name provided.")
         return redirect(url_for("new_card", target=target))
-    if rarity and rarity not in {"C","U","R","UR","SEC","P","SR"}:
+    if rarity and rarity not in ALLOWED_RARITIES:
         flash("Invalid rarity selected.")
         return redirect(url_for("new_card", target=target))
     if suffix:
