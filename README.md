@@ -4,19 +4,39 @@ A database-backed Flask application for storing information about Digimon cards 
 
 ## Overview
 
-The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). There is a global `cards` table accessible to all users and each user has a personal collection stored as a separate table named . Users can view other users' collections (read-only) and view their own (editable). Admin users can edit the entire database.
+The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). 
+App contains a database containing 4 tables:
+- Public collection `cards` 
+- Personal collection for each user `personal_table_{username}`. 
+- Table containing user information `users`
+- Table containing comments left in collections by users
 
-Planned features include adding/removing cards from personal collections and exporting a personal collection as CSV.
 
 ## Features
 
-- Global `cards` table (catalog) which every user can view, add to and remove from
-- Per-user personal collection tables
-- View your own collection and (planned) other users' collections
-- Add and remove cards from personal collection
-- Add/remove cards from personal collections
-- (Planned) Export personal collections as CSV
-- (Planned) Admin-level editing
+- Somewhat secure password management
+- Global catalog which every logged-in user can view and edit
+    -> User can edit the card's information
+    -> User can delete a card from catalog
+    -> User can directly add cards from this catalog to their collections
+- Personal catalog, which only their owner can edit
+    -> User can edit the card's information
+    -> User can delete a card from catalog
+- User catalog for browsing other users and their collections
+    -> Contains a link to viewing ach user's collection
+- Commenting on other users' collections.
+    -> Only the collection's owner may read these comments.
+    -> The collection's owner may delete these comments
+
+
+## Planned features
+
+- Searching for users
+- Searching for cards
+- Exporting a personal collection as CSV for use in other apps.
+- Images for cards
+- Drafting from a pre-built collection (likely after the course has ended)
+
 
 ## Minimal requirements
 
