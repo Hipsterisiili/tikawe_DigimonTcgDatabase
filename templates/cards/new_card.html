@@ -52,9 +52,11 @@ User specify following info on the card:
                 Set:
                 <br />
                 <select name="card_set">
-                    <option value="BT1" selected>BT1</option>
-                    <option value="BT2">BT2</option>
-                    <option value="BT3">BT3</option>
+                    {% for val in sets %} {% if val == current_set %}
+                    <option value="{{ val }}" selected>{{ val }}</option>
+                    {% else %}
+                    <option value="{{ val }}">{{ val }}</option>
+                    {% endif %} {% endfor %}
                 </select>
             </p>
 

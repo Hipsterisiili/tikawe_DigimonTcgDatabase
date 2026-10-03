@@ -242,3 +242,54 @@ select {
     font-size: 0.85rem;
     color: var(--muted);
 }
+
+.set-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.4rem;
+    padding: 0.6rem 0;
+}
+
+.set-grid input[type='radio'] {
+    display: none;
+}
+
+.set-option {
+    display: block;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #e6e9ef;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text);
+    background: var(--card);
+    font-weight: 600;
+}
+
+.set-grid input[type='radio']:checked + .set-option {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 520px) {
+    .set-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.set-dropdown summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.25rem 0;
+}
+.set-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+.set-dropdown .selected-set {
+    margin-left: 0.5rem;
+    font-weight: 700;
+    color: var(--muted);
+}
