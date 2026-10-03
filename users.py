@@ -57,3 +57,13 @@ def get_all_users():
     """Return a list of all users with their username, created_at, and is_admin."""
     sql = "SELECT username, created_at, is_admin FROM users ORDER BY username"
     return db.query(sql)
+
+def get_user_by_username(db, username):
+    sql = "SELECT id, username FROM users WHERE username = ?"
+    rows = db.query(sql, [username])
+    return rows[0] if rows else None
+
+def add_comment(db, commenter_id, receiver_id, comment_text):
+    sql = """INSERT INTO comments (commenter_id, receiver_id, comment_text)
+             VALUES (?, ?, ?)"""
+    db.execute(sql, [commenter_id, receiver_id, comment_text])

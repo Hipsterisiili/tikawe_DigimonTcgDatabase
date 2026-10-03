@@ -113,6 +113,10 @@ def user_collection(username):
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
+    """
+    Using this page user can add a comment to another user's collection.
+    The comment is stored in the database and can be viewed by anyone.
+    """
     if 'username' not in session:
         flash('Please log in to comment')
         return redirect(url_for('login'))
