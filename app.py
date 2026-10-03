@@ -83,17 +83,14 @@ def user_collection(username):
         flash("Invalid username.")
         return redirect(url_for("user_list"))
 
-    user_exists = db.query("SELECT 1 FROM users WHERE username = ? LIMIT 1", (username,))
-    if not user_exists:
+    if not users.get_user_by_username(username):
         flash("User not found.")
         return redirect(url_for("user_list"))
 
     try:
-        card_amount_result = db.query(f'SELECT COUNT(*) FROM "{table_name}"')
-        card_amount = card_amount_result[0][0] if card_amount_result else 0
-        card_list = db.query(f'SELECT id, name, card_number, rarity FROM "{table_name}" ORDER BY card_number')
-        latest_res = db.query(f'SELECT name FROM "{table_name}" ORDER BY id DESC LIMIT 1')
-        latest_card = latest_res[0][0] if latest_res else None
+        card_list = items.get_card_list_from_table(table_name)
+        card_amount = len(card_list)
+        latest_card = items.get_latest_card_from_table(table_name)
     except sqlite3.OperationalError:
         card_amount = 0
         card_list = []
@@ -131,8 +128,8 @@ def add_comment():
         flash('Missing target or empty comment')
         return redirect(request.referrer or url_for('index'))
 
-    commenter = users.get_user_by_username(db, commenter_username)
-    receiver = users.get_user_by_username(db, receiver_username)
+    commenter = users.get_user_by_username(commenter_username)
+    receiver = users.get_user_by_username(receiver_username)
 
     if not commenter or not receiver:
         flash('commenter or receiver not found')

@@ -58,7 +58,7 @@ def get_all_users():
     sql = "SELECT username, created_at, is_admin FROM users ORDER BY username"
     return db.query(sql)
 
-def get_user_by_username(db, username):
+def get_user_by_username(username):
     sql = "SELECT id, username FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0] if rows else None

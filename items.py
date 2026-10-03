@@ -80,6 +80,18 @@ def get_card_number_from_table(table_name: str) -> int:
     except Exception:
         return 0
 
+def get_latest_card_from_table(table_name: str) -> str | None:
+    """
+    Return the name of the latest card added to the specified table.
+    Returns None if the table does not exist, is empty, or on error.
+    """
+    try:
+        sql = f"SELECT name FROM `{table_name}` ORDER BY id DESC LIMIT 1"
+        rows = db.query(sql)
+        return rows[0]["name"] if rows else None
+    except Exception:
+        return None
+
 def add_random_card():
     """
     Method that adds a random card from a list to the global database
