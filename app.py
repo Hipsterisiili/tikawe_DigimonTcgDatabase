@@ -99,11 +99,11 @@ def user_collection(username):
         latest_card = None
 
     if ("username" in session and session["username"] == username):
-            return render_template(
-                    "cards/personal_card_list.html",
-                    count=card_amount,
-                    card_list=card_list,
-                )
+        return render_template(
+                "cards/personal_card_list.html",
+                count=card_amount,
+                card_list=card_list,
+            )
     return render_template(
         "cards/user_collection.html",
         owner=username,
@@ -142,7 +142,7 @@ def add_comment():
     commenter_id = commenter['id']
     receiver_id = receiver['id']
 
-    comments.add_comment(db, commenter_id, receiver_id, comment_text)
+    comments.add_comment(commenter_id, receiver_id, comment_text)
 
     flash('Comment posted')
     return redirect(request.referrer or url_for('user_collection', username=receiver_username))

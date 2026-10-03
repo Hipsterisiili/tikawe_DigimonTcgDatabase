@@ -41,8 +41,9 @@ User may:
                 <div class="card-info">
                     {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
                 </div>
-                    <!--- Button for editing the card --> 
+                {% if session.username %}
                 <div class="card-actions">
+                    <!--- Button for editing the card --> 
                     <form action="{{ url_for('edit_card_form') }}" method="get" style="display:inline">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
                         <input type="hidden" name="id" value="{{ card['id'] }}">
@@ -59,7 +60,6 @@ User may:
                         <button type="submit" class="btn btn-delete"  onclick="return confirm('Delete this card from the public database?')">Delete</button>
                     </form>
                     
-                    {% if session.username %}
                     <!--- Split the card_id into pieces which can be used for adding the card to personal collection -->
                     {% set cn = card['card_number'] or '' %}
                     {% set parts = cn.rsplit('-', 1) %}
