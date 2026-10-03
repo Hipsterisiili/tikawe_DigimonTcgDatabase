@@ -1,10 +1,5 @@
 <!doctype html>
-<!-- 
-A page for displaying an another user's card collection.
-User may:
-- Browse the cards in the collection
-- Leave a comment on the collection (if logged in)
--->
+<!-- A page for displaying an another user's card collection. User may: - Browse the cards in the collection - Leave a comment on the collection (if logged in) -->
 <html>
     <head>
         <title>{{ owner }}'s card list</title>
@@ -16,51 +11,11 @@ User may:
     <body>
         <!-- Element for useful redirects -->
         <div class="sidebar">{% include 'redirect_box.html' %}</div>
-        <p><a href="{{ url_for('user_list') }}">Back to users</a></p>
+        <p>
+            <a href="{{ url_for('user_list') }}">Back to users</a>
+        </p>
 
         <h1>{{ owner }}'s collection</h1>
-
-        <!-- Element for commenting -->
-        <input
-            type="checkbox"
-            id="toggle-comments"
-            class="toggle-comments-checkbox"
-        />
-
-        <div class="comments-panel">
-            {% if session.get('username') and session.get('username') != owner
-            %}
-            <!-- comment form (will be hidden/shown together with the comments) -->
-            <div class="comment-row">
-                <div class="comment-info">
-                    <form method="post" action="{{ url_for('add_comment') }}">
-                        <input
-                            type="hidden"
-                            name="receiver_username"
-                            value="{{ owner }}"
-                        />
-                        <div>
-                            <label for="comment_text">Comment</label>
-                            <br />
-                            <textarea
-                                id="comment_text"
-                                name="comment_text"
-                                rows="4"
-                                cols="60"
-                                required
-                            ></textarea>
-                        </div>
-                        <div style="margin-top: 0.5rem">
-                            <button type="submit">Submit</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <hr />
-            {% else %}
-            <p>No comments yet.</p>
-            {% endif %}
-        </div>
 
         {% if session.get('username') and session.get('username') != owner %}
         <details class="comment-box">
