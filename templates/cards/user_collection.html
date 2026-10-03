@@ -8,8 +8,8 @@
         />
     </head>
     <body>
+        <div class="sidebar">{% include 'redirect_box.html' %}</div>
         <p><a href="{{ url_for('user_list') }}">Back to users</a></p>
-        <p><a href="{{ url_for('index') }}">Back to front page</a></p>
 
         <h1>{{ owner }}'s collection</h1>
 
@@ -38,14 +38,7 @@
                 </div>
             </form>
         </details>
-        {% endif %} {% with messages = get_flashed_messages() %} {% if messages
-        %}
-        <ul class="flashes">
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %} {% endwith %}
+        {% endif %}
 
         <p>Amount of cards in this user's collection: {{ count }}</p>
         {% if latest_card %}
