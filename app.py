@@ -64,6 +64,7 @@ def personal_card_list():
     - Delete cards from their own collection
     """
     require_login()
+    check_csrf()
 
     private_table_name = "personal_collection_"+ session["username"]
 
@@ -259,6 +260,12 @@ def login():
         flash("ERROR: wrong  password")
         return redirect("/login")
 
+    user_id = users.check_login(username, password)
+    if not user_id:
+        flash("ERROR: login failed")
+        return redirect("/login")
+            
+    session["user_id"] = user_id
     session["username"] = username
     session["csrf_token"] = secrets.token_hex(16)
     return redirect("/")
@@ -270,6 +277,8 @@ def logout():
     Then redirects to index
     """
     del session["username"]
+    del session["user_id"]
+    del session["csrf_token"]
     return redirect("/")
 
 @app.route("/user_list")
