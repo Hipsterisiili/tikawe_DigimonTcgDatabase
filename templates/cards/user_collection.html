@@ -13,7 +13,33 @@
 
         <h1>{{ owner }}'s collection</h1>
 
-        {% with messages = get_flashed_messages() %} {% if messages %}
+        {% if session.get('username') and session.get('username') != owner %}
+        <details class="comment-box">
+            <summary>Leave a comment</summary>
+            <form method="post" action="{{ url_for('add_comment') }}">
+                <input
+                    type="hidden"
+                    name="receiver_username"
+                    value="{{ owner }}"
+                />
+                <div>
+                    <label for="comment_text">Comment</label>
+                    <br />
+                    <textarea
+                        id="comment_text"
+                        name="comment_text"
+                        rows="4"
+                        cols="60"
+                        required
+                    ></textarea>
+                </div>
+                <div style="margin-top: 0.5rem">
+                    <button type="submit">Submit</button>
+                </div>
+            </form>
+        </details>
+        {% endif %} {% with messages = get_flashed_messages() %} {% if messages
+        %}
         <ul class="flashes">
             {% for message in messages %}
             <li>{{ message }}</li>

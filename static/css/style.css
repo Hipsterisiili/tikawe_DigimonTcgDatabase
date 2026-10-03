@@ -164,3 +164,11 @@ select {
         box-shadow: none;
     }
 }
+
+.comment-box summary {
+    cursor: pointer;
+    font-weight: bold;
+}
+.comment-box form {
+    margin-top: 0.5rem;
+}
