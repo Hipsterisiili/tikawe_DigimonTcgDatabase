@@ -51,11 +51,12 @@ User may:
         {% endif %}
 
         {% if comment_list and comment_list|length > 0 %} {% for comment in comment_list %}
-        <div class="card-row">
-            <div class="card-info">
-                {{ comment['comment_text'] }}, {{ comment['commenter_id'] }}, {{ comment['created_ad'] }}
+        <p>Other users' comments:</p>
+        <div class="comment-row">
+            <div class="comment-info">
+                {{ comment['commenter_id'] }} wrote at {{ comment['created_at'] }}:
+                {{ comment['comment_text'] }}
             </div>
-        </p>
         </div>
         <hr />
         {% endfor %} {% else %}
