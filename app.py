@@ -59,7 +59,6 @@ def personal_card_list():
     card_amount = items.get_card_number_from_table(private_table_name)
     card_list = items.get_card_list_from_table(private_table_name)
     comments = users.get_comment_list_using_receiver_name(session["username"])
-    print("Comments retrieved:", comments)  # Debugging line
 
     return render_template(
         "cards/personal_card_list.html", 

@@ -29,7 +29,6 @@ def sanitize_table_name(name: str) -> str:
     Return a safe table name (same scheme used when creating per-user tables),
     or None if invalid. Allows letters, digits and underscores, and no leading digit.
     """
-    print("Sanitizing")
     if not isinstance(name, str):
         return None
     s = re.sub(r'\W', '_', name)   # convert non-word chars to underscores
