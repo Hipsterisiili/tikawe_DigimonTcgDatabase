@@ -7,6 +7,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from werkzeug.security import generate_password_hash, check_password_hash
 import items
 import users
+import comments
 import db
 
 app = Flask(__name__)
@@ -58,7 +59,7 @@ def personal_card_list():
 
     card_amount = items.get_card_number_from_table(private_table_name)
     card_list = items.get_card_list_from_table(private_table_name)
-    comments = users.get_comment_list_using_receiver_name(session["username"])
+    comments = comments.get_comment_list_using_receiver_name(session["username"])
 
     return render_template(
         "cards/personal_card_list.html", 
@@ -137,7 +138,7 @@ def add_comment():
     commenter_id = commenter['id']
     receiver_id = receiver['id']
 
-    users.add_comment(db, commenter_id, receiver_id, comment_text)
+    comments.add_comment(db, commenter_id, receiver_id, comment_text)
 
     flash('Comment posted')
     return redirect(request.referrer or url_for('user_collection', username=receiver_username))
