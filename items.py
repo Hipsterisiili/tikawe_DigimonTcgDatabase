@@ -27,7 +27,11 @@ def is_card_name_valid(name: str) -> bool:
 def sanitize_table_name(name: str) -> str:
     """
     Return a safe table name (same scheme used when creating per-user tables),
-    or None if invalid. Allows letters, digits and underscores, and no leading digit.
+    or None if invalid. 
+    Rules:
+     - Must be a str
+     - Contains only letters, digits and underscores
+     - Contains no leading digit.
     """
     if not isinstance(name, str):
         return None
@@ -146,7 +150,7 @@ def add_random_card():
 def edit_card_in_table(table_name: str, id_int: int, name: str, card_number: str, rarity: str) -> None:
     """
     Edit a card in the specified table by its primary key id.
-    Raises sqlite3.Error if update fails.
+    Takes the new name, card_number, and rarity as parameters.
     """
     table_name = sanitize_table_name(table_name)
     if not table_name:
@@ -159,7 +163,6 @@ def edit_card_in_table(table_name: str, id_int: int, name: str, card_number: str
 def delete_card_from_table(table_name: str, id_int: int) -> None:
     """
     Delete a card from the specified table by its primary key id.
-    Raises sqlite3.Error if deletion fails.
     """
     table_name = sanitize_table_name(table_name)
     if not table_name:
