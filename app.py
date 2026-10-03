@@ -39,11 +39,10 @@ def full_card_list():
     - Add either specific or random cards to the global collection
     - Delete cards from global collection
     """
-    card_amount_result = db.query("SELECT COUNT(*) FROM public_digimon_cards")
-    card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query("SELECT id, name, card_number, rarity FROM public_digimon_cards ORDER BY card_number")
-    latest_card_result = db.query("SELECT name FROM public_digimon_cards ORDER BY id DESC LIMIT 1")
-    latest_card = latest_card_result[0][0] if latest_card_result else None
+    table_name = "public_digimon_cards"
+    card_amount = items.get_card_number_from_table(table_name)
+    card_list = items.get_card_list_from_table(table_name)
+    latest_card = items.get_latest_card_from_table(table_name)
 
     return render_template(
         "cards/full_card_list.html",

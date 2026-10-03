@@ -4,7 +4,7 @@ A database-backed Flask application for storing information about Digimon cards 
 
 ## Overview
 
-The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). There is a global `cards` table accessible to all users and each user has a personal collection stored as a separate table (current design). Users can view other users' collections (read-only) and view their own (editable). Admin users can edit the entire database.
+The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). There is a global `cards` table accessible to all users and each user has a personal collection stored as a separate table named . Users can view other users' collections (read-only) and view their own (editable). Admin users can edit the entire database.
 
 Planned features include adding/removing cards from personal collections and exporting a personal collection as CSV.
 
