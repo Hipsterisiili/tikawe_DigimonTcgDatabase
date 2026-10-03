@@ -152,6 +152,7 @@ def delete_comment():
     """
     User can delete a comment regarding their collection from the database.
     """
+    check_csrf()
     comment_id = request.form.get('comment_id', '').strip()
 
     if not comment_id:
