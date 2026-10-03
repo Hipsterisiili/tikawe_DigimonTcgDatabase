@@ -306,7 +306,7 @@ def user_list():
     """
     A page for displaying a list of all current users for the app
     """
-    rows = db.query("SELECT username, created_at, is_admin FROM users ORDER BY username")
+    rows = users.get_all_users(db)
     return render_template("accounts/user_list.html", user_list=rows)
 
 @app.route("/new_card")

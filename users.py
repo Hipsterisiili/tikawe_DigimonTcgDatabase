@@ -58,3 +58,8 @@ def get_password_hash(db, username):
     sql = "SELECT password_hash FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0]["password_hash"] if rows else None
+
+def get_all_users(db):
+    """Return a list of all users with their username, created_at, and is_admin."""
+    sql = "SELECT username, created_at, is_admin FROM users ORDER BY username"
+    return db.query(sql)
