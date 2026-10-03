@@ -263,7 +263,7 @@ def login():
     if not user_id:
         flash("ERROR: login failed")
         return redirect("/login")
-            
+
     session["user_id"] = user_id
     session["username"] = username
     session["csrf_token"] = secrets.token_hex(16)
@@ -382,15 +382,10 @@ def edit_card_form():
     Renders the form if valid values are received.
     """
     require_login()
-    id = request.args.get("id")
     target = request.args.get("target", "global")
 
-    if not id:
-        flash("No card id provided")
-        return redirect(url_for("full_card_list"))
-
     try:
-        id_int = int(id)
+        id = int(request.args.get("id"))
     except ValueError:
         flash("Invalid card id")
         return redirect(url_for("full_card_list"))
@@ -403,7 +398,7 @@ def edit_card_form():
     else:
         table_name = "public_digimon_cards"
 
-    card = items.find_card_using_id(id_int, table_name)
+    card = items.find_card_using_id(id, table_name)
 
     if not card:
         flash("Card not found")
