@@ -64,7 +64,6 @@ def personal_card_list():
     - Delete cards from their own collection
     """
     require_login()
-    check_csrf()
 
     private_table_name = "personal_collection_"+ session["username"]
 
@@ -299,7 +298,6 @@ def new_card():
     - If target is "global" or not provided, card will be added to the global collection.
     Renders the new_card.html with the given data. It will call for /send_card when the user submits the form.
     """
-    check_csrf()
     require_login()
     target = request.args.get("target", "global")
     if target == "private" and "username" not in session:
@@ -484,6 +482,7 @@ def delete_card():
     Then it redirects user to index.
     """
     check_csrf()
+    require_login()
     target = request.form.get("target", "global")
     table_name = ""
     name = request.form.get("name", "")
