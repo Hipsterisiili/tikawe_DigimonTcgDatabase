@@ -23,6 +23,11 @@ User specify following info on the card:
 
     <body>
         <form action="/send_card" method="post">
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ session.csrf_token }}"
+            />
             <p>
                 Name of the card:
                 <br />

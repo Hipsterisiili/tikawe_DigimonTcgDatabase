@@ -269,7 +269,7 @@ def new_card():
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
-    print("SENDING")
+    check_csrf()
     card_name = request.form.get("card_name", "").strip()
     card_set = request.form.get("card_set", "").strip() or None
     suffix = request.form.get("card_number_suffix", "").strip()

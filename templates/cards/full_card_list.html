@@ -69,6 +69,7 @@ User may:
                     <!-- Button to yoink card directly into private collection
                      Visible only to logged-in users -->
                     <form action="/send_card" method="post" style="display:inline">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
                         <input type="hidden" name="card_name" value="{{ card['name'] }}">
                         <input type="hidden" name="card_set" value="{{ card_set }}">
                         <input type="hidden" name="card_number_suffix" value="{{ suffix }}">
