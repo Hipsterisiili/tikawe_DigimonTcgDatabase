@@ -5,6 +5,8 @@ User may:
 - Manually add a specific card to the database
 - Edit the existing items
 - Delete the existing items
+- View comments other users have left on their collection
+- Delete comments
 -->
 <html>
     <head>
@@ -15,6 +17,7 @@ User may:
     {% set comments_count = (comment_list|length) if comment_list else 0 %}
     <body>
         
+        <!--- Redirect box containing useful redirects --> 
         {# flex wrapper: left = redirect box (unchanged), right = actions (count + label) #}
         <div class="sidebar-row">
             <div class="sidebar">
@@ -29,9 +32,12 @@ User may:
         <input type="checkbox" id="toggle-comments" class="toggle-comments-checkbox" />
         <p><a href="/new_card?target=private">Add a card to your personal collection</a></p>
 
-        {% if comment_list and comment_list|length > 0 %} 
+        {% if comment_list and comment_list|length > 0 %}
+
+        <!--- Button for toggling comments --> 
         <input type="checkbox" id="toggle-comments" class="toggle-comments-checkbox" />
 
+        <!--- Element for viewing all of the comments other users have left on user's collection --> 
         <div class="comments-panel">
             <p>Other users' comments:</p>
             {% for comment in comment_list %}
@@ -47,7 +53,7 @@ User may:
                         <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this comment?')">Delete</button>
                     </form>
                 </div>
-                
+
             </div>
             <hr />
             {% endfor %}
@@ -61,18 +67,20 @@ User may:
         <p>Amount of cards in your collection: {{ count }}</p>
         <hr />
 
+        <!--- Element for displaying the cards --> 
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
         <div class="card-row">
             <div class="card-info">
                 {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
             </div>
             <div class="card-actions">
+                <!--- Button for editing the card --> 
                 <form action="{{ url_for('edit_card_form') }}" method="get" style="display:inline">
                     <input type="hidden" name="id" value="{{ card['id'] }}">
                     <input type="hidden" name="target" value="private">
                     <button type="submit" class="btn btn-edit" onclick="return confirm('Edit this card\'s data in the public database?')">Edit</button>
                 </form>
-            
+                <!--- Button for deleting the card --> 
                 <form action="/delete_card" method="post" style="display:inline">
                     <input type="hidden" name="id" value="{{ card['id'] }}">
                     <input type="hidden" name="name" value="{{ card['name'] }}">
