@@ -187,12 +187,12 @@ def user_collection(username):
     table_name = sanitize_table_name("personal_collection_" + username)
     if not table_name:
         flash("Invalid username.")
-        return redirect(url_for("users"))
+        return redirect(url_for("user_list"))
 
     user_exists = db.query("SELECT 1 FROM users WHERE username = ? LIMIT 1", (username,))
     if not user_exists:
         flash("User not found.")
-        return redirect(url_for("users"))
+        return redirect(url_for("user_list"))
 
     try:
         card_amount_result = db.query(f'SELECT COUNT(*) FROM "{table_name}"')
@@ -281,15 +281,15 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
 
-    sql = "SELECT password_hash FROM users WHERE username = ?"
-    result = db.query(sql, [username])
-    if len(result) == 0:
+    stored_hash = users.get_password_hash(db, username)
+    if stored_hash is None:
         flash("ERROR: Username not found")
         return redirect("/login")
-    stored_hash = result[0]["password_hash"]
+
     if not check_password_hash(stored_hash, password):
         flash("ERROR: wrong  password")
         return redirect("/login")
+
     session["username"] = username
     return redirect("/")
 
@@ -301,16 +301,13 @@ def logout():
     del session["username"]
     return redirect("/")
 
-@app.route("/users")
-def users():
+@app.route("/user_list")
+def user_list():
     """
     A page for displaying a list of all current users for the app
     """
     rows = db.query("SELECT username, created_at, is_admin FROM users ORDER BY username")
-    return render_template("accounts/users.html", users=rows)
-
-import sqlite3
-from flask import abort, flash, session, url_for, redirect
+    return render_template("accounts/user_list.html", user_list=rows)
 
 @app.route("/new_card")
 def new_card():

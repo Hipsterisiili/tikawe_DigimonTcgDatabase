@@ -7,8 +7,6 @@ import users
 from flask import Flask, app, flash, redirect, render_template, request, session, url_for
 import db
 
-RARITY_CHECK = "CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
-
 def _sanitize_table_name(name: str) -> str | None:
     """
     Turn an arbitrary username into a safe table identifier used for per-user tables.
@@ -49,9 +47,14 @@ def create_personal_table_for(username: str) -> str:
         'id INTEGER PRIMARY KEY, '
         'name TEXT NOT NULL, '
         'card_number TEXT, '
-        f'{RARITY_CHECK}'
+        f'rarity TEXT CHECK (rarity IS NULL OR rarity IN (\'C\',\'U\',\'R\',\'UR\',\'SEC\',\'P\',\'SR\'))'
         ')'
     )
     db.execute(create_sql)
     return table_name
 
+def get_password_hash(db, username):
+    """Return the stored password hash for username or None if not found."""
+    sql = "SELECT password_hash FROM users WHERE username = ?"
+    rows = db.query(sql, [username])
+    return rows[0]["password_hash"] if rows else None
