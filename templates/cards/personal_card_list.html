@@ -31,17 +31,28 @@ User may:
 
         {% if comment_list and comment_list|length > 0 %} 
         <input type="checkbox" id="toggle-comments" class="toggle-comments-checkbox" />
+
         <div class="comments-panel">
             <p>Other users' comments:</p>
             {% for comment in comment_list %}
             <div class="comment-row">
+
                 <div class="comment-info"> {{ comment['commenter_username'] }} wrote at {{ comment['created_at'] }}:
                     <div class="comment-text">{{ comment['comment_text'] }}</div>
                 </div>
+
+                <div class = comment-actions>
+                    <form action="{{ url_for('delete_comment') }}" method="post" style="display:inline">
+                        <input type="hidden" name="comment_id" value="{{ comment['id'] }}">
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this comment?')">Delete</button>
+                    </form>
+                </div>
+                
             </div>
             <hr />
             {% endfor %}
         </div>
+
         {% else %}
         <p>No comments yet.</p>
         {% endif %}

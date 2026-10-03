@@ -143,6 +143,27 @@ def add_comment():
     flash('Comment posted')
     return redirect(request.referrer or url_for('user_collection', username=receiver_username))
 
+@app.route('/delete_comment', methods=['POST'])
+def delete_comment():
+    """
+    User can delete a comment regarding their collection from the database.
+    """
+    comment_id = request.form.get('comment_id', '').strip()
+
+    if not comment_id:
+        flash('Missing comment id')
+        return redirect(request.referrer or url_for('index'))
+
+    try:
+        comment_id_int = int(comment_id)
+    except ValueError:
+        flash('Invalid comment id')
+        return redirect(request.referrer or url_for('index'))
+
+    comments.delete_comment(comment_id_int)
+
+    return redirect(url_for('personal_card_list'))
+
 
 @app.route("/register")
 def register():
