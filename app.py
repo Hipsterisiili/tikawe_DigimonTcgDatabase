@@ -125,6 +125,7 @@ def add_comment():
     """
     Using this page user can add a comment to another user's collection.
     The comment is stored in the database and can be viewed by anyone.
+    Redirects back to the page where the comment was added from.
     """
     check_csrf()
     require_login()
@@ -159,7 +160,8 @@ def add_comment():
 @app.route('/delete_comment', methods=['POST'])
 def delete_comment():
     """
-    User can delete a comment regarding their collection from the database.
+    User can delete a comment matching the id given as parameter from their collection from the database.
+    Redirects back to the personal card list.
     """
     check_csrf()
     require_login()
@@ -184,11 +186,19 @@ def delete_comment():
 def register():
     """
     Page for creating a new user for the app.
+    Renders the register page.
     """
     return render_template("accounts/register.html")
 
 @app.route("/create", methods=["POST"])
 def create():
+    """
+    Function for creating a new user for the app.
+    - Checks if the added username and password are valid.
+    - If username and password are not valid, shows error message and redirects to /register
+    - If username and password are valid, creates a new user, generates their own collection in database 
+    - Then redirects to index
+    """
     username = request.form["username"].strip()
     password1 = request.form["password1"]
     password2 = request.form["password2"]
@@ -232,6 +242,7 @@ def login():
     - Checks if the added username and password are valid.
     - If username and password are not valid, shows error message and redirects to /login
     - If username and password are valid, starts a session for the user and redirects to index
+    Redirects to index if loginn  was successful.
     """
     if request.method == "GET":
         return render_template("accounts/login.html")
@@ -255,7 +266,8 @@ def login():
 @app.route("/logout")
 def logout():
     """
-    Method that ends the current user's session, then redirects to index
+    Method that ends the current user's session, 
+    Then redirects to index
     """
     del session["username"]
     return redirect("/")
@@ -264,6 +276,7 @@ def logout():
 def user_list():
     """
     A page for displaying a list of all current users for the app
+    Renders a list of all users
     """
     rows = users.get_all_users()
     return render_template("accounts/user_list.html", user_list=rows)
@@ -346,7 +359,7 @@ def send_card():
 def random_card():
     """
     Page that let's user add a random card to the global collection.
-    Calls for an another method add_random_card and tjen redirects back to the global card list.
+    Calls for an another method add_random_card and then redirects back to the global card list.
     """
     items.add_random_card()
     return redirect("/full_card_list")
@@ -455,6 +468,10 @@ def edit_card_submit():
 def delete_card():
     """
     Page that deletes a card from the global collection.
+    The id of the card to be deleted is given as a parameter in the form.
+    The target parameter in the form determines whether the card is deleted from the global collection or the user's personal collection.
+    - If target is "private", the card will be deleted from the user's personal collection.
+    - If target is "global" or not provided, card will be deleted from the global collection.
     Then it redirects user to index.
     """
     check_csrf()
