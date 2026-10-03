@@ -378,6 +378,7 @@ def edit_card_form():
 
 @app.route("/edit_card", methods=["POST"])
 def edit_card_submit():
+    check_csrf()
     id = request.form.get("id")
     target = request.form.get("target", "global")
     name = request.form.get("card_name", "").strip()
@@ -417,6 +418,7 @@ def delete_card():
     Page that deletes a card from the global collection.
     Then it redirects user to index.
     """
+    check_csrf()
     target = request.form.get("target", "global")
     table_name = ""
     name = request.form.get("name", "")
