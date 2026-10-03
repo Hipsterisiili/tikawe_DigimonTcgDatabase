@@ -7,6 +7,7 @@ User may:
 - Add a random card from a preset list to the database
 - Edit the existing items
 - Delete the existing items
+- A logged-in user may also add a card from the public database directly to their private collection
 -->
 <html>
     <head>
@@ -33,25 +34,47 @@ User may:
         {% endif %}
         <hr />
 
-        {% if card_list and card_list|length > 0 %} {% for card in card_list %}
+        {% if card_list and card_list|length > 0 %} {% for card in card_list %}        
+        <!--- Element for displaying the cards --> 
         <p>
             <div class="card-row">
                 <div class="card-info">
                     {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
                 </div>
+                    <!--- Button for editing the card --> 
                 <div class="card-actions">
                     <form action="{{ url_for('edit_card_form') }}" method="get" style="display:inline">
                         <input type="hidden" name="id" value="{{ card['id'] }}">
                         <input type="hidden" name="target" value="global">
                         <button type="submit" class="btn btn-edit" onclick="return confirm('Edit this card\'s data in the public database?')">Edit</button>
                     </form>
-
+                    
+                    <!--- Button for deleting the card --> 
                     <form action="/delete_card" method="post" style="display:inline">
                         <input type="hidden" name="id" value="{{ card['id'] }}">
                         <input type="hidden" name="name" value="{{ card['name'] }}">
                         <input type="hidden" name="target" value="global">
                         <button type="submit" class="btn btn-delete"  onclick="return confirm('Delete this card from the public database?')">Delete</button>
                     </form>
+                    
+                    {% if session.username %}
+                    <!--- Split the card_id into pieces which can be used for adding the card to personal collection -->
+                    {% set cn = card['card_number'] or '' %}
+                    {% set parts = cn.rsplit('-', 1) %}
+                    {% set card_set = parts[0] if parts|length > 0 else '' %}
+                    {% set suffix = parts[1] if parts|length > 1 else '' %}
+
+                    <!-- Button to yoink card directly into private collection
+                     Visible only to logged-in users -->
+                    <form action="/send_card" method="post" style="display:inline">
+                        <input type="hidden" name="card_name" value="{{ card['name'] }}">
+                        <input type="hidden" name="card_set" value="{{ card_set }}">
+                        <input type="hidden" name="card_number_suffix" value="{{ suffix }}">
+                        <input type="hidden" name="rarity" value="{{ card['rarity'] }}">
+                        <input type="hidden" name="target" value="private">
+                        <button type="submit" class="btn btn-index">Add to Private Collection</button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </p>

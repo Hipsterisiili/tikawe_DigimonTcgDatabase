@@ -263,11 +263,12 @@ def new_card():
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
+    print("SENDING")
     card_name = request.form.get("card_name", "").strip()
-    target = request.form.get("target", "global")
-    rarity = request.form.get("rarity", "").strip() or None
     card_set = request.form.get("card_set", "").strip() or None
     suffix = request.form.get("card_number_suffix", "").strip()
+    rarity = request.form.get("rarity", "").strip() or None
+    target = request.form.get("target", "global")
 
     if card_name and items.is_card_name_valid(card_name):
         card_name = items.sanitize_card_name(card_name)

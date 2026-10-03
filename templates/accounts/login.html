@@ -2,7 +2,10 @@
 <html>
     <head>
         <title>Kirjautuminen</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+        />
     </head>
 
     <body>
@@ -30,7 +33,7 @@
                 <br />
                 <input type="password" name="password" />
             </p>
-            <input type="submit" value="Kirjaudu" />
+            <input type="submit" value="Log in" />
         </form>
         {% endif %}
     </body>
