@@ -59,11 +59,13 @@ def personal_card_list():
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
     card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
+    comments = db.query(f"SELECT comment_text, commenter_id, created_at FROM comments WHERE receiver_id = (SELECT id FROM users WHERE username = ?) ORDER BY created_at DESC", [session["username"]])
 
     return render_template(
         "cards/personal_card_list.html", 
         count=card_amount,
-        card_list=card_list
+        card_list=card_list,
+        comment_list=comments
     )
 
 @app.route("/user_collection/<username>")
