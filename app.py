@@ -129,7 +129,7 @@ def add_comment():
     """
     check_csrf()
     require_login()
-    
+
     if 'username' not in session:
         flash('Please log in to comment')
         return redirect(url_for('login'))
@@ -433,7 +433,6 @@ def edit_card_submit():
     """
     check_csrf()
     require_login()
-    id = request.form.get("id")
     target = request.form.get("target", "global")
     name = request.form.get("card_name", "").strip()
     rarity = request.form.get("rarity") or None
@@ -441,7 +440,7 @@ def edit_card_submit():
     suffix = request.form.get("card_number_suffix", "").strip()
 
     try:
-        id_int = int(id)
+        id = int(request.form.get("id"))
     except (TypeError, ValueError):
         flash("Invalid id")
         return redirect("/full_card_list")
@@ -458,7 +457,7 @@ def edit_card_submit():
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
 
-    items.edit_card_in_table(table, id_int, name, card_number, rarity)
+    items.edit_card_in_table(table, id, name, card_number, rarity)
 
     if table == "public_digimon_cards":
         flash(f"{name} updated in public collection.")
@@ -481,7 +480,6 @@ def delete_card():
     target = request.form.get("target", "global")
     table_name = ""
     name = request.form.get("name", "")
-    id_str = request.form.get("id")
 
     if target == "global":
         table_name = "public_digimon_cards"
@@ -491,17 +489,13 @@ def delete_card():
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
 
-    if not id_str:
-        flash("No id received, cannot delete anything")
-        return redirect("/")
-
     try:
-        id_int = int(id_str)
+        id = int(request.form.get("id"))
     except ValueError:
         flash("Invalid id")
         return redirect("/")
 
-    items.delete_card_from_table(table_name, id_int)
+    items.delete_card_from_table(table_name, id)
     if table_name == "public_digimon_cards":
         flash(f"{name} deleted from public collection.")
         return redirect("/full_card_list")
