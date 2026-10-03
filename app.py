@@ -1,14 +1,12 @@
 """
 Main application file
 """
-import random
 import sqlite3
-import re
 import secrets
-import items
-import users
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
+import items
+import users
 import db
 
 app = Flask(__name__)
@@ -56,16 +54,12 @@ def personal_card_list():
     - Add specific or random cards to their own collection
     - Delete cards from their own collection
     """
-    print("def personal cl, username = " + session["username"])
     private_table_name = "personal_collection_"+ session["username"]
-    print("private_table_name: ", private_table_name)
 
     card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
-    print("card_amount_result: ", card_amount_result)
     card_amount = card_amount_result[0][0] if card_amount_result else 0
     card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
 
-    print("returning pcl")
     return render_template(
         "cards/personal_card_list.html", 
         count=card_amount,
@@ -104,13 +98,11 @@ def user_collection(username):
         latest_card = None
 
     if ("username" in session and session["username"] == username):
-            print("returning personal")
             return render_template(
                     "cards/personal_card_list.html",
                     count=card_amount,
                     card_list=card_list,
                 )
-    print("returning not personal")
     return render_template(
         "cards/user_collection.html",
         owner=username,
@@ -179,7 +171,7 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
 
-    stored_hash = users.get_password_hash(db, username)
+    stored_hash = users.get_password_hash(username)
     if stored_hash is None:
         flash("ERROR: Username not found")
         return redirect("/login")
@@ -204,7 +196,7 @@ def user_list():
     """
     A page for displaying a list of all current users for the app
     """
-    rows = users.get_all_users(db)
+    rows = users.get_all_users()
     return render_template("accounts/user_list.html", user_list=rows)
 
 @app.route("/new_card")
@@ -311,9 +303,8 @@ def edit_card_form():
         table_name = "public_digimon_cards"
 
     card = items.find_card_using_id(id_int, table_name)
-    print("row: ", str(card[0]), ", ", str(card[1]), ", ", str(card[2]), ", ", str(card[3]))
 
-    if not card: 
+    if not card:
         flash("Card not found")
         return redirect(url_for("full_card_list" if target=="global" else "personal_card_list"))
 

@@ -1,10 +1,4 @@
-import random
-import sqlite3
 import re
-import secrets
-import items
-import users
-from flask import Flask, app, flash, redirect, render_template, request, session, url_for
 import db
 
 def _sanitize_table_name(name: str) -> str | None:
@@ -53,13 +47,13 @@ def create_personal_table_for(username: str) -> str:
     db.execute(create_sql)
     return table_name
 
-def get_password_hash(db, username):
+def get_password_hash(username):
     """Return the stored password hash for username or None if not found."""
     sql = "SELECT password_hash FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0]["password_hash"] if rows else None
 
-def get_all_users(db):
+def get_all_users():
     """Return a list of all users with their username, created_at, and is_admin."""
     sql = "SELECT username, created_at, is_admin FROM users ORDER BY username"
     return db.query(sql)
