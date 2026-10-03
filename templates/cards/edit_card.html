@@ -46,8 +46,8 @@ User alter the following info on the card:
                 Name of the card:
                 <br />
                 <textarea name="card_name" rows="3" cols="40">
-{{- card_name|e -}}</textarea
-                >
+                {{- card_name|e -}}
+                </textarea>
             </p>
 
             <p>
@@ -68,7 +68,7 @@ User alter the following info on the card:
                 Set:
                 <br />
                 <select name="card_set">
-                    {% for val in sets %} {% if val == current_set %}
+                    {% for val in sets %} {% if val == card_set %}
                     <option value="{{ val }}" selected>{{ val }}</option>
                     {% else %}
                     <option value="{{ val }}">{{ val }}</option>
@@ -82,8 +82,10 @@ User alter the following info on the card:
                 <input
                     type="text"
                     name="card_number_suffix"
-                    pattern="\d*"
+                    inputmode="numeric"
+                    pattern="^\d{1,6}$"
                     maxlength="6"
+                    value="{{ card_number_suffix|default('001')|e }}"
                 />
             </p>
 
