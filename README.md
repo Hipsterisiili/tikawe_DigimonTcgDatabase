@@ -11,7 +11,6 @@ App contains a database containing 4 tables:
 - Table containing user information `users`
 - Table containing comments left in collections by users
 
-
 ## Features
 
 - Somewhat secure password management
@@ -30,12 +29,25 @@ App contains a database containing 4 tables:
     - Only the collection's owner may read these comments.
     - The collection's owner may delete these comments
 
+## What an user needs to know about a Digimon card?
+
+- Cards are identified using a card id consisting of set id and set number 
+    - BT1-001 refers to a card number 001 from Base set 1
+    - ST12-021 refers to a card number 021 from Starter deck 21
+    - P-94 refers to the 94:th promo card 
+- Card has a rarity which is one of following:
+    - C (Common)
+    - U (Uncommon)
+    - R (Rare)
+    - SR (Super Rare)
+    - UR (Ultra Rare)
+    - SEC (Secret Rare)
+- A card has multiple other identifiers such as level, type, color and cost, but those are not taken into account in this application: Reason for this is that I am intending on later building a boster drafting system within this application and the a booster draft's output only takes card's rarity into account.
 
 ## Planned features
 
 - Searching for users
 - Searching for cards
-- When editing a card, the previous values appear in form as default values
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical
 - Recognize and stack multiple instances of same card in personal collection
 - Exporting a personal collection as CSV for use in other apps.
