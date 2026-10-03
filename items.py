@@ -55,6 +55,31 @@ def sanitize_card_name(name: str) -> str:
     s = s[0].upper() + s[1:]
     return s
 
+def get_card_list_from_table(table_name: str) -> list:
+    """
+    Return a list of cards from the specified table.
+    Each card is represented as a dictionary with keys: id, name, card_number, rarity.
+    Returns an empty list if the table does not exist or on error.
+    """
+    try:
+        sql = f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number"
+        rows = db.query(sql)
+        return [dict(row) for row in rows]
+    except Exception:
+        return []
+
+def get_card_number_from_table(table_name: str) -> int:
+    """
+    Return the number of cards in the specified table.
+    Returns 0 if the table does not exist or on error.
+    """
+    try:
+        sql = f"SELECT COUNT(*) as count FROM `{table_name}`"
+        rows = db.query(sql)
+        return rows[0]["count"] if rows else 0
+    except Exception:
+        return 0
+
 def add_random_card():
     """
     Method that adds a random card from a list to the global database

@@ -56,10 +56,10 @@ def personal_card_list():
     """
     private_table_name = "personal_collection_"+ session["username"]
 
-    card_amount_result = db.query(f"SELECT COUNT(*) FROM `{private_table_name}`")
-    card_amount = card_amount_result[0][0] if card_amount_result else 0
-    card_list = db.query(f"SELECT id, name, card_number, rarity FROM `{private_table_name}` ORDER BY card_number")
-    comments = db.query(f"SELECT comment_text, commenter_id, created_at FROM comments WHERE receiver_id = (SELECT id FROM users WHERE username = ?) ORDER BY created_at DESC", [session["username"]])
+    card_amount = items.get_card_number_from_table(private_table_name)
+    card_list = items.get_card_list_from_table(private_table_name)
+    comments = users.get_comment_list_using_receiver_name(session["username"])
+    print("Comments retrieved:", comments)  # Debugging line
 
     return render_template(
         "cards/personal_card_list.html", 
