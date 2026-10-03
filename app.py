@@ -9,10 +9,13 @@ import items
 import users
 import comments
 import db
+from constants import ALL_SETS, ALLOWED_SETS
 
 app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
+
+
 
 def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
@@ -264,13 +267,8 @@ def new_card():
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
-    bt = [f"BT{i}" for i in range(1, 27)]
-    ex = [f"EX{i}" for i in range(1, 13)]
-    st = [f"ST{i}" for i in range(1, 26)]
-    others = ['LM','RB1','P','AD1']
 
-    all_sets = bt + ex + st + others
-    return render_template("cards/new_card.html", target=target, sets = all_sets, current_set="BT1")
+    return render_template("cards/new_card.html", target=target, sets = ALLOWED_SETS, current_set="BT1")
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
