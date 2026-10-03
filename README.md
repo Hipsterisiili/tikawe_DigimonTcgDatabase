@@ -19,9 +19,11 @@ App contains a database containing 4 tables:
     - User can edit the card's information
     - User can delete a card from catalog
     - User can directly add cards from this catalog to their collections
+    - Only one card can exist with the same card_id
 - Personal catalog, which only their owner can edit
     - User can edit the card's information
     - User can delete a card from catalog
+    - Possible to have multiple cards with same card_id
 - User catalog for browsing other users and their collections
     - Contains a link to viewing ach user's collection
 - Commenting on other users' collections.
@@ -33,6 +35,9 @@ App contains a database containing 4 tables:
 
 - Searching for users
 - Searching for cards
+- When editing a card, the previous values appear in form as default values
+- When multiple cards with same card_id are added, all values other than id (primary key) should be identical
+- Recognize and stack multiple instances of same card in personal collection
 - Exporting a personal collection as CSV for use in other apps.
 - Images for cards (If there is time for implementing)
 - Drafting from a pre-built collection (likely after the course has ended)
