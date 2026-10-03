@@ -6,10 +6,10 @@ A database-backed Flask application for storing information about Digimon cards 
 
 The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). 
 App contains a database containing 4 tables:
-- Public collection `cards` 
-- Personal collection for each user `personal_table_{username}`. 
-- Table containing user information `users`
-- Table containing comments left in collections by users
+- Public collection `cards`.
+- Personal collection for each user `personal_table_{username}`.
+- Table containing user information `users`.
+- Table containing comments left in collections by users.
 
 ## Features
 
@@ -46,10 +46,11 @@ App contains a database containing 4 tables:
 
 ## Planned features
 
-- Searching for users
-- Searching for cards
-- When multiple cards with same card_id are added, all values other than id (primary key) should be identical
-- Recognize and stack multiple instances of same card in personal collection
+- Searching for users.
+- Searching for cards.
+- Adding a publicly visible comment to own collection.
+- When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
+- Recognize and stack multiple instances of same card in personal collection.
 - Exporting a personal collection as CSV for use in other apps.
 - Images for cards (If there is time for implementing)
 - Drafting from a pre-built collection (likely after the course has ended)
