@@ -108,6 +108,16 @@ def add_random_card():
     except sqlite3.IntegrityError:
         flash("Tried to add an already existing card.")
 
+def edit_card_in_table(table_name: str, id_int: int, name: str, card_number: str, rarity: str) -> None:
+    """
+    Edit a card in the specified table by its primary key id.
+    Raises sqlite3.Error if update fails.
+    """
+    db.execute(
+        f'UPDATE "{table_name}" SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
+        (name, card_number, rarity, id_int)
+    )
+
 def delete_card_from_table(table_name: str, id_int: int) -> None:
     """
     Delete a card from the specified table by its primary key id.

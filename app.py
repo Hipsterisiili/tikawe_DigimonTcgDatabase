@@ -363,10 +363,7 @@ def edit_card_submit():
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
 
-    db.execute(
-        f'UPDATE "{table}" SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
-        (name, card_number, rarity, id_int)
-    )
+    items.edit_card_in_table(table, id_int, name, card_number, rarity)
 
     if table == "public_digimon_cards":
         flash(f"{name} updated in public collection.")
