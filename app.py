@@ -289,7 +289,7 @@ def new_card():
 @app.route("/send_card", methods=["POST"])
 def send_card():
     """
-    A method for adding a new card with the given data to the database.
+    A form for adding a new card with the given data to the database.
     Function requires a target parameter in the url, which can be either "private" or "global".
     - If target is "private", the card will be added to the user's personal collection.
     - If target is "global" or not provided, card will be added to the global collection.
@@ -355,8 +355,13 @@ def random_card():
 @app.route("/edit_card", methods=["GET"])
 def edit_card_form():
     """
-    Page that edits a requested data element based on user's actions
+    A page for editing a card in the database.
+    Function requires a target parameter in the url, which can be either "private" or "global".
+    - If target is "private", the card will be edited in the user's personal collection.
+    - If target is "global" or not provided, card will be edited in the global collection
+    Renders the form if valid values are received.
     """
+    check_csrf()
     require_login()
     id = request.args.get("id")
     target = request.args.get("target", "global")
@@ -407,7 +412,12 @@ def edit_card_form():
 
 @app.route("/edit_card", methods=["POST"])
 def edit_card_submit():
+    """
+    A method for editing a card according to the given parameters in the database.
+    Redirects to the full_card_list or personal_card_list depending on where the card was edited.
+    """
     check_csrf()
+    require_login()
     id = request.form.get("id")
     target = request.form.get("target", "global")
     name = request.form.get("card_name", "").strip()
