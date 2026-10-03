@@ -26,6 +26,11 @@
                     name="receiver_username"
                     value="{{ owner }}"
                 />
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ session.csrf_token }}"
+                />
                 <div>
                     <label for="comment_text">Comment</label>
                     <br />

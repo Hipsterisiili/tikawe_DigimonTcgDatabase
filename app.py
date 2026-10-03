@@ -118,6 +118,8 @@ def add_comment():
     Using this page user can add a comment to another user's collection.
     The comment is stored in the database and can be viewed by anyone.
     """
+    check_csrf()
+    
     if 'username' not in session:
         flash('Please log in to comment')
         return redirect(url_for('login'))
