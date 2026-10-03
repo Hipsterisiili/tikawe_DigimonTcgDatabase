@@ -34,7 +34,7 @@ App contains a database containing 4 tables:
 - Searching for users
 - Searching for cards
 - Exporting a personal collection as CSV for use in other apps.
-- Images for cards
+- Images for cards (If there is time for implementing)
 - Drafting from a pre-built collection (likely after the course has ended)
 
 
