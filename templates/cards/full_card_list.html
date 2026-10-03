@@ -16,6 +16,7 @@ User may:
     </head>
 
     <body>
+        <!-- Element for useful redirects -->
         <div class="sidebar">
             {% include 'redirect_box.html' %}
         </div>
@@ -38,6 +39,7 @@ User may:
         <!--- Element for displaying the cards --> 
         <p>
             <div class="card-row">
+                <!-- Card displayed in format "card_number, name, rarity" -->
                 <div class="card-info">
                     {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
                 </div>

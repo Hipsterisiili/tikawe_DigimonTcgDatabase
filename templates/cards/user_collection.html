@@ -18,6 +18,8 @@
         <h1>{{ owner }}'s collection</h1>
 
         {% if session.get('username') and session.get('username') != owner %}
+
+        <!-- Comment box for writing and sending the comment. Text box only visible when button is pressed and logged in -->
         <details class="comment-box">
             <summary>Leave a comment</summary>
             <form method="post" action="{{ url_for('add_comment') }}">
@@ -56,6 +58,7 @@
         <hr />
 
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
+        <!--- Element for displaying the cards in format "id, name, rarity" -->
         <div class="card-row">
             <div class="card-info">
                 {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity']

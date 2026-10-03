@@ -71,6 +71,7 @@ User may:
         <!--- Element for displaying the cards --> 
         {% if card_list and card_list|length > 0 %} {% for card in card_list %}
         <div class="card-row">
+            <!-- Card displayed in format "card_number, name, rarity" -->
             <div class="card-info">
                 {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
             </div>
