@@ -59,13 +59,13 @@ def personal_card_list():
 
     card_amount = items.get_card_number_from_table(private_table_name)
     card_list = items.get_card_list_from_table(private_table_name)
-    comments = comments.get_comment_list_using_receiver_name(session["username"])
+    comment_list = comments.get_comment_list_using_receiver_name(session["username"])
 
     return render_template(
         "cards/personal_card_list.html", 
         count=card_amount,
         card_list=card_list,
-        comment_list=comments
+        comment_list=comment_list
     )
 
 @app.route("/user_collection/<username>")

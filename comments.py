@@ -15,12 +15,11 @@ def get_comment_list_using_receiver_name(receiver: str) -> list:
     Each comment is represented as a dictionary with keys: comment_text, commenter_id, created_at.
     Returns an empty list if no comments are found or on error.
     """
-    try:
-        sql = f"SELECT comment_text, commenter_id, created_at FROM comments WHERE receiver_id = (SELECT id FROM users WHERE username = ?) ORDER BY created_at DESC"
-        rows = db.query(sql, [receiver])
-        return [dict(row) for row in rows]
-    except Exception:
-        return []
+    try: 
+        sql = "SELECT c.comment_text, u.username AS commenter_username, c.created_at FROM comments c JOIN users u ON c.commenter_id = u.id WHERE c.receiver_id = ( SELECT id FROM users WHERE username = ? ) ORDER BY c.created_at DESC " 
+        rows = db.query(sql, [receiver]) 
+        return [dict(row) for row in rows] 
+    except Exception: return []
 
 def delete_comment(comment_id: int) -> None:
     """
@@ -33,4 +32,3 @@ def delete_comment(comment_id: int) -> None:
     else:
         sql = "DELETE FROM comments WHERE id = ?"
         db.execute(sql, [comment_id])
-    
