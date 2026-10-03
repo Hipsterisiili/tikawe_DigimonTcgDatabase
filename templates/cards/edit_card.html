@@ -24,7 +24,16 @@ User alter the following info on the card:
         />
     </head>
 
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul class="flashes">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+
     <body>
+        <!-- Form for adding a new card -->
         <form action="/edit_card" method="post">
             <input
                 type="hidden"
