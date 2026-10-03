@@ -1,3 +1,4 @@
+from flask import session, flash
 import db
 
 def add_comment(db, commenter_id, receiver_id, comment_text):
@@ -21,4 +22,15 @@ def get_comment_list_using_receiver_name(receiver: str) -> list:
     except Exception:
         return []
 
-
+def delete_comment(comment_id: int) -> None:
+    """
+    Delete a comment from the comments table by its ID.
+    Raises sqlite3.Error if deletion fails.
+    """
+    receiver_username = db.query("SELECT u.username FROM comments c JOIN users u ON c.receiver_id = u.id WHERE c.id = ?", [comment_id])
+    if not receiver_username == session.get("username"):
+        flash("You do not have permission to delete this comment.")
+    else:
+        sql = "DELETE FROM comments WHERE id = ?"
+        db.execute(sql, [comment_id])
+    
