@@ -21,6 +21,10 @@ def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
 
+def require_login():
+    if "user_id" not in session:
+        abort(403)
+
 @app.route("/")
 def index():
     """
@@ -59,6 +63,8 @@ def personal_card_list():
     - Add specific or random cards to their own collection
     - Delete cards from their own collection
     """
+    require_login()
+
     private_table_name = "personal_collection_"+ session["username"]
 
     card_amount = items.get_card_number_from_table(private_table_name)
@@ -121,6 +127,7 @@ def add_comment():
     The comment is stored in the database and can be viewed by anyone.
     """
     check_csrf()
+    require_login()
     
     if 'username' not in session:
         flash('Please log in to comment')
@@ -155,6 +162,7 @@ def delete_comment():
     User can delete a comment regarding their collection from the database.
     """
     check_csrf()
+    require_login()
     comment_id = request.form.get('comment_id', '').strip()
 
     if not comment_id:
@@ -262,6 +270,15 @@ def user_list():
 
 @app.route("/new_card")
 def new_card():
+    """
+    A page for giving the data for a new card to the database.
+    Function requires a target parameter in the url, which can be either "private" or "global".
+    - If target is "private", the card will be added to the user's personal collection.
+    - If target is "global" or not provided, card will be added to the global collection.
+    Renders the new_card.html with the given data. It will call for /send_card when the user submits the form.
+    """
+    check_csrf()
+    require_login()
     target = request.args.get("target", "global")
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
@@ -271,7 +288,15 @@ def new_card():
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
+    """
+    A method for adding a new card with the given data to the database.
+    Function requires a target parameter in the url, which can be either "private" or "global".
+    - If target is "private", the card will be added to the user's personal collection.
+    - If target is "global" or not provided, card will be added to the global collection.
+    Redirects to the full_card_list or personal_card_list depending on where the card was added.
+    """
     check_csrf()
+    require_login()
     card_name = request.form.get("card_name", "").strip()
     card_set = request.form.get("card_set", "").strip() or None
     suffix = request.form.get("card_number_suffix", "").strip()
@@ -332,6 +357,7 @@ def edit_card_form():
     """
     Page that edits a requested data element based on user's actions
     """
+    require_login()
     id = request.args.get("id")
     target = request.args.get("target", "global")
 
