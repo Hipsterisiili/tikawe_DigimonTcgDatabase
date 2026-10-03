@@ -25,7 +25,7 @@ def get_comment_list_using_receiver_name(receiver: str) -> list:
 def delete_comment(comment_id: int) -> None:
     """
     Delete a comment from the comments table by its ID.
-    Raises sqlite3.Error if deletion fails.
+    If comment receiver was not logged in, deleting fails and a flash message is shown.
     """
     receiver_username = db.query("SELECT u.username FROM comments c JOIN users u ON c.receiver_id = u.id WHERE c.id = ?", [comment_id])
     if not receiver_username == session.get("username"):
