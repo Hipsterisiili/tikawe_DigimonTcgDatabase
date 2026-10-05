@@ -5,24 +5,20 @@ import sqlite3
 from flask import request
 import db
 
-def is_card_name_valid(name: str) -> bool:
-    """
-    Validate the raw input before any sanitization.
-    Rules:
-      - must be a str
-      - after trimming leading/trailing whitespace it must be non-empty
-      - the trimmed string must be at most 20 characters long
-
-    Returns True when valid, False otherwise.
-    """
+def is_card_name_valid(name: str) -> bool: 
+    """ Validate the raw input before any sanitization.
+    Rules: 
+    - must be a str.
+    - collapse consecutive whitespace into a single space.
+    - remove leading/trailing whitespace -
+    The resulting string must be non-empty and at most 20 characters long """
     if not isinstance(name, str):
         return False
-    trimmed = name.strip()
-    if not trimmed:
+    collapsed = re.sub(r'\s+', ' ', name).strip()
+    if not collapsed:
+        flash("Card name cannot be empty or whitespace only.")
         return False
-    if len(trimmed) > 20:
-        return False
-    return True
+    return len(collapsed) <= 20
 
 def sanitize_table_name(name: str) -> str:
     """
