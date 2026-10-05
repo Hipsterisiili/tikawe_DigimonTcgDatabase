@@ -293,7 +293,6 @@ def new_card():
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
 
-    # Defaults come from query params (when redirected back), else fallbacks
     default_name = request.args.get("card_name", "")
     default_rarity = request.args.get("rarity", "")
     default_set = request.args.get("card_set", "BT1")
@@ -329,9 +328,7 @@ def send_card():
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix)
     if err:
-        print("ERROR: 1", err)
         flash(err)
-        # include the submitted values so the form can be prefilled
         return redirect(url_for(
             "new_card",
             target=target,
@@ -343,7 +340,6 @@ def send_card():
 
     table_name, err = items.table_for_target(target, session)
     if err:
-        print("ERROR: 2", err)
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
@@ -447,13 +443,11 @@ def edit_card_submit():
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix)
     if err != '':
-        print("ERROR: 1", err)
         flash(err)
         return redirect(url_for("new_card", target=target))
 
     table_name, err = items.table_for_target(target, session)
     if not err is None:
-        print("ERROR: 2", err)
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
