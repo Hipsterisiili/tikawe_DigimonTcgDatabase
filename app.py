@@ -207,11 +207,11 @@ def create():
     if password1 != password2:
         flash("ERROR: Passwords don't match")
         return redirect(url_for("register"))
-    if len(username) < 3:
-        flash("Your username must be at least 3 characters long")
+    if len(username) < 3 or len(username) > 20:
+        flash("Your username length must be between 3 and 30 characters")
         return redirect(url_for("register"))
-    if len(password1) < 3:
-        flash("Your password must be at least 3 characters long")
+    if len(password1) < 3 or len(password1) > 30:
+        flash("Your password length must be between 3 and 30 characters")
         return redirect(url_for("register"))
 
     password_hash = generate_password_hash(password1)
