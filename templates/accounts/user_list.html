@@ -12,14 +12,27 @@
 
         <h1>User list</h1>
 
+        <!-- Search form -->
+        <form action="{{ url_for('user_list') }}" method="get">
+            <input
+                type="search"
+                name="query"
+                value="{{ query|e }}"
+                placeholder="Search username"
+            />
+            <button type="submit">Search</button>
+            {% if query %}
+            <a href="{{ url_for('user_list') }}">Clear</a>
+            {% endif %}
+        </form>
+
         {% with messages = get_flashed_messages() %} {% if messages %}
         <ul class="flashes">
             {% for m in messages %}
             <li>{{ m }}</li>
             {% endfor %}
         </ul>
-        {% endif %} {% endwith %}
-
+        {% endif %} {% endwith %} {% if user_list and user_list|length > 0 %}
         <ul>
             {% for u in user_list %}
             <li>
@@ -37,5 +50,8 @@
             </li>
             {% endfor %}
         </ul>
+        {% else %}
+        <p>No users found.</p>
+        {% endif %}
     </div>
 </html>
