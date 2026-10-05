@@ -278,12 +278,14 @@ def logout():
 @app.route("/user_list")
 def user_list():
     """
-    A page for displaying a list of all current users for the app
-    Renders a list of all users
+    Show all users, or users matching the optional query parameter.
     """
-    rows = users.get_all_users()
-    return render_template("accounts/user_list.html",
-                           user_list=rows)
+    query = request.args.get("query", "").strip()
+    if query:
+        rows = users.search_user_by_username(query)
+    else:
+        rows = users.get_all_users()
+    return render_template("accounts/user_list.html", user_list=rows, query=query)
 
 @app.route("/new_card")
 def new_card():
