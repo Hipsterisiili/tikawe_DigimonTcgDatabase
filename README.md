@@ -71,7 +71,7 @@ Generate the database for the application using the file schema.sql in the proje
  sqlite3 database.db < schema.sql
 ```
 
-# Optional:
+### Optional:
 
 Generate a few cards to the public collection by running:
 ```bash
