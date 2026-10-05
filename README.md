@@ -50,9 +50,10 @@ App contains a database containing 4 tables:
 - Searching for cards.
 - Adding a publicly visible comment to own collection.
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
-- Recognize and stack multiple instances of same card in personal collection.
-- Exporting a personal collection as CSV for use in other apps.
+- Recognize and stack multiple instances of same card in personal collection. (If there is time for implementing)
 - Images for cards (If there is time for implementing)
+- Exporting a personal collection as CSV for use in other apps. (likely after the course has ended)
+- Importing a collection as CSV from other apps. (likely after the course has ended)
 - Drafting from a pre-built collection (likely after the course has ended)
 
 
