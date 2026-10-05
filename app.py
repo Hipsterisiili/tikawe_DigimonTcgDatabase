@@ -435,7 +435,7 @@ def edit_card_submit():
     check_csrf()
     require_login()
     target = request.form.get("target", "global")
-    name = request.form.get("card_name", "").strip()
+    card_name = request.form.get("card_name", "").strip()
     rarity = request.form.get("rarity") or None
     card_set = request.form.get("card_set", "").strip()
     suffix = request.form.get("card_number_suffix", "").strip()
@@ -472,12 +472,12 @@ def edit_card_submit():
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
 
-    items.edit_card_in_table(table_name, id, name, card_number, rarity)
+    items.edit_card_in_table(table_name, id, card_name, card_number, rarity)
 
     if table_name == "public_digimon_cards":
-        flash(f"{name} updated in public collection.")
+        flash(f"{card_name} updated in public collection.")
         return redirect("/full_card_list")
-    flash(f"{name} updated in private collection.")
+    flash(f"{card_name} updated in private collection.")
     return redirect("/personal_card_list")
 
 @app.route("/delete_card", methods=["POST"])
