@@ -25,6 +25,7 @@ App contains a database containing 4 tables:
     - Possible to have multiple cards with same card_id
 - User catalog for browsing other users and their collections
     - Contains a link to viewing ach user's collection
+    - User can search for other users by username
 - Commenting on other users' collections.
     - Only the collection's owner may read these comments.
     - The collection's owner may delete these comments.
@@ -46,7 +47,6 @@ App contains a database containing 4 tables:
 
 ## Planned features
 
-- Searching for users.
 - Searching for cards.
 - Adding a publicly visible comment to own collection.
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
