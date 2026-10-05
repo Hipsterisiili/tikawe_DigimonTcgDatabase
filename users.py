@@ -105,3 +105,8 @@ def get_user_by_username(username):
     sql = "SELECT id, username FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0] if rows else None
+
+def search_user_by_username(query: str) -> list:
+    sql = "SELECT id, username, created_at FROM users WHERE username LIKE ? ORDER BY username"
+    rows = db.query(sql, [f"%{query}%"])
+    return [dict(r) for r in rows]
