@@ -461,16 +461,11 @@ def edit_card_submit():
         card_number = card_set + "-" + suffix
     else:
         card_number = card_set + "-" + "000"
-    if target == "private":
-        if "username" not in session:
-            flash("Please log in")
-            return redirect("{{ url_for('login') }}")
-        table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
-    elif target == "global":
-        table_name = "public_digimon_cards"
-    else:
-        flash(f"Incorrect table name, {target} given")
-        return redirect("/")
+        
+    table_name, err = items.table_for_target(target, session)
+    if err:
+        flash(err)
+        return redirect(url_for("login") if "Please log in" in err else "/")
 
     items.edit_card_in_table(table_name, id, card_name, card_number, rarity)
 
