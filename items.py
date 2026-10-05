@@ -163,29 +163,6 @@ def add_card_to_table(table_name: str, name: str, card_number: str, rarity: str)
             (name, card_number, rarity)
         )
 
-def add_random_card():
-    """
-    Method that adds a random card from a list to the global database
-    """
-    cards = [
-        ("Agumon", "P-001", "P"),
-        ("Biyomon", "P-002", "P"),
-        ("Gabumon", "P-003", "P"),
-        ("Gomamon", "P-004", "P"),
-        ("Patamon", "P-005", "P"),
-        ("Gatomon", "P-006", "P")
-    ]
-
-    name, card_number, rarity = random.choice(cards)
-
-    try:
-        db.execute(
-            "INSERT INTO public_digimon_cards (name, card_number, rarity) VALUES (?, ?, ?)",
-            (name, card_number, rarity)
-        )
-    except sqlite3.IntegrityError:
-        flash("Tried to add an already existing card.")
-
 def edit_card_in_table(
         table_name: str, id_int: int, name: str, card_number: str, rarity: str) -> None:
     """

@@ -39,8 +39,10 @@ def full_card_list():
     """
     This page displays the global collection.
     User may:
-    - Add either specific or random cards to the global collection
-    - Delete cards from global collection
+    - Add cards to the global collection (if logged in)
+    - Edit cards to the global collection (if logged in)
+    - Delete cards from global collection (if logged in)
+    - Copy a card from this collection to their private collection (if logged in)
     """
     table_name = "public_digimon_cards"
     card_amount = items.get_card_number_from_table(table_name)
@@ -58,8 +60,10 @@ def full_card_list():
 def personal_card_list():
     """
     This page displays the user's own collection.
+    Only visible if logged in.
     User may:
     - Add specific or random cards to their own collection
+    - Edit cards to their own collection
     - Delete cards from their own collection
     """
     require_login()
@@ -81,7 +85,7 @@ def personal_card_list():
 def user_collection(username):
     """
     Function for finding an other user's collection (name given in url)
-    User can view and comment (TODO) other user's collection 
+    User can view and comment (if logged in) other user's collection
     Returns 
     -If displaying logged in user's personal list: rendered personal_card_list.html
     -If displaying someone else's personal list: rendered user_collection.html
@@ -356,17 +360,6 @@ def send_card():
         return redirect("/personal_card_list")
     flash(card_name + " added to the public collection.")
     return redirect("/full_card_list")
-
-
-@app.route("/random_card")
-def random_card():
-    """
-    Page that let's user add a random card to the global collection.
-    Calls for an another method add_random_card and then redirects back to the global card list.
-    """
-    items.add_random_card()
-    return redirect("/full_card_list")
-
 
 @app.route("/edit_card", methods=["GET"])
 def edit_card_form():
