@@ -24,14 +24,15 @@ User may:
         + label) #}
         <div class="sidebar-row">
             <div class="sidebar">{% include 'redirect_box.html' %}</div>
-
             <div class="sidebar-actions" aria-hidden="true">
+                {% if comments_count > 0 %}
                 <span class="comments-count">
                     Your collection has {{ comments_count }} comments
                 </span>
                 <label for="toggle-comments" class="show-comments-btn">
                     Show comments
                 </label>
+                {% endif %}
             </div>
         </div>
         <input
