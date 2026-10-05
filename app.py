@@ -331,6 +331,9 @@ def send_card():
     if rarity and rarity not in ALLOWED_RARITIES:
         flash("Invalid rarity selected.")
         return redirect(url_for("new_card", target=target))
+    if card_set and card_set not in ALLOWED_SETS:
+        flash("Invalid set name selected.")
+        return redirect(url_for("new_card", target=target))
     if suffix:
         card_number = card_set + "-" + suffix
     else:
@@ -383,7 +386,6 @@ def edit_card_form():
     """
     require_login()
     target = request.args.get("target", "global")
-
     try:
         id = int(request.args.get("id"))
     except ValueError:
@@ -445,7 +447,22 @@ def edit_card_submit():
         flash("Invalid id")
         return redirect("/full_card_list")
 
-    card_number = card_set + "-" + suffix
+    if card_name and items.is_card_name_valid(card_name):
+        card_name = items.sanitize_card_name(card_name)
+    else:
+        flash("No valid card name provided.")
+        return redirect(url_for("new_card", target=target))
+    if rarity and rarity not in ALLOWED_RARITIES:
+        flash("Invalid rarity selected.")
+        return redirect(url_for("new_card", target=target))
+    if card_set and card_set not in ALLOWED_SETS:
+        flash("Invalid set name selected.")
+        return redirect(url_for("new_card", target=target))
+    if suffix:
+        card_number = card_set + "-" + suffix
+    else:
+        card_number = card_set + "-" + "000"
+
     if target == "private":
         if "username" not in session:
             flash("Please log in")
