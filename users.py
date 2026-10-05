@@ -1,6 +1,37 @@
 import re
 import db
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
+
+_USERNAME_RE = re.compile(r'^[A-Za-z0-9_.-]+$')
+
+def validate_new_account_input( username: str, password1: str, password2: str ) -> tuple[str, str]:
+    """ Validate username and passwords for account creation.
+    Returns (normalized_username, error_message).
+    - normalized_username is username.strip() (may be empty string if input was empty)
+    - error_message is None when validation passed, otherwise a human-readable
+    string (possibly with multiple lines) describing the problem(s).
+    """
+    errors = []
+
+    if not username:
+        errors.append("Username is required.")
+    else:
+        if len(username) < 3 or len(username) > 30:
+            errors.append("Your username length must be between 3 and 30 characters.")
+        if not _USERNAME_RE.fullmatch(username):
+            errors.append("Username contains invalid characters (allowed: letters, numbers, _, ., -).")
+
+    if not password1:
+        errors.append("Password is required.")
+    else:
+        if len(password1) < 3 or len(password1) > 30:
+            errors.append("Your password length must be between 3 and 30 characters.")
+        if password1 != password2:
+            errors.append("Passwords don't match.")
+
+    err = "\n".join(errors)
+    return username, err or None
+
 
 def _sanitize_table_name(name: str) -> str | None:
     """

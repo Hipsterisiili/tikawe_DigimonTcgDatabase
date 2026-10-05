@@ -204,15 +204,9 @@ def create():
     password1 = request.form["password1"]
     password2 = request.form["password2"]
 
-    # basic validation (keep this in the route as it's request/UI logic)
-    if password1 != password2:
-        flash("ERROR: Passwords don't match")
-        return redirect(url_for("register"))
-    if len(username) < 3 or len(username) > 20:
-        flash("Your username length must be between 3 and 30 characters")
-        return redirect(url_for("register"))
-    if len(password1) < 3 or len(password1) > 30:
-        flash("Your password length must be between 3 and 30 characters")
+    username, err = users.validate_new_account_input(username, password1, password2)
+    if err:
+        flash(err)
         return redirect(url_for("register"))
 
     password_hash = generate_password_hash(password1)
