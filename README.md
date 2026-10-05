@@ -60,15 +60,15 @@ App contains a database containing 4 tables:
 ## Minimal requirements
 
 ```bash
-$ sudo apt install sqlite3
-$ pip install flask
+ sudo apt install sqlite3
+ pip install flask
 ```
 
 ## Database setup
 
 Generate the database for the application using the file schema.sql in the project's root using the command:
 ```bash
-$ sqlite3 database.db < schema.sql
+ sqlite3 database.db < schema.sql
 ```
 
 ## Starting the application
@@ -76,9 +76,9 @@ $ sqlite3 database.db < schema.sql
 You can start the application in a virtual environment by running the following commands in the project root:
 
 ```bash
-$ source venv/bin/activate 
-$ pip install flask 
-$ flask run
+ source venv/bin/activate 
+ pip install flask 
+ flask run
 ```
 
 The application will run on port 5000.
