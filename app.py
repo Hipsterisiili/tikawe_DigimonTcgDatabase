@@ -299,7 +299,7 @@ def new_card():
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
-
+    print("ADD CARD: target = ", target)
     return render_template("cards/new_card.html",
                            target=target,
                            sets = ALLOWED_SETS,
@@ -325,11 +325,13 @@ def send_card():
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix)
     if err != '':
+        print("ERROR: 1", err)
         flash(err)
         return redirect(url_for("new_card", target=target))
 
     table_name, err = items.table_for_target(target, session)
     if err:
+        print("ERROR: 2", err)
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
@@ -371,6 +373,7 @@ def edit_card_form():
         id = int(request.args.get("id"))
     except ValueError:
         flash("Invalid card id")
+
         return redirect(url_for("full_card_list"))
 
     if target == "private":
@@ -432,11 +435,13 @@ def edit_card_submit():
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix)
     if err != '':
+        print("ERROR: 1", err)
         flash(err)
         return redirect(url_for("new_card", target=target))
 
     table_name, err = items.table_for_target(target, session)
     if not err is None:
+        print("ERROR: 2", err)
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 

@@ -1,6 +1,7 @@
 import re
-import db
 from werkzeug.security import check_password_hash
+import db
+from constants import ALLOWED_RARITIES_SQL
 
 _USERNAME_RE = re.compile(r'^[A-Za-z0-9_.-]+$')
 
@@ -19,7 +20,7 @@ def validate_new_account_input( username: str, password1: str, password2: str ) 
         if len(username) < 3 or len(username) > 30:
             errors.append("Your username length must be between 3 and 30 characters.")
         if not _USERNAME_RE.fullmatch(username):
-            errors.append("Username contains invalid characters (allowed: letters, numbers, _, ., -).")
+            errors.append("Invalid characters in username (allowed: letters, numbers, _, ., -).")
 
     if not password1:
         errors.append("Password is required.")
@@ -67,13 +68,12 @@ def create_personal_table_for(username: str) -> str:
     table_name = _sanitize_table_name(base)
     if not table_name:
         raise ValueError("Invalid username for table name")
-
     create_sql = (
         f'CREATE TABLE IF NOT EXISTS "{table_name}" ('
         'id INTEGER PRIMARY KEY, '
         'name TEXT NOT NULL, '
         'card_number TEXT, '
-        f'rarity TEXT CHECK (rarity IS NULL OR rarity IN (\'C\',\'U\',\'R\',\'UR\',\'SEC\',\'P\',\'SR\'))'
+        f'rarity TEXT CHECK (rarity IS NULL OR rarity IN ({ALLOWED_RARITIES_SQL}))'
         ')'
     )
     db.execute(create_sql)
@@ -105,4 +105,3 @@ def get_user_by_username(username):
     sql = "SELECT id, username FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0] if rows else None
-

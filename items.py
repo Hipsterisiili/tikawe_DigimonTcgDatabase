@@ -2,11 +2,11 @@ from curses import flash
 import re
 import random
 import sqlite3
-from flask import redirect, request, url_for
+from flask import request
 from constants import ALLOWED_RARITIES, ALLOWED_SETS
 import db
 
-def is_card_name_valid(name: str) -> bool: 
+def is_card_name_valid(name: str) -> bool:
     """ Validate the raw input before any sanitization.
     Rules: 
     - must be a str.
@@ -19,10 +19,11 @@ def is_card_name_valid(name: str) -> bool:
     if not collapsed:
         flash("Card name cannot be empty or whitespace only.")
         return False
-    """
-    Shortest existing card names are Pal, Mon (Both 3 letters)
-    Longest existing card name is Metropolitan Police Department, Community Safety Bureau, Cyber Crime Division, Investigation Unit 11, Digimon Crime Response Team (121 characters)
-    """
+    # Shortest existing card names are Pal, Mon (Both 3 letters)
+    # Longest existing card name is:
+    # Metropolitan Police Department, Community Safety Bureau,
+    # Cyber Crime Division, Investigation Unit 11,
+    # Digimon Crime Response Team (121 characters)
     if len(collapsed) < 3 or len(collapsed) >130:
         flash("Card name must be between 3 and 130 characters long")
     return True
@@ -69,12 +70,12 @@ def table_for_target(target: str, session) -> tuple:
             return {None, "Please log in"}
         table_name = sanitize_table_name("personal_collection_" + session["username"])
         return {table_name, None}
-    elif target == "global":
+    if target == "global":
         return {"public_digimon_cards", None}
-    else:
-        return {None, f"Incorrect table name, {target} given"}
+    return {None, f"Incorrect table name, {target} given"}
 
-def check_card_elements(card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
+def check_card_elements(
+        card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
     """
     Check validity of card's name, rarity, and error message.
     Return (rarity, card_id, error_message). error_message None if OK.
@@ -185,7 +186,8 @@ def add_random_card():
     except sqlite3.IntegrityError:
         flash("Tried to add an already existing card.")
 
-def edit_card_in_table(table_name: str, id_int: int, name: str, card_number: str, rarity: str) -> None:
+def edit_card_in_table(
+        table_name: str, id_int: int, name: str, card_number: str, rarity: str) -> None:
     """
     Edit a card in the specified table by its primary key id.
     Takes the new name, card_number, and rarity as parameters.

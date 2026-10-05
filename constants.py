@@ -8,3 +8,5 @@ ALL_SETS = BT + EX + ST + OTHERS
 ALLOWED_SETS = set(ALL_SETS)
 """These are all relevant rarities in Digimon TCG. Alternate arts are not taken into account"""
 ALLOWED_RARITIES = set({'C', 'U', 'R', 'UR', 'SEC', 'P', 'SR'})
+"""Format for use in SQL statements"""
+ALLOWED_RARITIES_SQL = "'C', 'U', 'R', 'UR', 'SEC', 'P', 'SR'"
