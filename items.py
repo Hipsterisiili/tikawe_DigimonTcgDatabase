@@ -12,13 +12,22 @@ def is_card_name_valid(name: str) -> bool:
     - collapse consecutive whitespace into a single space.
     - remove leading/trailing whitespace -
     The resulting string must be non-empty and at most 20 characters long """
+    print("Name = ", name)
     if not isinstance(name, str):
+        print("not a string")
         return False
     collapsed = re.sub(r'\s+', ' ', name).strip()
+    print("Collapsed: ", collapsed)
     if not collapsed:
         flash("Card name cannot be empty or whitespace only.")
         return False
-    return len(collapsed) <= 20
+    """
+    Shortest existing card names are Pal, Mon (Both 3 letters)
+    Longest existing card name is Metropolitan Police Department, Community Safety Bureau, Cyber Crime Division, Investigation Unit 11, Digimon Crime Response Team (121 characters)
+    """
+    if len(collapsed) < 3 or len(collapsed) >130:
+        flash("Card name must be between 3 and 130 characters long")
+    return True
 
 def sanitize_table_name(name: str) -> str:
     """
@@ -52,6 +61,20 @@ def sanitize_card_name(name: str) -> str:
         return ""
     s = s[0].upper() + s[1:]
     return s
+
+def table_for_target(target: str, session) -> tuple:
+    """
+    Return (table_name, error_message). error_message None if OK.
+    """
+    if target == "private":
+        if "username" not in session:
+            return {None, "Please log in"}
+        table_name = sanitize_table_name("personal_collection_" + session["username"])
+        return {table_name, None}
+    elif target == "global":
+        return {"public_digimon_cards", None}
+    else:
+        return {None, f"Incorrect table name, {target} given"}
 
 def get_card_list_from_table(table_name: str) -> list:
     """
