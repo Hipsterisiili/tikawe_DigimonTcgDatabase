@@ -339,17 +339,11 @@ def send_card():
     else:
         card_number = card_set + "-" + "000"
     table_name = ""
-    if target == "private":
-        if "username" not in session:
-            flash("You must be logged in to add to personal collection.")
-            return redirect(url_for("login"))
-        table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
 
-    elif target == "global":
-        table_name = "public_digimon_cards"
-    else:
-        flash(f"Incorrect table name, {target} given")
-        return redirect("/")
+    table_name, err = items.table_for_target(target, session)
+    if err:
+        flash(err)
+        return redirect(url_for("login") if "Please log in" in err else "/")
 
     if target == "global" and items.find_card_using_card_id(card_number, target) != 0:
         flash("A card with this id already exists in the public database")
