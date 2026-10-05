@@ -71,6 +71,13 @@ Generate the database for the application using the file schema.sql in the proje
  sqlite3 database.db < schema.sql
 ```
 
+# Optional:
+
+Generate a few cards to the public collection by running:
+```bash
+sqlite3 database.db < dummy_content_script.sql
+```
+
 ## Starting the application
 
 You can start the application in a virtual environment by running the following commands in the project root:
