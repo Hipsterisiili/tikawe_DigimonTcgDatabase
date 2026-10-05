@@ -7,7 +7,7 @@
             href="{{ url_for('static', filename='css/style.css') }}"
         />
     </head>
-    <body>
+    <div class="container">
         <div class="sidebar">{% include 'redirect_box.html' %}</div>
 
         <h1>User list</h1>
@@ -37,5 +37,5 @@
             </li>
             {% endfor %}
         </ul>
-    </body>
+    </div>
 </html>

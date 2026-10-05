@@ -15,7 +15,7 @@ User may:
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     </head>
 
-    <body>
+    <div class="container">
         <!-- Element for useful redirects -->
         <div class="sidebar">
             {% include 'redirect_box.html' %}
@@ -87,5 +87,5 @@ User may:
         <p>Your collection is empty. Add new cards!</p>
         {% endif %}
         </div>
-    </body>
+    </div>
 </html>

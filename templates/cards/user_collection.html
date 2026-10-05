@@ -8,7 +8,7 @@
             href="{{ url_for('static', filename='css/style.css') }}"
         />
     </head>
-    <body>
+    <div class="container">
         <!-- Element for useful redirects -->
         <div class="sidebar">{% include 'redirect_box.html' %}</div>
         <p>
@@ -69,5 +69,5 @@
         {% endfor %} {% else %}
         <p>This user's collection is empty.</p>
         {% endif %}
-    </body>
+    </div>
 </html>
