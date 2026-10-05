@@ -287,23 +287,27 @@ def user_list():
 
 @app.route("/new_card")
 def new_card():
-    """
-    A page for giving the data for a new card to the database.
-    Function requires a target parameter in the url, which can be either "private" or "global".
-    - If target is "private", card is added to the personal collection.
-    - If target is "global" or not provided, card is be added to the global collection.
-    Renders the new_card.html form with the given data. 
-    """
     require_login()
     target = request.args.get("target", "global")
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
-    print("ADD CARD: target = ", target)
-    return render_template("cards/new_card.html",
-                           target=target,
-                           sets = ALLOWED_SETS,
-                           current_set="BT1")
+
+    # Defaults come from query params (when redirected back), else fallbacks
+    default_name = request.args.get("card_name", "")
+    default_rarity = request.args.get("rarity", "")
+    default_set = request.args.get("card_set", "BT1")
+    default_suffix = request.args.get("card_number_suffix", "001")
+
+    return render_template(
+        "cards/new_card.html",
+        target=target,
+        sets=ALLOWED_SETS,
+        current_set=default_set,
+        default_rarity=default_rarity,
+        default_name=default_name,
+        default_suffix=default_suffix
+    )
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
@@ -324,10 +328,18 @@ def send_card():
 
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix)
-    if err != '':
+    if err:
         print("ERROR: 1", err)
         flash(err)
-        return redirect(url_for("new_card", target=target))
+        # include the submitted values so the form can be prefilled
+        return redirect(url_for(
+            "new_card",
+            target=target,
+            card_name=card_name,
+            rarity=rarity or "",
+            card_set=card_set or "",
+            card_number_suffix=suffix or ""
+        ))
 
     table_name, err = items.table_for_target(target, session)
     if err:

@@ -40,20 +40,21 @@ User specifies following info on the card:
             <p>
                 Name of the card:
                 <br />
-                <textarea name="card_name" rows="3" cols="40"></textarea>
+                <textarea name="card_name" rows="3" cols="40">
+                {{- default_name|e -}}
+                </textarea>
             </p>
 
             <p>
                 Rarity:
                 <br />
                 <select name="rarity">
-                    <option value="C" selected>C</option>
-                    <option value="U">U</option>
-                    <option value="R">R</option>
-                    <option value="UR">UR</option>
-                    <option value="SEC">SEC</option>
-                    <option value="P">P</option>
-                    <option value="SR">SR</option>
+                    {% for r in ['C','U','R','UR','SEC','P','SR'] %} {% if r ==
+                    default_rarity %}
+                    <option value="{{ r }}" selected>{{ r }}</option>
+                    {% else %}
+                    <option value="{{ r }}">{{ r }}</option>
+                    {% endif %} {% endfor %}
                 </select>
             </p>
 
@@ -77,8 +78,8 @@ User specifies following info on the card:
                     name="card_number_suffix"
                     pattern="\d{1,6}"
                     maxlength="6"
-                    value="001"
                     inputmode="numeric"
+                    value="{{ default_suffix|e }}"
                 />
             </p>
 
