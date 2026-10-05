@@ -338,12 +338,7 @@ def send_card():
         card_number = card_set + "-" + suffix
     else:
         card_number = card_set + "-" + "000"
-    if target == "global" and items.find_card_using_card_id(card_number, target) != 0:
-        flash("A card with this id already exists in the public database")
-        return redirect(url_for("new_card", target=target))
-
     table_name = ""
-
     if target == "private":
         if "username" not in session:
             flash("You must be logged in to add to personal collection.")
@@ -353,8 +348,12 @@ def send_card():
     elif target == "global":
         table_name = "public_digimon_cards"
     else:
-        flash("Couldn't add a card, no valid table name received")
+        flash(f"Incorrect table name, {target} given")
         return redirect("/")
+
+    if target == "global" and items.find_card_using_card_id(card_number, target) != 0:
+        flash("A card with this id already exists in the public database")
+        return redirect(url_for("new_card", target=target))
 
     items.add_card_to_table(table_name, card_name, card_number, rarity)
 
@@ -462,21 +461,20 @@ def edit_card_submit():
         card_number = card_set + "-" + suffix
     else:
         card_number = card_set + "-" + "000"
-
     if target == "private":
         if "username" not in session:
             flash("Please log in")
             return redirect("{{ url_for('login') }}")
-        table = items.sanitize_table_name("personal_collection_"+ session["username"])
+        table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
     elif target == "global":
-        table = "public_digimon_cards"
+        table_name = "public_digimon_cards"
     else:
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
 
-    items.edit_card_in_table(table, id, name, card_number, rarity)
+    items.edit_card_in_table(table_name, id, name, card_number, rarity)
 
-    if table == "public_digimon_cards":
+    if table_name == "public_digimon_cards":
         flash(f"{name} updated in public collection.")
         return redirect("/full_card_list")
     flash(f"{name} updated in private collection.")
