@@ -27,7 +27,7 @@ App contains a database containing 4 tables:
     - Contains a link to viewing ach user's collection
 - Commenting on other users' collections.
     - Only the collection's owner may read these comments.
-    - The collection's owner may delete these comments
+    - The collection's owner may delete these comments.
 
 ## What an user needs to know about a Digimon card?
 
@@ -42,7 +42,7 @@ App contains a database containing 4 tables:
     - SR (Super Rare)
     - UR (Ultra Rare)
     - SEC (Secret Rare)
-- A card has multiple other identifiers such as level, type, color and cost, but those are not taken into account in this application: Reason for this is that I am intending on later building a boster drafting system within this application and the a booster draft's output only takes card's rarity into account.
+- A card has multiple other identifiers such as level, type, color and cost, but those are not taken into account in this application: Reason for this is that I am intending on later building a booster drafting system within this application and the a booster draft's output only takes card's rarity into account.
 
 ## Planned features
 
