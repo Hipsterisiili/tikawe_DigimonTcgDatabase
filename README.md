@@ -30,7 +30,7 @@ App contains a database containing 4 tables:
     - Only the collection's owner may read these comments.
     - The collection's owner may delete these comments.
 
-## What an user needs to know about a Digimon card?
+## What a user needs to know about a Digimon card?
 
 - Cards are identified using a card id consisting of set id and set number 
     - BT1-001 refers to a card number 001 from Base set 1
