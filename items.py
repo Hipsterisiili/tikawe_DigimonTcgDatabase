@@ -2,7 +2,8 @@ from curses import flash
 import re
 import random
 import sqlite3
-from flask import request
+from flask import redirect, request, url_for
+from constants import ALLOWED_RARITIES, ALLOWED_SETS
 import db
 
 def is_card_name_valid(name: str) -> bool: 
@@ -12,12 +13,9 @@ def is_card_name_valid(name: str) -> bool:
     - collapse consecutive whitespace into a single space.
     - remove leading/trailing whitespace -
     The resulting string must be non-empty and at most 20 characters long """
-    print("Name = ", name)
     if not isinstance(name, str):
-        print("not a string")
         return False
     collapsed = re.sub(r'\s+', ' ', name).strip()
-    print("Collapsed: ", collapsed)
     if not collapsed:
         flash("Card name cannot be empty or whitespace only.")
         return False
@@ -75,6 +73,27 @@ def table_for_target(target: str, session) -> tuple:
         return {"public_digimon_cards", None}
     else:
         return {None, f"Incorrect table name, {target} given"}
+
+def check_card_elements(card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
+    """
+    Check validity of card's name, rarity, and error message.
+    Return (rarity, card_id, error_message). error_message None if OK.
+    """
+    errors = []
+    if card_name and is_card_name_valid(card_name):
+        card_name = sanitize_card_name(card_name)
+    else:
+        errors.append("No valid card name provided.")
+    if rarity and rarity not in ALLOWED_RARITIES:
+        errors.append("Invalid rarity selected.")
+    if card_set and card_set not in ALLOWED_SETS:
+        errors.append("Invalid set name selected.")
+    if suffix:
+        card_number = card_set + "-" + suffix
+    else:
+        card_number = card_set + "-" + "000"
+    err = "\n".join(errors)
+    return card_name, rarity, card_number, err
 
 def get_card_list_from_table(table_name: str) -> list:
     """

@@ -440,24 +440,13 @@ def edit_card_submit():
         flash("Invalid id")
         return redirect("/full_card_list")
 
-    if card_name and items.is_card_name_valid(card_name):
-        card_name = items.sanitize_card_name(card_name)
-    else:
-        flash("No valid card name provided.")
+    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
+    if not err == "":
+        flash(err)
         return redirect(url_for("new_card", target=target))
-    if rarity and rarity not in ALLOWED_RARITIES:
-        flash("Invalid rarity selected.")
-        return redirect(url_for("new_card", target=target))
-    if card_set and card_set not in ALLOWED_SETS:
-        flash("Invalid set name selected.")
-        return redirect(url_for("new_card", target=target))
-    if suffix:
-        card_number = card_set + "-" + suffix
-    else:
-        card_number = card_set + "-" + "000"
-        
+
     table_name, err = items.table_for_target(target, session)
-    if err:
+    if not err == None:
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
