@@ -1,7 +1,4 @@
 <!doctype html>
-<!-- A page for displaying an another user's card collection. User may:
- - Browse the cards in the collection
- - Leave a comment on the collection (if logged in) -->
 <html>
     <head>
         <title>{{ owner }}'s card list</title>
@@ -10,66 +7,80 @@
             href="{{ url_for('static', filename='css/style.css') }}"
         />
     </head>
-    <div class="container">
-        <!-- Element for useful redirects -->
-        <div class="sidebar">{% include 'redirect_box.html' %}</div>
-        <p>
-            <a href="{{ url_for('user_list') }}">Back to users</a>
-        </p>
+    <body>
+        <div class="container">
+            <div class="sidebar">{% include 'redirect_box.html' %}</div>
+            <p><a href="{{ url_for('user_list') }}">Back to users</a></p>
 
-        <h1>{{ owner }}'s collection</h1>
+            <h1>{{ owner }}'s collection</h1>
 
-        {% if session.get('username') and session.get('username') != owner %}
+            {% if session.get('username') and session.get('username') != owner
+            %}
+            <!-- toggle label -->
+            <label for="toggle-comments" class="show-comments-btn">
+                Leave a comment
+            </label>
 
-        <!-- Comment box for writing and sending the comment. Text box only visible when button is pressed and logged in -->
-        <details class="comment-box">
-            <summary>Leave a comment</summary>
-            <form method="post" action="{{ url_for('add_comment') }}">
-                <input
-                    type="hidden"
-                    name="receiver_username"
-                    value="{{ owner }}"
-                />
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ session.csrf_token }}"
-                />
-                <div>
-                    <label for="comment_text">Comment</label>
-                    <br />
-                    <textarea
-                        id="comment_text"
-                        name="comment_text"
-                        rows="4"
-                        cols="60"
-                        required
-                    ></textarea>
+            <input
+                type="checkbox"
+                id="toggle-comments"
+                class="toggle-comments-checkbox"
+            />
+
+            <div class="comments-panel">
+                <div class="comment-row">
+                    <div class="comment-info">
+                        <form
+                            method="post"
+                            action="{{ url_for('add_comment') }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ session.csrf_token }}"
+                            />
+                            <input
+                                type="hidden"
+                                name="receiver_username"
+                                value="{{ owner }}"
+                            />
+                            <label for="comment_text">Comment</label>
+                            <br />
+                            <textarea
+                                id="comment_text"
+                                name="comment_text"
+                                rows="4"
+                                cols="60"
+                                required
+                            ></textarea>
+                            <div style="margin-top: 0.5rem">
+                                <button type="submit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div style="margin-top: 0.5rem">
-                    <button type="submit">Submit</button>
-                </div>
-            </form>
-        </details>
-        {% endif %}
-
-        <p>Amount of cards in this user's collection: {{ count }}</p>
-        {% if latest_card %}
-        <p>Latest added: {{ latest_card }}</p>
-        {% endif %}
-        <hr />
-
-        {% if card_list and card_list|length > 0 %} {% for card in card_list %}
-        <!--- Element for displaying the cards in format "id, name, rarity" -->
-        <div class="card-row">
-            <div class="card-info">
-                {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity']
-                }}
             </div>
+            <hr />
+            {% endif %}
+
+            <p>Amount of cards in this user's collection: {{ count }}</p>
+            {% if latest_card %}
+            <p>Latest added: {{ latest_card }}</p>
+            {% endif %}
+            <hr />
+
+            {% if card_list and card_list|length > 0 %} {% for card in card_list
+            %}
+            <div class="card-row">
+                <div class="card-info">
+                    {{ card['card_number'] }}, {{ card['name'] }}, {{
+                    card['rarity'] }}
+                </div>
+            </div>
+            <hr />
+            {% endfor %} {% else %}
+            <p>This user's collection is empty.</p>
+            {% endif %}
         </div>
-        <hr />
-        {% endfor %} {% else %}
-        <p>This user's collection is empty.</p>
-        {% endif %}
-    </div>
+    </body>
 </html>

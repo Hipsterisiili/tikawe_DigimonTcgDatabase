@@ -35,6 +35,7 @@ User may:
                 {% endif %}
             </div>
         </div>
+        <!--- Button for toggling comments -->
         <input
             type="checkbox"
             id="toggle-comments"
@@ -47,13 +48,6 @@ User may:
         </p>
 
         {% if comment_list and comment_list|length > 0 %}
-
-        <!--- Button for toggling comments -->
-        <input
-            type="checkbox"
-            id="toggle-comments"
-            class="toggle-comments-checkbox"
-        />
 
         <!--- Element for viewing all of the comments other users have left on user's collection -->
         <div class="comments-panel">
