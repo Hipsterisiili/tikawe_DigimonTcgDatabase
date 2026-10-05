@@ -8,7 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import items
 import users
 import comments
-import db
 from constants import ALLOWED_RARITIES, ALLOWED_SETS
 
 app = Flask(__name__)
@@ -160,7 +159,8 @@ def add_comment():
 @app.route('/delete_comment', methods=['POST'])
 def delete_comment():
     """
-    User can delete a comment matching the id given as parameter from their collection from the database.
+    User can delete a comment from their collection from the database.
+    Comment is identified by the id given as parameter
     Redirects back to the personal card list.
     """
     check_csrf()
@@ -195,8 +195,9 @@ def create():
     """
     Function for creating a new user for the app.
     - Checks if the added username and password are valid.
-    - If username and password are not valid, shows error message and redirects to /register
-    - If username and password are valid, creates a new user, generates their own collection in database 
+    - If username and password are not valid redirects to /register
+    - If username and password are valid, creates a new user
+    - When user is created their own collection in database is generated
     - Then redirects to index
     """
     username = request.form["username"].strip()
@@ -287,16 +288,17 @@ def user_list():
     Renders a list of all users
     """
     rows = users.get_all_users()
-    return render_template("accounts/user_list.html", user_list=rows)
+    return render_template("accounts/user_list.html",
+                           user_list=rows)
 
 @app.route("/new_card")
 def new_card():
     """
     A page for giving the data for a new card to the database.
     Function requires a target parameter in the url, which can be either "private" or "global".
-    - If target is "private", the card will be added to the user's personal collection.
-    - If target is "global" or not provided, card will be added to the global collection.
-    Renders the new_card.html with the given data. It will call for /send_card when the user submits the form.
+    - If target is "private", card is added to the personal collection.
+    - If target is "global" or not provided, card is be added to the global collection.
+    Renders the new_card.html form with the given data. 
     """
     require_login()
     target = request.args.get("target", "global")
@@ -304,7 +306,10 @@ def new_card():
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
 
-    return render_template("cards/new_card.html", target=target, sets = ALLOWED_SETS, current_set="BT1")
+    return render_template("cards/new_card.html",
+                           target=target,
+                           sets = ALLOWED_SETS,
+                           current_set="BT1")
 
 @app.route("/send_card", methods=["POST"])
 def send_card():
@@ -323,8 +328,9 @@ def send_card():
     rarity = request.form.get("rarity", "").strip() or None
     target = request.form.get("target", "global")
 
-    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
-    if not err == "":
+    card_name, rarity, card_number, err = items.check_card_elements(
+        card_name, rarity, card_set, suffix)
+    if err != '':
         flash(err)
         return redirect(url_for("new_card", target=target))
 
@@ -429,13 +435,14 @@ def edit_card_submit():
         flash("Invalid id")
         return redirect("/full_card_list")
 
-    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
-    if not err == "":
+    card_name, rarity, card_number, err = items.check_card_elements(
+        card_name, rarity, card_set, suffix)
+    if err != '':
         flash(err)
         return redirect(url_for("new_card", target=target))
 
     table_name, err = items.table_for_target(target, session)
-    if not err == None:
+    if not err is None:
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
@@ -452,7 +459,7 @@ def delete_card():
     """
     Page that deletes a card from the global collection.
     The id of the card to be deleted is given as a parameter in the form.
-    The target parameter in the form determines whether the card is deleted from the global collection or the user's personal collection.
+    The target parameter in the form determines where the card is deleted from:
     - If target is "private", the card will be deleted from the user's personal collection.
     - If target is "global" or not provided, card will be deleted from the global collection.
     Then it redirects user to index.
