@@ -11,7 +11,7 @@ CREATE TABLE users (
   password_hash TEXT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   is_admin INTEGER DEFAULT 0
-)
+);
 
 CREATE TABLE comments ( 
   id INTEGER PRIMARY KEY, 
