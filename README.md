@@ -83,6 +83,7 @@ sqlite3 database.db < dummy_content_script.sql
 You can start the application in a virtual environment by running the following commands in the project root:
 
 ```bash
+ python3 -m venv venv
  source venv/bin/activate 
  pip install flask 
  flask run
