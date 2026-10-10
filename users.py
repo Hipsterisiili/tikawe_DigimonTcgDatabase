@@ -48,7 +48,6 @@ def _sanitize_table_name(name: str) -> str | None:
         return s
     return None
 
-
 def insert_user(username: str, password_hash: str) -> None:
     """
     Insert a new user.
@@ -68,8 +67,6 @@ def insert_user(username: str, password_hash: str) -> None:
 
     sql = "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)"
     db.execute(sql, (username, password_hash, is_admin))
-
-
 
 def create_personal_table_for(username: str) -> str:
     """
@@ -123,3 +120,10 @@ def search_user_by_username(query: str) -> list:
     sql = "SELECT id, username, created_at FROM users WHERE username LIKE ? ORDER BY username"
     rows = db.query(sql, [f"%{query}%"])
     return [dict(r) for r in rows]
+
+def is_user_admin(query: str):
+    sql = "SELECT is_admin FROM users WHERE username LIKE ?"
+    rows = db.query(sql, [f"%{query}%"])
+    return rows[0] if rows else None
+
+
