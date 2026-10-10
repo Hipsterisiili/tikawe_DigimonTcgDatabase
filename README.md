@@ -15,9 +15,9 @@ App contains a database containing 4 tables:
 
 - Somewhat secure password management
 - Global catalog which every logged-in user can view and edit
-    - User can edit the card's information
-    - User can delete a card from catalog
-    - User can directly add cards from this catalog to their collections
+    - Admin can edit the card's information
+    - Admin can delete a card from catalog
+    - Any user can directly add cards from this catalog to their collections
     - Only one card can exist with the same card_id
 - Personal catalog, which only their owner can edit
     - User can edit the card's information
@@ -48,7 +48,6 @@ App contains a database containing 4 tables:
 ## Planned features
 
 - Searching for cards.
-- Only admin can edit public table.
 - Adding a publicly visible comment to own collection. (not very relevant)
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
 - Recognize and stack multiple instances of same card in personal collection. (If there is time for implementing)
