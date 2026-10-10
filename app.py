@@ -309,6 +309,13 @@ def user_list():
 
 @app.route("/new_card")
 def new_card():
+    """
+    A form for adding a new card with the given data to the database.
+    Function requires a target parameter in the url, which can be either "private" or "global".
+    - If target is "private", the card will be added to the user's personal collection.
+    - If target is "global" or not provided, card will be added to the global collection.
+    Redirects to the full_card_list or personal_card_list depending on where the card was added.
+    """
     require_login()
     target = request.args.get("target", "global")
     if target == "private" and "username" not in session:
@@ -342,8 +349,8 @@ def new_card():
 @app.route("/send_card", methods=["POST"])
 def send_card():
     """
-    A form for adding a new card with the given data to the database.
-    Function requires a target parameter in the url, which can be either "private" or "global".
+    A method that adds a new card with the given data to the database.
+    Function takes card's contents as parameters".
     - If target is "private", the card will be added to the user's personal collection.
     - If target is "global" or not provided, card will be added to the global collection.
     Redirects to the full_card_list or personal_card_list depending on where the card was added.

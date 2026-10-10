@@ -67,12 +67,12 @@ def table_for_target(target: str, session) -> tuple:
     """
     if target == "private":
         if "username" not in session:
-            return {None, "Please log in"}
+            return None, "Please log in"
         table_name = sanitize_table_name("personal_collection_" + session["username"])
-        return {table_name, None}
+        return table_name, None
     if target == "global":
-        return {"public_digimon_cards", None}
-    return {None, f"Incorrect table name, {target} given"}
+        return "public_digimon_cards", None
+    return None, f"Incorrect table name, {target} given"
 
 def check_card_elements(
         card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
