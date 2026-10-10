@@ -500,9 +500,19 @@ def delete_card():
     name = request.form.get("name", "")
 
     if target == "global":
+        if target == "global":
+            username = session.get("username")
+            user = users.get_user_by_username(username)
+            try:
+                is_admin = int(user['is_admin'] or 0)
+            except (KeyError, TypeError, ValueError):
+                is_admin = 0
+            if not is_admin: abort(403)
         table_name = "public_digimon_cards"
+
     elif target == "private":
         table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
+        
     else:
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
