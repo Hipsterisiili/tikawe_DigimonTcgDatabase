@@ -14,7 +14,9 @@ app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 
-
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template("403.html", error=error), 403
 
 def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
