@@ -16,7 +16,15 @@ app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random UR
 
 @app.errorhandler(403)
 def forbidden(error):
-    return render_template("403.html", error=error), 403
+    return render_template("errors/403.html", error=error), 403
+
+@app.errorhandler(404)
+def forbidden(error):
+    return render_template("errors/404.html", error=error), 404
+
+#@app.errorhandler(404)
+#def page_not_found(e):
+#    return "Not Found", 404
 
 def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
