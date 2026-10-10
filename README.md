@@ -48,7 +48,8 @@ App contains a database containing 4 tables:
 ## Planned features
 
 - Searching for cards.
-- Adding a publicly visible comment to own collection.
+- Only admin can edit public table.
+- Adding a publicly visible comment to own collection. (not very relevant)
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
 - Recognize and stack multiple instances of same card in personal collection. (If there is time for implementing)
 - Images for cards (If there is time for implementing)

@@ -308,6 +308,20 @@ def new_card():
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
+    if target == "global":
+        username = session.get("username")
+        # if you want to force login for global adds, redirect to login instead: if not username:
+        # # not logged in -> forbidden (or redirect to login) return redirect(url_for("login"))
+
+        # look up the user row (adjust call to match your users module)
+        user = users.get_user_by_username(username)   # or users.get_by_username(username)
+        try:
+            is_admin = int(user['is_admin'] or 0)
+        except (KeyError, TypeError, ValueError):
+            is_admin = 0
+
+        if not is_admin: abort(403)
+
 
     default_name = request.args.get("card_name", "")
     default_rarity = request.args.get("rarity", "")

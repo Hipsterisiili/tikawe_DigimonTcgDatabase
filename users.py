@@ -102,7 +102,7 @@ def get_all_users():
     return db.query(sql)
 
 def get_user_by_username(username):
-    sql = "SELECT id, username FROM users WHERE username = ?"
+    sql = "SELECT id, username, is_admin FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0] if rows else None
 
