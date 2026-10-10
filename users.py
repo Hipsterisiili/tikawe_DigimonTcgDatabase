@@ -51,11 +51,24 @@ def _sanitize_table_name(name: str) -> str | None:
 
 def insert_user(username: str, password_hash: str) -> None:
     """
-    Insert a new user into users table.
-    Raises sqlite3.IntegrityError if username already exists.
+    Insert a new user.
+    If there are no prior users, the first user becomes admin.
+    Otherwise only a regular accoount is created.
+    Currently more admins can be created only by accessing table from command line.
     """
-    sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-    db.execute(sql, (username, password_hash))
+    # check whether any users exist
+    rows = db.query("SELECT COUNT(*) AS cnt FROM users")
+    if rows:
+        # db.query may return sqlite3.Row or dict; handle both
+        cnt = rows[0].get("cnt") if isinstance(rows[0], dict) else rows[0][0]
+    else:
+        cnt = 0
+
+    is_admin = 1 if cnt == 0 else 0
+
+    sql = "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)"
+    db.execute(sql, (username, password_hash, is_admin))
+
 
 
 def create_personal_table_for(username: str) -> str:
