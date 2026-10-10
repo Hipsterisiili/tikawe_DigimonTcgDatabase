@@ -58,12 +58,18 @@ def full_card_list():
     card_amount = items.get_card_number_from_table(table_name)
     card_list = items.get_card_list_from_table(table_name)
     latest_card = items.get_latest_card_from_table(table_name)
+    user = users.get_user_by_username(session.get("username"))
+    try:
+        is_admin = int(user['is_admin'] or 0)
+    except (KeyError, TypeError, ValueError):
+        is_admin = 0
 
     return render_template(
         "cards/full_card_list.html",
         count=card_amount,
         card_list=card_list,
-        latest_card=latest_card
+        latest_card=latest_card,
+        is_admin = is_admin
     )
 
 @app.route("/personal_card_list")
@@ -309,8 +315,7 @@ def new_card():
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
     if target == "global":
-        username = session.get("username")
-        user = users.get_user_by_username(username)
+        user = users.get_user_by_username(session.get("username"))
         try:
             is_admin = int(user['is_admin'] or 0)
         except (KeyError, TypeError, ValueError):
@@ -512,7 +517,7 @@ def delete_card():
 
     elif target == "private":
         table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
-        
+
     else:
         flash(f"Incorrect table name, {target} given")
         return redirect("/")
