@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 
+# Will fix this redundancy  later.
 @app.errorhandler(403)
 def forbidden(error):
     return render_template("errors/403.html", error=error), 403
@@ -328,7 +329,8 @@ def new_card():
         except (KeyError, TypeError, ValueError):
             is_admin = 0
 
-        if not is_admin: abort(403)
+        if not is_admin:
+            abort(403)
 
 
     default_name = request.args.get("card_name", "")
@@ -418,14 +420,15 @@ def edit_card_form():
         table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
     else:
         if target == "global":
-                username = session.get("username")
-                user = users.get_user_by_username(username)
-                try:
-                    is_admin = int(user['is_admin'] or 0)
-                except (KeyError, TypeError, ValueError):
-                    is_admin = 0
-        
-                if not is_admin: abort(403)
+            username = session.get("username")
+            user = users.get_user_by_username(username)
+            try:
+                is_admin = int(user['is_admin'] or 0)
+            except (KeyError, TypeError, ValueError):
+                is_admin = 0
+                
+            if not is_admin:
+                abort(403)
         table_name = "public_digimon_cards"
 
     card = items.find_card_using_id(id, table_name)
@@ -480,7 +483,7 @@ def edit_card_submit():
         card_name, rarity, card_set, suffix)
     if err != '':
         flash(err)
-        return redirect(url_for("new_card", target=target))
+        return redirect(url_for("/"))
 
     table_name, err = items.table_for_target(target, session)
     if not err is None:
@@ -519,7 +522,8 @@ def delete_card():
                 is_admin = int(user['is_admin'] or 0)
             except (KeyError, TypeError, ValueError):
                 is_admin = 0
-            if not is_admin: abort(403)
+            if not is_admin:
+                abort(403)
         table_name = "public_digimon_cards"
 
     elif target == "private":
