@@ -17,21 +17,31 @@ app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random UR
 # Will fix this redundancy  later.
 @app.errorhandler(403)
 def forbidden(error):
+    """
+    Handler for error 403
+    """
     return render_template("errors/403.html", error=error), 403
 
 @app.errorhandler(404)
 def forbidden(error):
+    """
+    Handler for error 404
+    """
     return render_template("errors/404.html", error=error), 404
 
-#@app.errorhandler(404)
-#def page_not_found(e):
-#    return "Not Found", 404
-
 def check_csrf():
+    """
+    Helper function for checking if correct token was sent for a POST method.
+    Aborts process if csrf-token was manipulated.
+    """
     if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
 
 def require_login():
+    """
+    Helper function for checking if user is logged in
+    Aborts process if a method that requires login was called without logging in.
+    """
     if "user_id" not in session:
         abort(403)
 
@@ -426,7 +436,6 @@ def edit_card_form():
                 is_admin = int(user['is_admin'] or 0)
             except (KeyError, TypeError, ValueError):
                 is_admin = 0
-                
             if not is_admin:
                 abort(403)
         table_name = "public_digimon_cards"
