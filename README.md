@@ -48,6 +48,7 @@ App contains a database containing 4 tables:
 ## Planned features
 
 - Searching for cards.
+- Card id field should only accepts numbers even before submit is pressed. 
 - Adding a publicly visible comment to own collection. (not very relevant)
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
 - Recognize and stack multiple instances of same card in personal collection. (If there is time for implementing)
@@ -55,6 +56,12 @@ App contains a database containing 4 tables:
 - Exporting a personal collection as CSV for use in other apps. (likely after the course has ended)
 - Importing a collection as CSV from other apps. (likely after the course has ended)
 - Drafting from a pre-built collection (likely after the course has ended)
+
+## Known issues
+
+- Inputting invalid card name length results to error screen instead of an error message and redirect
+- No validation of characters in card names implemented yet.
+- Card id suffix can be any integer, should only take numbers between 1-999
 
 
 ## Minimal requirements
@@ -76,6 +83,13 @@ Generate the database for the application using the file schema.sql in the proje
 Generate a few cards to the public collection by running:
 ```bash
 sqlite3 database.db < dummy_content_script.sql
+```
+
+The first 3 base sets (BT1, BT2 and BT3) can be added in the public collection ry running
+```bash
+sqlite3 database.db < sets/BT1.sql
+sqlite3 database.db < sets/BT2.sql
+sqlite3 database.db < sets/BT3.sql
 ```
 
 ## Starting the application
