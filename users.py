@@ -125,5 +125,3 @@ def is_user_admin(query: str):
     sql = "SELECT is_admin FROM users WHERE username LIKE ?"
     rows = db.query(sql, [f"%{query}%"])
     return rows[0] if rows else None
-
-
