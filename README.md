@@ -59,7 +59,7 @@ App contains a database containing 4 tables:
 
 ## Known issues
 
-- Inputting invalid card name length results to error screen instead of an error message and redirect
+- Inputting invalid card name length results to error screen instead of an error message and redirect. Likely fixed by returning a possible error message along with name from items/is_card_name_valid.
 - No validation of characters in card names implemented yet.
 - Card id suffix can be any integer, should only take numbers between 1-999
 
