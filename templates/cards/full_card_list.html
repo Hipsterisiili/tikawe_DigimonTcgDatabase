@@ -30,11 +30,13 @@ User may:
                 Latest added card: {{ latest_card }}
             </p>
 
+            {% if is_admin %}
             <p>
                 <a href="{{ url_for('new_card', target='global') }}">
-                    Add a card to the database
+                    Add a card to the database as admin
                 </a>
             </p>
+            {% endif %}
 
             {% if session.username %}
             <p>
