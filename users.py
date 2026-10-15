@@ -1,3 +1,11 @@
+"""
+Users.py contains methods related to handling user database such as:
+- Account creation
+- Login
+- Logout
+- User queries
+"""
+
 import re
 from werkzeug.security import check_password_hash
 import db
@@ -90,6 +98,11 @@ def create_personal_table_for(username: str) -> str:
     return table_name
 
 def check_login(username, password):
+    """
+    Method for comparing username and password.
+    Returns user's id from table users if username and password match.
+    Returns false if they do not match.
+    """
     sql = "SELECT id, password_hash FROM users WHERE username = ?"
     result = db.query(sql, [username])
 
@@ -101,27 +114,49 @@ def check_login(username, password):
     return None
 
 def get_password_hash(username):
-    """Return the stored password hash for username or None if not found."""
+    """
+    Return the stored password hash for username or None if not found.
+    """
     sql = "SELECT password_hash FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0]["password_hash"] if rows else None
 
 def get_all_users():
-    """Return a list of all users with their username, created_at, and is_admin."""
+    """
+    Return a list of all users with their username, created_at, and is_admin.
+    """
     sql = "SELECT username, created_at, is_admin FROM users ORDER BY username"
     return db.query(sql)
 
 def get_user_by_username(username):
+    """
+    Finds the user from table users using username.
+    Takes str username as parameter.
+    Returns a row containing user's id, username and is_admin,
+    If no such user, returns NONE.
+    """
     sql = "SELECT id, username, is_admin FROM users WHERE username = ?"
     rows = db.query(sql, [username])
     return rows[0] if rows else None
 
 def search_user_by_username(query: str) -> list:
+    """
+    Finds all users from table users whose username contains the query.
+    Takes str query as parameter.
+    Returns info of all matching users as rows containing:
+    id, username, created_ad
+    If no such user, returns NONE.
+    """
     sql = "SELECT id, username, created_at FROM users WHERE username LIKE ? ORDER BY username"
     rows = db.query(sql, [f"%{query}%"])
     return [dict(r) for r in rows]
 
 def is_user_admin(query: str):
+    """
+    Checks if the user is admin or not
+    If user is admin, returns a row containing user's id, username and is_admin,
+    If no such user, returns NONE.
+    """
     sql = "SELECT is_admin FROM users WHERE username LIKE ?"
     rows = db.query(sql, [f"%{query}%"])
     return rows[0] if rows else None

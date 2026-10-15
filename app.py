@@ -1,6 +1,7 @@
 """
 Main application file
 """
+import math
 import sqlite3
 import secrets
 from flask import Flask, flash, redirect, render_template, request, session, url_for, abort
@@ -55,32 +56,41 @@ def index():
     """
     return render_template("index.html")
 
-@app.route("/full_card_list")
-def full_card_list():
-    """
-    This page displays the global collection.
-    User may:
-    - Add cards to the global collection (if logged in)
-    - Edit cards to the global collection (if logged in)
-    - Delete cards from global collection (if logged in)
-    - Copy a card from this collection to their private collection (if logged in)
-    """
+PER_PAGE = 100
+
+@app.route("/full_card_list/")
+@app.route("/full_card_list/<int:page>")
+def full_card_list(page: int = 1):
+    if page < 1:
+        return redirect(url_for("full_card_list", page=1))
+
     table_name = "public_digimon_cards"
-    card_amount = items.get_card_number_from_table(table_name)
-    card_list = items.get_card_list_from_table(table_name)
+
+    total = items.get_card_count(table_name)
+    total_pages = max(1, math.ceil(total / PER_PAGE))
+
+    if page > total_pages:
+        return redirect(url_for("full_card_list", page=total_pages))
+
+    offset = (page - 1) * PER_PAGE
+    card_list = items.get_card_list_from_table(table_name, limit=PER_PAGE, offset=offset)
     latest_card = items.get_latest_card_from_table(table_name)
+
     user = users.get_user_by_username(session.get("username"))
     try:
         is_admin = int(user['is_admin'] or 0)
-    except (KeyError, TypeError, ValueError):
+    except Exception:
         is_admin = 0
 
     return render_template(
         "cards/full_card_list.html",
-        count=card_amount,
+        count=total,
         card_list=card_list,
         latest_card=latest_card,
-        is_admin = is_admin
+        is_admin=is_admin,
+        page=page,
+        total_pages=total_pages,
+        per_page=PER_PAGE
     )
 
 @app.route("/personal_card_list")

@@ -75,7 +75,7 @@ def table_for_target(target: str, session) -> tuple:
     return None, f"Incorrect table name, {target} given"
 
 def check_card_elements(
-        card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
+    card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
     """
     Check validity of card's name, rarity, and error message.
     Return (rarity, card_id, error_message). error_message None if OK.
@@ -96,7 +96,13 @@ def check_card_elements(
     err = "\n".join(errors)
     return card_name, rarity, card_number, err
 
-def get_card_list_from_table(table_name: str) -> list:
+def get_card_count(table_name: str) -> int:
+    sql = f"SELECT COUNT(*) AS cnt FROM {table_name}"
+    rows = db.query(sql)
+    # db.query returns list of sqlite3.Row or dict-like rows
+    return int(rows[0]["cnt"]) if rows else 0
+
+def get_card_list_from_table(table_name: str, limit: int = 100, offset: int = 0) -> list:
     """
     Return a list of cards from the specified table.
     Each card is represented as a dictionary with keys: id, name, card_number, rarity.
@@ -106,8 +112,8 @@ def get_card_list_from_table(table_name: str) -> list:
     if not table_name:
         raise ValueError("Invalid table name")
     try:
-        sql = f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number"
-        rows = db.query(sql)
+        sql = f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number LIMIT ? OFFSET ?"
+        rows = db.query(sql, [limit, offset])
         return [dict(row) for row in rows]
     except Exception:
         return []

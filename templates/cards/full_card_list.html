@@ -34,7 +34,27 @@ User may:
         {% endif %}
         <hr />
 
-        {% if card_list and card_list|length > 0 %} {% for card in card_list %}        
+        {% if card_list and card_list|length > 0 %}
+
+        {# Page navigation #}
+        <nav class="pagination" aria-label="Pages">
+            <div>
+                {% if page > 1 %}
+                <a href="{{ url_for('full_card_list', page=1) }}">« First</a>
+                <a href="{{ url_for('full_card_list', page=page-1) }}">‹ Prev</a>
+                {% endif %}
+
+                <span>Page {{ page }} of {{ total_pages }}</span>
+
+                {% if page < total_pages %}
+                <a href="{{ url_for('full_card_list', page=page+1) }}">Next ›</a>
+                <a href="{{ url_for('full_card_list', page=total_pages) }}">Last »</a>
+                {% endif %}
+            </div>
+        </nav>
+        
+        {% for card in card_list %}
+
         <!--- Element for displaying the cards --> 
         <p>
             <div class="card-row">
@@ -87,5 +107,4 @@ User may:
         <p>Your collection is empty. Add new cards!</p>
         {% endif %}
         </div>
-    </div>
 </html>
