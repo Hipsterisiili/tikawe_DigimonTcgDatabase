@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import items
 import users
 import comments
-from constants import ALLOWED_RARITIES, ALLOWED_SETS
+from constants import ALLOWED_RARITIES, ALLOWED_SETS, ALL_SETS
 
 app = Flask(__name__)
 
@@ -95,7 +95,7 @@ def full_card_list(page: int = 1):
         is_admin=is_admin,
         page=page,
         total_pages=total_pages,
-        sets=ALLOWED_SETS,
+        sets=ALL_SETS,
         selected_set=selected_set,
         per_page=PER_PAGE
     )
@@ -368,7 +368,7 @@ def new_card():
     return render_template(
         "cards/new_card.html",
         target=target,
-        sets=ALLOWED_SETS,
+        sets=ALL_SETS,
         current_set=default_set,
         default_rarity=default_rarity,
         default_name=default_name,
@@ -480,7 +480,7 @@ def edit_card_form():
         rarity=card["rarity"] or "",
         card_set=card_set or "",
         card_number_suffix=suffix or "",
-        sets = ALLOWED_SETS,
+        sets = ALL_SETS,
         rarities = ALLOWED_RARITIES
     )
 
