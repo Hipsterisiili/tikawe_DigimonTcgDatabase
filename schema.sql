@@ -8,7 +8,7 @@ CREATE TABLE public_digimon_cards (
 CREATE TABLE private_digimon_cards (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
-  card_number TEXT NOT NULL UNIQUE,
+  card_number TEXT,
   rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR')),
   owner_id INTEGER NOT NULL, 
   FOREIGN KEY (owner_id) 
