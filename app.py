@@ -90,6 +90,7 @@ def full_card_list(page: int = 1):
         is_admin=is_admin,
         page=page,
         total_pages=total_pages,
+        sets=ALLOWED_SETS,
         per_page=PER_PAGE
     )
 

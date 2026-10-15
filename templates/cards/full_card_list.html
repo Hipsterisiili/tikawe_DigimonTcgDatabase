@@ -46,8 +46,20 @@ User may:
 
             <hr />
 
-            {% if card_list and card_list|length > 0 %} {# Page navigation #}
+            <form method="get" action="{{ url_for('full_card_list', page=1) }}" style="margin-bottom:0.75rem;">
+                <label for="set">Show set:</label>
+                <select name="set" id="set">
+                    &lt;option value="all" {% if selected_set == 'all' %}selected{% endif %}>Show all</option>
+                    {% for s in sets %}
+                    <option value="{{ s }}" {% if selected_set == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Filter</button>
+            </form>
 
+
+            {% if card_list and card_list|length > 0 %}
+            <!-- Page navigation -->
             <nav class="pagination" aria-label="Pages">
                 <div>
                     {% if page > 1 %}
@@ -68,11 +80,9 @@ User may:
                     <a href="{{ url_for('full_card_list', page=total_pages) }}">
                         Last »
                     </a>
-                    {% endif %}
                 </div>
             </nav>
-
-            {% for card in card_list %}
+            {% endif %} {% for card in card_list %}
             <!--- Element for displaying a single card -->
             <div class="card-row">
                 <div class="card-info">
