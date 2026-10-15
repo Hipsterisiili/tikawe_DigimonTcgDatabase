@@ -78,7 +78,7 @@ def full_card_list(page: int = 1):
         return redirect(url_for("full_card_list", page=total_pages))
 
     offset = (page - 1) * PER_PAGE
-    card_list = items.get_card_list_from_table(table_name, limit=PER_PAGE, offset=offset)
+    card_list = items.get_card_list_from_table(table_name, limit=PER_PAGE, offset=offset, card_set=selected_set)
     latest_card = items.get_latest_card_from_table(table_name)
 
     user = users.get_user_by_username(session.get("username"))

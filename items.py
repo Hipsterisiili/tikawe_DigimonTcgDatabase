@@ -96,13 +96,22 @@ def check_card_elements(
     err = "\n".join(errors)
     return card_name, rarity, card_number, err
 
-def get_card_count(table_name: str) -> int:
-    sql = f"SELECT COUNT(*) AS cnt FROM {table_name}"
-    rows = db.query(sql)
-    # db.query returns list of sqlite3.Row or dict-like rows
+def get_card_count(table_name: str, card_set: str | None = None) -> int:
+    """
+    Find out how many cards are in table and return the result as int.
+    If a set is given as a parameter, count only cards with a matching set
+    """
+    if not table_name:
+        raise ValueError("Invalid table name")
+    if card_set and card_set != "all":
+        sql = f'SELECT COUNT(*) AS cnt FROM "{table_name}" WHERE card_number LIKE ?'
+        rows = db.query(sql, [f"{card_set}-%"])
+    else:
+        sql = f'SELECT COUNT(*) AS cnt FROM "{table_name}"'
+        rows = db.query(sql)
     return int(rows[0]["cnt"]) if rows else 0
 
-def get_card_list_from_table(table_name: str, limit: int = 100, offset: int = 0) -> list:
+def get_card_list_from_table(table_name: str, limit: int = 100, offset: int = 0, card_set: str | None = None) -> list:
     """
     Return a list of cards from the specified table.
     Each card is represented as a dictionary with keys: id, name, card_number, rarity.
@@ -112,10 +121,15 @@ def get_card_list_from_table(table_name: str, limit: int = 100, offset: int = 0)
     if not table_name:
         raise ValueError("Invalid table name")
     try:
-        sql = f"SELECT id, name, card_number, rarity FROM `{table_name}` ORDER BY card_number LIMIT ? OFFSET ?"
-        rows = db.query(sql, [limit, offset])
-        return [dict(row) for row in rows]
-    except Exception:
+        if card_set and card_set != "all":
+            sql = f'SELECT id, name, card_number, rarity FROM "{table_name}" WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
+            rows = db.query(sql, [f"{card_set}-%", limit, offset])
+        else:
+            sql = f'SELECT id, name, card_number, rarity FROM "{table_name}" ORDER BY id LIMIT ? OFFSET ?'
+            rows = db.query(sql, [limit, offset])
+        return [dict(row) for row in rows] if rows else []
+    except Exception as e:
+        flash("Failed to get a card list!")
         return []
 
 def get_card_number_from_table(table_name: str) -> int:
