@@ -63,10 +63,10 @@ User may:
             <nav class="pagination" aria-label="Pages">
                 <div>
                     {% if page > 1 %}
-                    <a href="{{ url_for('full_card_list', page=1) }}">
+                    <a href="{{ url_for('full_card_list', page=1, set=selected_set) }}">
                         « First
                     </a>
-                    <a href="{{ url_for('full_card_list', page=page-1) }}">
+                    <a href="{{ url_for('full_card_list', page=page-1, set=selected_set) }}">
                         ‹ Prev
                     </a>
                     {% endif %}
@@ -74,10 +74,10 @@ User may:
                     <span>Page {{ page }} of {{ total_pages }}</span>
 
                     {% if page < total_pages %}
-                    <a href="{{ url_for('full_card_list', page=page+1) }}">
+                    <a href="{{ url_for('full_card_list', page=page+1,set=selected_set) }}">
                         Next ›
                     </a>
-                    <a href="{{ url_for('full_card_list', page=total_pages) }}">
+                    <a href="{{ url_for('full_card_list', page=total_pages, set=selected_set) }}">
                         Last »
                     </a>
                 </div>

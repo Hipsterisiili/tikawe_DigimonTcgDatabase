@@ -66,6 +66,11 @@ def full_card_list(page: int = 1):
 
     table_name = "public_digimon_cards"
 
+    selected_set = request.args.get("set", "all")
+
+    if selected_set != "all" and selected_set not in ALLOWED_SETS:
+        selected_set = "all"
+
     total = items.get_card_count(table_name)
     total_pages = max(1, math.ceil(total / PER_PAGE))
 
@@ -91,6 +96,7 @@ def full_card_list(page: int = 1):
         page=page,
         total_pages=total_pages,
         sets=ALLOWED_SETS,
+        selected_set=selected_set,
         per_page=PER_PAGE
     )
 
