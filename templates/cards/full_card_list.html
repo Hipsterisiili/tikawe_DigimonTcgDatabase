@@ -9,102 +9,189 @@ User may:
 - Delete the existing items
 - A logged-in user may also add a card from the public database directly to their private collection
 -->
+<!doctype html>
 <html>
     <head>
         <title>Full card list</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+        />
     </head>
+    <body>
+        <div class="container">
+            <!-- Element for useful redirects -->
+            <div class="sidebar">{% include 'redirect_box.html' %}</div>
+            <p>
+                Amount of cards: {{ count }}
 
-    <div class="container">
-        <!-- Element for useful redirects -->
-        <div class="sidebar">
-            {% include 'redirect_box.html' %}
-        </div>
-        <p>
-            Amount of cards: {{ count }}
-            <br />
-            Latest added card: {{ latest_card }}
-        </p>
+                <br />
 
-        <p>
-            <a href="/new_card" ?target="global">Add a card to the database</a>
-        </p>
-        {% if session.username %}
-        <p><a href="/personal_card_list">Your private collection</a></p>
-        {% endif %}
-        <hr />
+                Latest added card: {{ latest_card }}
+            </p>
 
-        {% if card_list and card_list|length > 0 %}
+            <p>
+                <a href="{{ url_for('new_card', target='global') }}">
+                    Add a card to the database
+                </a>
+            </p>
 
-        {# Page navigation #}
-        <nav class="pagination" aria-label="Pages">
-            <div>
-                {% if page > 1 %}
-                <a href="{{ url_for('full_card_list', page=1) }}">« First</a>
-                <a href="{{ url_for('full_card_list', page=page-1) }}">‹ Prev</a>
-                {% endif %}
+            {% if session.username %}
+            <p>
+                <a href="{{ url_for('personal_card_list') }}">
+                    Your private collection
+                </a>
+            </p>
+            {% endif %}
 
-                <span>Page {{ page }} of {{ total_pages }}</span>
+            <hr />
 
-                {% if page < total_pages %}
-                <a href="{{ url_for('full_card_list', page=page+1) }}">Next ›</a>
-                <a href="{{ url_for('full_card_list', page=total_pages) }}">Last »</a>
-                {% endif %}
-            </div>
-        </nav>
-        
-        {% for card in card_list %}
+            {% if card_list and card_list|length > 0 %} {# Page navigation #}
 
-        <!--- Element for displaying the cards --> 
-        <p>
-            <div class="card-row">
-                <!-- Card displayed in format "card_number, name, rarity" -->
-                <div class="card-info">
-                    {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}
+            <nav class="pagination" aria-label="Pages">
+                <div>
+                    {% if page > 1 %}
+                    <a href="{{ url_for('full_card_list', page=1) }}">
+                        « First
+                    </a>
+                    <a href="{{ url_for('full_card_list', page=page-1) }}">
+                        ‹ Prev
+                    </a>
+                    {% endif %}
+
+                    <span>Page {{ page }} of {{ total_pages }}</span>
+
+                    {% if page < total_pages %}
+                    <a href="{{ url_for('full_card_list', page=page+1) }}">
+                        Next ›
+                    </a>
+                    <a href="{{ url_for('full_card_list', page=total_pages) }}">
+                        Last »
+                    </a>
+                    {% endif %}
                 </div>
+            </nav>
+
+            {% for card in card_list %}
+            <!--- Element for displaying a single card -->
+            <div class="card-row">
+                <div class="card-info">
+                    {{ card['card_number'] }}, {{ card['name'] }}, {{
+                    card['rarity'] }}
+                </div>
+
                 {% if session.username %}
                 <div class="card-actions">
                     {% if is_admin %}
-                    <!--- Button for editing the card --> 
-                    <form action="{{ url_for('edit_card_form') }}" method="get" style="display:inline">
-                        <input type="hidden" name="id" value="{{ card['id'] }}">
-                        <input type="hidden" name="target" value="global">
-                        <button type="submit" class="btn btn-edit" onclick="return confirm('Edit this card\'s data in the public database?')">Edit</button>
+                    <!--- Button for editing the card -->
+                    <form
+                        action="{{ url_for('edit_card_form') }}"
+                        method="get"
+                        style="display: inline"
+                    >
+                        <input
+                            type="hidden"
+                            name="id"
+                            value="{{ card['id'] }}"
+                        />
+                        <input type="hidden" name="target" value="global" />
+                        <button
+                            type="submit"
+                            class="btn btn-edit"
+                            onclick="
+                                return confirm(
+                                    'Edit this card data in the public database?',
+                                );
+                            "
+                        >
+                            Edit
+                        </button>
                     </form>
-                    
-                    <!--- Button for deleting the card --> 
-                    <form action="/delete_card" method="post" style="display:inline">
-                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-                        <input type="hidden" name="id" value="{{ card['id'] }}">
-                        <input type="hidden" name="name" value="{{ card['name'] }}">
-                        <input type="hidden" name="target" value="global">
-                        <button type="submit" class="btn btn-delete"  onclick="return confirm('Delete this card from the public database?')">Delete</button>
-                    </form>
-                    {% endif %}
-                    <!--- Split the card_id into pieces which can be used for adding the card to personal collection -->
-                    {% set cn = card['card_number'] or '' %}
-                    {% set parts = cn.rsplit('-', 1) %}
-                    {% set card_set = parts[0] if parts|length > 0 else '' %}
-                    {% set suffix = parts[1] if parts|length > 1 else '' %}
 
-                    <!-- Button to yoink card directly into private collection
-                     Visible only to logged-in users -->
-                    <form action="/send_card" method="post" style="display:inline">
-                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-                        <input type="hidden" name="card_name" value="{{ card['name'] }}">
-                        <input type="hidden" name="card_set" value="{{ card_set }}">
-                        <input type="hidden" name="card_number_suffix" value="{{ suffix }}">
-                        <input type="hidden" name="rarity" value="{{ card['rarity'] }}">
-                        <input type="hidden" name="target" value="private">
-                        <button type="submit" class="btn btn-index">Add to Private Collection</button>
+                    <!--- Button for deleting the card -->
+                    <form
+                        action="{{ url_for('delete_card') }}"
+                        method="post"
+                        style="display: inline"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ session.csrf_token }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="id"
+                            value="{{ card['id'] }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="name"
+                            value="{{ card['name'] }}"
+                        />
+                        <input type="hidden" name="target" value="global" />
+                        <button
+                            type="submit"
+                            class="btn btn-delete"
+                            onclick="
+                                return confirm(
+                                    'Delete this card from the public database?',
+                                );
+                            "
+                        >
+                            Delete
+                        </button>
                     </form>
-                    {% endif %}
+                    {% endif %} {# Split card_number into set + suffix #} {% set
+                    cn = card['card_number'] or '' %} {% set parts =
+                    cn.rsplit('-', 1) %} {% set card_set = parts[0] if
+                    parts|length > 0 else '' %} {% set suffix = parts[1] if
+                    parts|length > 1 else '' %}
+
+                    <!-- Button to grab card directly into private collection
+                     Visible only to logged-in users -->
+                    <form
+                        action="{{ url_for('send_card') }}"
+                        method="post"
+                        style="display: inline"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ session.csrf_token }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="card_name"
+                            value="{{ card['name'] }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="card_set"
+                            value="{{ card_set }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="card_number_suffix"
+                            value="{{ suffix }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="rarity"
+                            value="{{ card['rarity'] }}"
+                        />
+                        <input type="hidden" name="target" value="private" />
+                        <button type="submit" class="btn btn-index">
+                            Add to Private Collection
+                        </button>
+                    </form>
                 </div>
+                {% endif %}
             </div>
-        </p>
-        <hr />
-        {% endfor %} {% else %}
-        <p>Your collection is empty. Add new cards!</p>
-        {% endif %}
+            <hr />
+            {% endfor %} {% else %}
+            <p>Your collection is empty. Add new cards!</p>
+            {% endif %}
         </div>
+    </body>
 </html>
