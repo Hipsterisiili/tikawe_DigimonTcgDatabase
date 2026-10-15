@@ -15,6 +15,7 @@ App contains a database containing 4 tables:
 
 - Somewhat secure password management
 - Global catalog which every logged-in user can view and edit
+    - Cards may be viewed one set at a time
     - Admin can edit the card's information
     - Admin can delete a card from catalog
     - Any user can directly add cards from this catalog to their personal collections
@@ -24,7 +25,7 @@ App contains a database containing 4 tables:
     - User can delete a card from catalog
     - Possible to have multiple cards with same card_id
 - User catalog for browsing other users and their collections
-    - Contains a link to viewing ach user's collection
+    - Contains a link to viewing each user's collection
     - User can search for other users by username
 - Commenting on other users' collections.
     - Only the collection's owner may read these comments.
