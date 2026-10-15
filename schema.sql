@@ -5,6 +5,16 @@ CREATE TABLE public_digimon_cards (
   rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))
 );
 
+CREATE TABLE private_digimon_cards (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  card_number TEXT NOT NULL UNIQUE,
+  rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR')),
+  owner_id INTEGER NOT NULL, 
+  FOREIGN KEY (owner_id) 
+  REFERENCES users(id)
+);
+
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
