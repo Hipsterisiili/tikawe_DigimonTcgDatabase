@@ -71,11 +71,13 @@ def full_card_list(page: int = 1):
     if selected_set != "all" and selected_set not in ALLOWED_SETS:
         selected_set = "all"
 
-    total = items.get_card_count(table_name)
+    total = items.get_card_count(table_name, card_set=selected_set)
     total_pages = max(1, math.ceil(total / PER_PAGE))
 
     if page > total_pages:
-        return redirect(url_for("full_card_list", page=total_pages))
+        return redirect(url_for("full_card_list", page=total_pages, set=selected_set))
+    if page < 1:
+        return redirect(url_for("full_card_list", page=1, set=selected_set))
 
     offset = (page - 1) * PER_PAGE
     card_list = items.get_card_list_from_table(table_name, limit=PER_PAGE, offset=offset, card_set=selected_set)
