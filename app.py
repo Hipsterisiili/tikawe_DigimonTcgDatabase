@@ -595,5 +595,15 @@ def delete_card():
     flash(f"{name} deleted from private collection.")
     return redirect("/personal_card_list")
 
+@app.route("/toggle_favorite", methods=["POST"])
+def toggle_favorite():
+    card_id = request.form.get("id", type=int)
+    if card_id is None:
+        flash("Missing card id.", "error")
+        return redirect(url_for("personal_card_list"))
+
+    items.toggle_favorite_by_id(card_id, session)
+    return redirect(url_for("personal_card_list"))
+
 if __name__ == "__main__":
     app.run(debug=True)

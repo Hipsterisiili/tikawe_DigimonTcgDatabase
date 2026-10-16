@@ -344,7 +344,7 @@ def toggle_favorite_by_id(card_id: int, session):
     Returns True if process was successful, returns False if not.
     """
     try:
-        rows = db.query("SELECT id FROM private_digimon_cards WHERE id = ?", [card_id])
+        rows = db.query("SELECT id, owner_id FROM private_digimon_cards WHERE id = ?", [card_id])
         if not rows:
             flash("Card not found.", "error")
             return False
@@ -389,8 +389,10 @@ def toggle_favorite_by_id(card_id: int, session):
 
     except sqlite3.Error as e:
         flash(f"Database error while toggling favorite: {e}", "error")
+        print("11111 AVAIN OLI: " + str(card_id))
         return False
 
     except Exception as e:
         flash(f"Unexpected error while toggling favorite: {e}", "error")
+        print("22222 AVAIN OLI: " + str(card_id))
         return False
