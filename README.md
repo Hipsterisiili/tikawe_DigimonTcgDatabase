@@ -101,6 +101,7 @@ App contains a database containing 4 tables:
 Generate the database for the application using the file schema.sql in the project's root using the command:
 ```bash
  sqlite3 database.db < schema.sql
+ sqlite3 database.db < init.sql
 ```
 
 ### Optional:

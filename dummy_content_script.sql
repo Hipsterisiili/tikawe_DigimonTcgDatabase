@@ -11,11 +11,3 @@ VALUES  ('Agumon', 'P-001', 'P'),
         ('Cyberdramon', 'EX2-035', 'R'),
         ('Amphimon', 'LM-005', 'SR'),
         ('AncientGreymon', 'BT4-113', 'SEC');
-
-INSERT INTO classes (title, value) VALUES ('Condition', 'NM'),
-        ('Condition', 'LP'),
-        ('Condition', 'MP'),
-        ('Condition', 'HP'),
-        ('Condition', 'D'),
-        ('Favorite', 'yes'),
-        ('Favorite', 'no');
