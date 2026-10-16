@@ -29,25 +29,31 @@ App contains a database containing 4 tables:
     - receiverer_id (INT, references users(id, The comment's receiver))
     - comment_text (TEXT, contents of the comment)
     - created_at (DATETIME, the exact time when the comment was left)
+
 ## Features
 
 - Somewhat secure password management
-- Global catalog which every logged-in user can view and edit
+- Global catalog
+    - *Everyone* can view it
+    - *Admin* can edit the card's information
+    - *Admin* can delete a card from catalog
+    - *Any logged in user* can directly add cards from this catalog to their personal collections
     - Cards may be viewed one set at a time
-    - Admin can edit the card's information
-    - Admin can delete a card from catalog
-    - Any user can directly add cards from this catalog to their personal collections
     - Only one card can exist with the same card_id
-- Personal catalog, which only their owner can edit
-    - User can edit the card's information
-    - User can delete a card from catalog
+- Personal catalog
+    - *Catalog's owner* can edit it
+    - *Catalog's owner* can edit the card's information
+    - *Catalog's owner* can delete a card from catalog
+    - *Any user* can view it through user list
     - Possible to have multiple cards with same card_id
 - User catalog for browsing other users and their collections
+    - *Everyone* can view it with no limitations
     - Contains a link to viewing each user's collection
+    - When *a logged in user* want's to view their own collection, their personal collection is opened in an editable view.
     - User can search for other users by username
 - Commenting on other users' collections.
-    - Only the collection's owner may read these comments.
-    - The collection's owner may delete these comments.
+    - *Collection's owner* may read these comments.
+    - *Collection's owner* may delete these comments.
 
 ## What a user needs to know about a Digimon card?
 
@@ -66,16 +72,14 @@ App contains a database containing 4 tables:
 
 ## Planned features
 
-- Searching for cards.
 - Card id field should only accepts numbers even before submit is pressed. 
 - Adding a publicly visible comment to own collection. (not very relevant)
-- a larger set of cards is split into multiple cards.
 - When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
-- Recognize and stack multiple instances of same card in personal collection. (If there is time for implementing)
-- Images for cards (If there is time for implementing)
-- Exporting a personal collection as CSV for use in other apps. (likely after the course has ended)
-- Importing a collection as CSV from other apps. (likely after the course has ended)
-- Drafting from a pre-built collection (likely after the course has ended)
+- Recognize and stack multiple instances of same card in personal collection. (After the course)
+- Images for cards (After the course)
+- Exporting a personal collection as CSV for use in other apps. (After the course)
+- Importing a collection as CSV from other apps. (After the course)
+- Drafting from a pre-built collection (After the course)
 
 ## Known issues
 
