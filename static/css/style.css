@@ -85,6 +85,10 @@ input[type='submit']:hover {
     background: #ef4444;
     color: white;
 }
+.btn-favorite {
+    background: #ddc61a;
+    color: white;
+}
 
 form p {
     margin-bottom: 0.75rem;
