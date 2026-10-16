@@ -1,8 +1,6 @@
 from curses import flash
 import re
-import random
-import sqlite3
-from flask import request
+from flask import flash
 from constants import ALLOWED_RARITIES, ALLOWED_SETS
 import db
 
