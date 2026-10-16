@@ -41,19 +41,19 @@ App contains a database containing 4 tables:
     - Cards may be viewed one set at a time
     - Only one card can exist with the same card_id
 - Personal catalog
-    - *Catalog's owner* can edit it
-    - *Catalog's owner* can edit the card's information
-    - *Catalog's owner* can delete a card from catalog
-    - *Any user* can view it through user list
+    - **Catalog's owner** can edit it
+    - **Catalog's owner** can edit the card's information
+    - **Catalog's owner** can delete a card from catalog
+    - **Any user** can view it through user list
     - Possible to have multiple cards with same card_id
 - User catalog for browsing other users and their collections
-    - *Everyone* can view it with no limitations
+    - **Everyone** can view it with no limitations
     - Contains a link to viewing each user's collection
-    - When *a logged in user* want's to view their own collection, their personal collection is opened in an editable view.
+    - When **a logged in user** want's to view their own collection, their personal collection is opened in an editable view.
     - User can search for other users by username
 - Commenting on other users' collections.
-    - *Collection's owner* may read these comments.
-    - *Collection's owner* may delete these comments.
+    - **Collection's owner** may read these comments.
+    - **Collection's owner** may delete these comments.
 
 ## What a user needs to know about a Digimon card?
 
