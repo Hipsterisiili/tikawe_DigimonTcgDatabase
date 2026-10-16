@@ -1,9 +1,10 @@
-from curses import flash
 import re
 import sqlite3
 from flask import flash
 from constants import ALLOWED_RARITIES, ALLOWED_SETS
 import db
+from typing import Tuple, Optional
+import users
 
 def is_card_name_valid(name: str) -> bool:
     """ Validate the raw input before any sanitization.
@@ -28,7 +29,7 @@ def is_card_name_valid(name: str) -> bool:
         return False
     return True
 
-def sanitize_table_name(name: str) -> str:
+def sanitize_table_name(name: str) -> str | None:
     """
     Return a safe table name (same scheme used when creating per-user tables),
     or None if invalid. 
@@ -61,10 +62,7 @@ def sanitize_card_name(name: str) -> str:
     s = s[0].upper() + s[1:]
     return s
 
-from typing import Tuple, Optional
-import users
-
-def table_for_target(target: str, session) -> Tuple[Optional[int], Optional[str]]:
+def table_for_target(target: str, session) -> tuple[int | None, str | None]:
     """
     Return (owner_id, error_message). owner_id is None for public table, or an int user id for private.
     error_message is None when OK.
@@ -184,7 +182,7 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None):
         return ([], "Unexpected error occurred while fetching cards.")
 
     
-def get_card_number_from_table(owner_id: Optional[int]) -> int:
+def get_card_number_from_table(owner_id: int | None) -> int:
     """
     Return the number of cards for the given owner.
     - owner_id is None -> count public_digimon_cards
@@ -226,7 +224,7 @@ def get_latest_card(owner_id):
         return (None, "Unexpected error occurred while fetching latest card.")
 
 
-def add_card(owner_id: Optional[int], name: str, card_number: str, rarity: str) -> None:
+def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> None:
     """
     Insert into public table if owner_id is None
     Insert into private table if owner_id is provided as parameter.
@@ -261,7 +259,7 @@ def add_card(owner_id: Optional[int], name: str, card_number: str, rarity: str) 
         )
 
 
-def edit_card(id_int: int, owner_id: Optional[int], name: str, card_number: str, rarity: str) -> None:
+def edit_card(id_int: int, owner_id: int | None, name: str, card_number: str, rarity: str) -> None:
     """
     Edit a card in the specified table.
     Card is located using the primary key id given as parameter.
@@ -277,7 +275,7 @@ def edit_card(id_int: int, owner_id: Optional[int], name: str, card_number: str,
                    (name, card_number, rarity, id_int, owner_id))
 
 
-def delete_card(id_int: int, owner_id: Optional[int]) -> None:
+def delete_card(id_int: int, owner_id: int | None) -> None:
     """
     Delete a card from the specified table by its primary key id.
     If owner_id is None, deletes from public table row with id matching parameter id_int.
@@ -289,7 +287,7 @@ def delete_card(id_int: int, owner_id: Optional[int]) -> None:
         db.execute('DELETE FROM private_digimon_cards WHERE id = ?', [id_int])
 
 
-def find_card_by_id(id_int: int, owner_id: Optional[int]):
+def find_card_by_id(id_int: int, owner_id: int | None):
     """
     Look up a card by its primary key id.
     If owner_id is None, edits public table row with id matching parameter id_int.
