@@ -61,6 +61,15 @@ PER_PAGE = 100
 @app.route("/full_card_list/")
 @app.route("/full_card_list/<int:page>")
 def full_card_list(page: int = 1):
+    """
+    This page displays the contents of the puclic table.
+    Visible to everyone even without logging in.
+    Logged in user may:
+    - Add a card from public table to their own collection
+    Admin may:
+    - Edit cards in this table
+    - Delete cards from this table
+    """
     if page < 1:
         return redirect(url_for("full_card_list", page=1))
 
@@ -80,8 +89,14 @@ def full_card_list(page: int = 1):
         return redirect(url_for("full_card_list", page=1, set=selected_set))
 
     offset = (page - 1) * PER_PAGE
-    card_list, err = items.get_card_list(owner_id, limit=PER_PAGE, offset=offset, card_set=selected_set)
+    card_list, err = items.get_card_list(
+        owner_id, limit=PER_PAGE, offset=offset, card_set=selected_set
+        )
+    if err:
+        flash(err)
     latest_card, err = items.get_latest_card(owner_id)
+    if err:
+        flash(err)
 
     user = users.get_user_by_username(session.get("username"))
     try:
@@ -392,7 +407,9 @@ def send_card():
     rarity = request.form.get("rarity", "").strip() or None
     target = request.form.get("target", "global")
 
-    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
+    card_name, rarity, card_number, err = items.check_card_elements(
+        card_name, rarity, card_set, suffix
+        )
     if err:
         flash(err)
         return redirect(url_for(
@@ -434,7 +451,8 @@ def edit_card_form():
     """
     require_login()
     target = request.args.get("target", "global")
-    try: id_int = int(request.args.get("id"))
+    try:
+        id_int = int(request.args.get("id"))
     except (TypeError, ValueError):
         flash("Invalid card id")
         return redirect(url_for("full_card_list"))
@@ -489,7 +507,9 @@ def edit_card_submit():
         return redirect("/full_card_list")
 
     # Validate fields
-    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity or None, card_set, suffix)
+    card_name, rarity, card_number, err = items.check_card_elements(
+        card_name, rarity or None, card_set, suffix
+        )
     if err:
         flash(err)
         # redirect back to the edit form, preserving submitted values so the form can prefill
@@ -502,7 +522,7 @@ def edit_card_submit():
             card_set=card_set or "",
             card_number_suffix=suffix or ""
         ))
-    
+
     # Resolve owner_id (None means public)
     owner_id, table_err = items.table_for_target(target, session)
     if table_err:
@@ -544,7 +564,6 @@ def delete_card():
     check_csrf()
     require_login()
     target = request.form.get("target", "global")
-    table_name = ""
     name = request.form.get("name", "")
     owner_id, err = items.table_for_target(target, session)
     if err:
@@ -576,5 +595,5 @@ def delete_card():
     flash(f"{name} deleted from private collection.")
     return redirect("/personal_card_list")
 
-    if __name__ == "__main__":
-        app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
