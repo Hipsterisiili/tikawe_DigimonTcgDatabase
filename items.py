@@ -61,18 +61,29 @@ def sanitize_card_name(name: str) -> str:
     s = s[0].upper() + s[1:]
     return s
 
-def table_for_target(target: str, session) -> tuple:
+from typing import Tuple, Optional
+import users
+
+def table_for_target(target: str, session) -> Tuple[Optional[int], Optional[str]]:
     """
-    Return (table_name, error_message). error_message None if OK.
+    Return (owner_id, error_message). owner_id is None for public table, or an int user id for private.
+    error_message is None when OK.
     """
     if target == "private":
-        if "username" not in session:
+        username = session.get("username")
+        if not username:
             return None, "Please log in"
-        table_name = sanitize_table_name("personal_collection_" + session["username"])
-        return table_name, None
+        user = users.get_user_by_username(username)
+        if not user:
+            return None, "Please log in"
+        try:
+            return int(user["id"]), None
+        except Exception:
+            return None, "Internal error: could not determine user id"
     if target == "global":
-        return "public_digimon_cards", None
+        return None, None
     return None, f"Incorrect table name, {target} given"
+
 
 def check_card_elements(
     card_name: str, rarity: str, card_set: str, suffix: str ) -> tuple[str, str, str, str]:
@@ -96,166 +107,204 @@ def check_card_elements(
     err = "\n".join(errors)
     return card_name, rarity, card_number, err
 
-def get_card_count(table_name: str, card_set: str | None = None) -> int:
+def get_card_count(owner_id: Optional[int], card_set: str | None = None) -> int:
     """
     Find out how many cards are in table and return the result as int.
     If a set is given as a parameter, count only cards with a matching set
+    If owner_id is None -> count public_digimon_cards.
+    If owner_id is int -> count private_digimon_cards WHERE owner_id = ?
     """
-    if not table_name:
-        raise ValueError("Invalid table name")
-    if card_set and card_set != "all":
-        sql = f'SELECT COUNT(*) AS cnt FROM "{table_name}" WHERE card_number LIKE ?'
-        rows = db.query(sql, [f"{card_set}-%"])
+    if owner_id is None:
+        table = "public_digimon_cards"
+        if card_set and card_set != "all":
+            sql = f'SELECT COUNT(*) AS cnt FROM "{table}" WHERE card_number LIKE ?'
+            rows = db.query(sql, [f"{card_set}-%"])
+        else:
+            sql = f'SELECT COUNT(*) AS cnt FROM "{table}"'
+            rows = db.query(sql)
     else:
-        sql = f'SELECT COUNT(*) AS cnt FROM "{table_name}"'
-        rows = db.query(sql)
+        table = "private_digimon_cards"
+        if card_set and card_set != "all":
+            sql = f'SELECT COUNT(*) AS cnt FROM "{table}" WHERE owner_id = ? AND card_number LIKE ?'
+            rows = db.query(sql, [owner_id, f"{card_set}-%"])
+        else:
+            sql = f'SELECT COUNT(*) AS cnt FROM "{table}" WHERE owner_id = ?'
+            rows = db.query(sql, [owner_id])
+
     return int(rows[0]["cnt"]) if rows else 0
 
-def get_card_list_from_table(table_name: str, limit: int = 100, offset: int = 0, card_set: str | None = None) -> list:
+
+def get_card_list(owner_id: Optional[int], limit: int = 100, offset: int = 0, card_set: str | None = None) -> list:
     """
-    Return a list of cards from the specified table.
+    Return a list of cards as dicts from the requested table.
+    If owner_id is None, returns contents of public table
+    Otherwise returns contents pf private table filtered by owner_id.
     Each card is represented as a dictionary with keys: id, name, card_number, rarity.
     Returns an empty list if the table does not exist or on error.
     """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
     try:
-        if card_set and card_set != "all":
-            sql = f'SELECT id, name, card_number, rarity FROM "{table_name}" WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
-            rows = db.query(sql, [f"{card_set}-%", limit, offset])
+        if owner_id is None:
+            table = "public_digimon_cards"
+            if card_set and card_set != "all":
+                sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
+                rows = db.query(sql, [f"{card_set}-%", limit, offset])
+            else:
+                sql = f'SELECT id, name, card_number, rarity FROM "{table}" ORDER BY id LIMIT ? OFFSET ?'
+                rows = db.query(sql, [limit, offset])
         else:
-            sql = f'SELECT id, name, card_number, rarity FROM "{table_name}" ORDER BY id LIMIT ? OFFSET ?'
-            rows = db.query(sql, [limit, offset])
-        return [dict(row) for row in rows] if rows else []
-    except Exception as e:
-        flash("Failed to get a card list!")
-        return []
+            table = "private_digimon_cards"
+            if card_set and card_set != "all":
+                sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE owner_id = ? AND card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
+                rows = db.query(sql, [owner_id, f"{card_set}-%", limit, offset])
+            else:
+                sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?'
+                rows = db.query(sql, [owner_id, limit, offset])
 
-def get_card_number_from_table(table_name: str) -> int:
+        return [dict(r) for r in rows] if rows else []
+    except Exception as e:
+        print("get_card_list error:", e)
+        return []
+    
+def get_card_number_from_table(owner_id: Optional[int]) -> int:
     """
-    Return the number of cards in the specified table.
+    Return the number of cards for the given owner.
+    - owner_id is None -> count public_digimon_cards
+    - owner_id is an int -> count private_digimon_cards WHERE owner_id = ?
     Returns 0 if the table does not exist or on error.
     """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
     try:
-        sql = f"SELECT COUNT(*) as count FROM `{table_name}`"
-        rows = db.query(sql)
-        return rows[0]["count"] if rows else 0
+        if owner_id is None:
+            sql = 'SELECT COUNT(*) AS count FROM "public_digimon_cards"'
+            rows = db.query(sql)
+        else:
+            sql = 'SELECT COUNT(*) AS count FROM "private_digimon_cards" WHERE owner_id = ?'
+            rows = db.query(sql, [owner_id])
+
+        return int(rows[0]["count"]) if rows else 0
     except Exception:
         return 0
 
-def get_latest_card_from_table(table_name: str) -> str | None:
-    """
-    Return the name of the latest card added to the specified table.
-    Returns None if the table does not exist, is empty, or on error.
-    """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
+def get_latest_card(owner_id: Optional[int]) -> str | None:
     try:
-        sql = f"SELECT name FROM `{table_name}` ORDER BY id DESC LIMIT 1"
-        rows = db.query(sql)
+        if owner_id is None:
+            sql = 'SELECT name FROM "public_digimon_cards" ORDER BY id DESC LIMIT 1'
+            rows = db.query(sql)
+        else:
+            sql = 'SELECT name FROM "private_digimon_cards" WHERE owner_id = ? ORDER BY id DESC LIMIT 1'
+            rows = db.query(sql, [owner_id])
         return rows[0]["name"] if rows else None
     except Exception:
         return None
 
-def add_card_to_table(table_name: str, name: str, card_number: str, rarity: str) -> None:
+
+def add_card(owner_id: Optional[int], name: str, card_number: str, rarity: str) -> None:
     """
-    Add a card to the specified table.
-    Raises sqlite3.Error if insertion fails.
+    Insert into public table if owner_id is None
+    Insert into private table if owner_id is provided as parameter.
     """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
-    db.execute(
-            f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
-            "id INTEGER PRIMARY KEY, "
-            "name TEXT NOT NULL, "
-            "card_number TEXT, "
+    if owner_id is None:
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS public_digimon_cards ('
+            'id INTEGER PRIMARY KEY, '
+            'name TEXT NOT NULL, '
+            'card_number TEXT, '
             "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
-            ")"
+            ')'
         )
-    db.execute(
-            f"INSERT INTO `{table_name}` (name, card_number, rarity) VALUES (?, ?, ?)",
+        db.execute(
+            'INSERT INTO public_digimon_cards (name, card_number, rarity) VALUES (?, ?, ?)',
             (name, card_number, rarity)
         )
+    else:
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS private_digimon_cards ('
+            'id INTEGER PRIMARY KEY, '
+            'name TEXT NOT NULL, '
+            'card_number TEXT, '
+            "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR')), "
+            'owner_id INTEGER NOT NULL, '
+            'FOREIGN KEY(owner_id) REFERENCES users(id)'
+            ')'
+        )
+        db.execute(
+            'INSERT INTO private_digimon_cards (name, card_number, rarity, owner_id) VALUES (?, ?, ?, ?)',
+            (name, card_number, rarity, owner_id)
+        )
 
-def edit_card_in_table(
-        table_name: str, id_int: int, name: str, card_number: str, rarity: str) -> None:
+
+def edit_card(id_int: int, owner_id: Optional[int], name: str, card_number: str, rarity: str) -> None:
     """
-    Edit a card in the specified table by its primary key id.
+    Edit a card in the specified table.
+    Card is located using the primary key id given as parameter.
     Takes the new name, card_number, and rarity as parameters.
+    If owner_id is None, edits public table row with id
+    If owner_id exists, edits private table row with id AND owner_id (so user can't edit another user's card)
     """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
-    db.execute(
-        f'UPDATE "{table_name}" SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
-        (name, card_number, rarity, id_int)
-    )
+    if owner_id is None:
+        db.execute('UPDATE public_digimon_cards SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
+                   (name, card_number, rarity, id_int))
+    else:
+        db.execute('UPDATE private_digimon_cards SET name = ?, card_number = ?, rarity = ? WHERE id = ? AND owner_id = ?',
+                   (name, card_number, rarity, id_int, owner_id))
 
-def delete_card_from_table(table_name: str, id_int: int) -> None:
+
+def delete_card(id_int: int, owner_id: Optional[int]) -> None:
     """
     Delete a card from the specified table by its primary key id.
+    If owner_id is None, deletes from public table row with id matching parameter id_int.
+    If owner_id exists, deletes from private table row with id AND owner_id.
     """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
-    db.execute(f'DELETE FROM "{table_name}" WHERE id = ?', [id_int])
+    if owner_id is None:
+        db.execute('DELETE FROM public_digimon_cards WHERE id = ?', [id_int])
+    else:
+        db.execute('DELETE FROM private_digimon_cards WHERE id = ?', [id_int])
 
-def find_card_using_id(id, table_name):
+
+def find_card_by_id(id_int: int, owner_id: Optional[int]):
     """
     Look up a card by its primary key id.
+    If owner_id is None, edits public table row with id matching parameter id_int.
+    If owner_id exists, deletes from private table row with id matching parameter id_int.
     Returns:
-      - the card data if found
-      - None if not found or on invalid input / error
+       - the card data if found
+       - None if not found or on invalid input / error
     """
-    table_name = sanitize_table_name(table_name)
-    if not table_name:
-        raise ValueError("Invalid table name")
-    if not isinstance(id, int):
+    if not isinstance(id_int, int):
         return None
     try:
-        sql = f"SELECT id, name, card_number, rarity FROM {table_name} WHERE id = ?"
-        rows = db.query(sql, [id])
+        if owner_id is None:
+            sql = 'SELECT id, name, card_number, rarity FROM public_digimon_cards WHERE id = ?'
+            rows = db.query(sql, [id_int])
+        else:
+            sql = 'SELECT id, name, card_number, rarity FROM private_digimon_cards WHERE id = ? AND owner_id = ?'
+            rows = db.query(sql, [id_int, owner_id])
     except Exception:
         return None
+    return rows[0] if rows else None
 
-    if not rows:
-        return None
 
-    return rows[0]
-
-def find_card_using_card_id(card_id, target):
+def find_card_id_by_card_number(card_number: str, owner_id: Optional[int]) -> int:
     """
     Look up the primary key id for a given card_number (card_id).
+    If owner_id is None, searches public table row with card_number matching given parameter.
+    If owner_id exists, searches private table row with card_number matching given parameter.
     Returns:
       - the integer primary key id if found
       - 0 if not found or on invalid input / error
     """
-
-    if not isinstance(card_id, str):
+    if not isinstance(card_number, str):
         return 0
-    card_id = card_id.strip()
-    if not card_id:
+    card_number = card_number.strip()
+    if not card_number:
         return 0
-    table_name = ""
-    if target == "private":
-        table_name = sanitize_table_name("personal_collection_"+ request.form["username"])
-    else:
-        table_name = "public_digimon_cards"
     try:
-        rows = db.query(
-            f"SELECT id FROM {table_name} WHERE card_number = ? LIMIT 1",
-            (card_id,)
-        )
+        if owner_id is None:
+            rows = db.query('SELECT id FROM public_digimon_cards WHERE card_number = ? LIMIT 1', (card_number,))
+        else:
+            rows = db.query('SELECT id FROM private_digimon_cards WHERE owner_id = ? AND card_number = ? LIMIT 1', (owner_id, card_number))
     except Exception:
         return 0
-
     if not rows:
         return 0
+    return rows[0]['id']
 
-    return rows[0]["id"]

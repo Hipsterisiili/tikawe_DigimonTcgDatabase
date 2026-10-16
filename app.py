@@ -64,14 +64,12 @@ def full_card_list(page: int = 1):
     if page < 1:
         return redirect(url_for("full_card_list", page=1))
 
-    table_name = "public_digimon_cards"
-
+    owner_id = None   # public
     selected_set = request.args.get("set", "all")
-
     if selected_set != "all" and selected_set not in ALLOWED_SETS:
         selected_set = "all"
 
-    total = items.get_card_count(table_name, card_set=selected_set)
+    total = items.get_card_count(owner_id, card_set=selected_set)
     total_pages = max(1, math.ceil(total / PER_PAGE))
 
     if page > total_pages:
@@ -80,8 +78,8 @@ def full_card_list(page: int = 1):
         return redirect(url_for("full_card_list", page=1, set=selected_set))
 
     offset = (page - 1) * PER_PAGE
-    card_list = items.get_card_list_from_table(table_name, limit=PER_PAGE, offset=offset, card_set=selected_set)
-    latest_card = items.get_latest_card_from_table(table_name)
+    card_list = items.get_card_list(owner_id, limit=PER_PAGE, offset=offset, card_set=selected_set)
+    latest_card = items.get_latest_card(owner_id)
 
     user = users.get_user_by_username(session.get("username"))
     try:
@@ -114,18 +112,19 @@ def personal_card_list():
     """
     require_login()
 
-    private_table_name = "personal_collection_"+ session["username"]
+    owner_id = session["user_id"]
 
-    card_amount = items.get_card_number_from_table(private_table_name)
-    card_list = items.get_card_list_from_table(private_table_name)
+    card_amount = items.get_card_count(owner_id)
+    card_list = items.get_card_list(owner_id)
     comment_list = comments.get_comment_list_using_receiver_name(session["username"])
 
     return render_template(
-        "cards/personal_card_list.html", 
+        "cards/personal_card_list.html",
         count=card_amount,
         card_list=card_list,
         comment_list=comment_list
     )
+
 
 @app.route("/user_collection/<username>")
 def user_collection(username):
@@ -137,19 +136,17 @@ def user_collection(username):
     -If displaying someone else's personal list: rendered user_collection.html
     """
 
-    table_name = items.sanitize_table_name("personal_collection_" + username)
-    if not table_name:
-        flash("Invalid username.")
-        return redirect(url_for("user_list"))
-
     if not users.get_user_by_username(username):
         flash("User not found.")
         return redirect(url_for("user_list"))
 
+    user_row = users.get_user_by_username(username)
+    owner_id = int(user_row["id"])
+
     try:
-        card_list = items.get_card_list_from_table(table_name)
-        card_amount = len(card_list)
-        latest_card = items.get_latest_card_from_table(table_name)
+        card_list = items.get_card_list(owner_id)
+        card_amount = items.get_card_count(owner_id)
+        latest_card = items.get_latest_card(owner_id)
     except sqlite3.OperationalError:
         card_amount = 0
         card_list = []
@@ -157,10 +154,10 @@ def user_collection(username):
 
     if ("username" in session and session["username"] == username):
         return render_template(
-                "cards/personal_card_list.html",
-                count=card_amount,
-                card_list=card_list,
-            )
+            "cards/personal_card_list.html",
+            count=card_amount,
+            card_list=card_list,
+        )
     return render_template(
         "cards/user_collection.html",
         owner=username,
@@ -168,6 +165,7 @@ def user_collection(username):
         card_list=card_list,
         latest_card=latest_card
     )
+
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
@@ -265,15 +263,6 @@ def create():
         users.insert_user(username, password_hash)
     except sqlite3.IntegrityError:
         flash("ERROR: Username already taken")
-        return redirect(url_for("register"))
-
-    try:
-        users.create_personal_table_for(username)
-    except ValueError:
-        flash("ERROR: Invalid username (cannot create personal table)")
-        return redirect(url_for("register"))
-    except Exception as e:
-        flash(f"ERROR creating personal table: {e}")
         return redirect(url_for("register"))
 
     flash("Account created!")
@@ -394,8 +383,7 @@ def send_card():
     rarity = request.form.get("rarity", "").strip() or None
     target = request.form.get("target", "global")
 
-    card_name, rarity, card_number, err = items.check_card_elements(
-        card_name, rarity, card_set, suffix)
+    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
     if err:
         flash(err)
         return redirect(url_for(
@@ -407,22 +395,24 @@ def send_card():
             card_number_suffix=suffix or ""
         ))
 
-    table_name, err = items.table_for_target(target, session)
+    owner_id, err = items.table_for_target(target, session)
     if err:
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
-    if target == "global" and items.find_card_using_card_id(card_number, target) != 0:
+    # check duplicate only in public table
+    if owner_id is None and items.find_card_id_by_card_number(card_number, None) != 0:
         flash("A card with this id already exists in the public database")
         return redirect(url_for("new_card", target=target))
 
-    items.add_card_to_table(table_name, card_name, card_number, rarity)
+    items.add_card(owner_id, card_name, card_number, rarity)
 
-    if target == "private":
+    if owner_id is not None:
         flash(card_name + " added to personal collection.")
         return redirect("/personal_card_list")
     flash(card_name + " added to the public collection.")
     return redirect("/full_card_list")
+
 
 @app.route("/edit_card", methods=["GET"])
 def edit_card_form():
@@ -435,44 +425,25 @@ def edit_card_form():
     """
     require_login()
     target = request.args.get("target", "global")
-    try:
-        id = int(request.args.get("id"))
-    except ValueError:
+    try: id_int = int(request.args.get("id"))
+    except (TypeError, ValueError):
         flash("Invalid card id")
-
         return redirect(url_for("full_card_list"))
 
-    if target == "private":
-        if "username" not in session:
-            flash("Please log in")
-            return redirect(url_for("login"))
-        table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
-    else:
-        if target == "global":
-            username = session.get("username")
-            user = users.get_user_by_username(username)
-            try:
-                is_admin = int(user['is_admin'] or 0)
-            except (KeyError, TypeError, ValueError):
-                is_admin = 0
-            if not is_admin:
-                abort(403)
-        table_name = "public_digimon_cards"
+    owner_id, err = items.table_for_target(target, session)
+    if err:
+        flash(err)
+        return redirect(url_for("login") if "Please log in" in err else "/")
 
-    card = items.find_card_using_id(id, table_name)
-
+    card = items.find_card_by_id(id_int, owner_id)
     if not card:
         flash("Card not found")
-        return redirect(url_for("full_card_list" if target=="global" else "personal_card_list"))
+        return redirect(url_for("full_card_list" if owner_id is None else "personal_card_list"))
 
-    card_set = ""
-    suffix = ""
-    if card[2]:
-        parts = str(card[2]).rsplit("-", 1)
-        if len(parts) == 2:
-            card_set, suffix = parts[0], parts[1]
-        else:
-            card_set = parts[0]
+    # build card_set/suffix from card['card_number']
+    cn = card['card_number'] or ""
+    parts = str(cn).rsplit("-", 1)
+    card_set, suffix = (parts[0], parts[1]) if len(parts) == 2 else (parts[0], "")
 
     return render_template(
         "cards/edit_card.html",
@@ -482,9 +453,10 @@ def edit_card_form():
         rarity=card["rarity"] or "",
         card_set=card_set or "",
         card_number_suffix=suffix or "",
-        sets = ALL_SETS,
-        rarities = ALLOWED_RARITIES
+        sets=ALL_SETS,
+        rarities=ALLOWED_RARITIES
     )
+
 
 @app.route("/edit_card", methods=["POST"])
 def edit_card_submit():
@@ -507,20 +479,30 @@ def edit_card_submit():
         flash("Invalid id")
         return redirect("/full_card_list")
 
-    card_name, rarity, card_number, err = items.check_card_elements(
-        card_name, rarity, card_set, suffix)
-    if err != '':
+    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
+    if err:
         flash(err)
-        return redirect(url_for("/"))
+        return redirect(url_for("full_card_list"))
 
-    table_name, err = items.table_for_target(target, session)
-    if not err is None:
+    owner_id, err = items.table_for_target(target, session)
+    if err:
         flash(err)
         return redirect(url_for("login") if "Please log in" in err else "/")
 
-    items.edit_card_in_table(table_name, id, card_name, card_number, rarity)
+    # permission: if editing private card, ensure owner or admin
+    if owner_id is not None:
+        user_row = users.get_user_by_username(session.get("username"))
+        is_admin = False
+        try:
+            is_admin = bool(int(user_row['is_admin'] or 0))
+        except Exception:
+            is_admin = False
+        if not is_admin and owner_id != session.get("user_id"):
+            abort(403)
 
-    if table_name == "public_digimon_cards":
+    items.edit_card(id, owner_id, card_name, card_number, rarity)
+
+    if owner_id is None:
         flash(f"{card_name} updated in public collection.")
         return redirect("/full_card_list")
     flash(f"{card_name} updated in private collection.")
@@ -541,38 +523,35 @@ def delete_card():
     target = request.form.get("target", "global")
     table_name = ""
     name = request.form.get("name", "")
-
-    if target == "global":
-        if target == "global":
-            username = session.get("username")
-            user = users.get_user_by_username(username)
-            try:
-                is_admin = int(user['is_admin'] or 0)
-            except (KeyError, TypeError, ValueError):
-                is_admin = 0
-            if not is_admin:
-                abort(403)
-        table_name = "public_digimon_cards"
-
-    elif target == "private":
-        table_name = items.sanitize_table_name("personal_collection_"+ session["username"])
-
-    else:
-        flash(f"Incorrect table name, {target} given")
-        return redirect("/")
+    owner_id, err = items.table_for_target(target, session)
+    if err:
+        flash(err)
+        return redirect(url_for("login") if "Please log in" in err else "/")
 
     try:
-        id = int(request.form.get("id"))
-    except ValueError:
+        id_int = int(request.form.get("id"))
+    except (TypeError, ValueError):
         flash("Invalid id")
         return redirect("/")
 
-    items.delete_card_from_table(table_name, id)
-    if table_name == "public_digimon_cards":
+    # permission: allow admin to delete any, owners to delete own private items only
+    if owner_id is not None:
+        user_row = users.get_user_by_username(session.get("username"))
+        is_admin = False
+        try:
+            is_admin = bool(int(user_row['is_admin'] or 0))
+        except Exception:
+            is_admin = False
+        if not is_admin and owner_id != session.get("user_id"):
+            abort(403)
+
+    items.delete_card(id_int, owner_id)
+
+    if owner_id is None:
         flash(f"{name} deleted from public collection.")
         return redirect("/full_card_list")
     flash(f"{name} deleted from private collection.")
     return redirect("/personal_card_list")
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    if __name__ == "__main__":
+        app.run(debug=True)
