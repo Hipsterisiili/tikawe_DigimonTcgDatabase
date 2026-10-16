@@ -3,7 +3,6 @@ import sqlite3
 from flask import flash
 from constants import ALLOWED_RARITIES, ALLOWED_SETS
 import db
-from typing import Tuple, Optional
 import users
 
 def is_card_name_valid(name: str) -> bool:
@@ -310,7 +309,7 @@ def find_card_by_id(id_int: int, owner_id: int | None):
     return rows[0] if rows else None
 
 
-def find_card_id_by_card_number(card_number: str, owner_id: Optional[int]) -> int:
+def find_card_id_by_card_number(card_number: str, owner_id: int | None) -> int:
     """
     Look up the primary key id for a given card_number (card_id).
     If owner_id is None, searches public table row with card_number matching given parameter.
@@ -335,3 +334,63 @@ def find_card_id_by_card_number(card_number: str, owner_id: Optional[int]) -> in
         return 0
     return rows[0]['id']
 
+def toggle_favorite_by_id(card_id: int, session):
+    """
+    Changes the element in item_classes so that a card may be declared or undeclared favorite.
+    Takes id referencing a card in private collection as parameter.
+    Inserts a Favorite=yes row if none exists;
+    Normalizes duplicate rows so that only one is kept
+    Flashes error message in case of error.
+    Returns True if process was successful, returns False if not.
+    """
+    try:
+        rows = db.query("SELECT id FROM private_digimon_cards WHERE id = ?", [card_id])
+        if not rows:
+            flash("Card not found.", "error")
+            return False
+
+        if not rows[0]['owner_id'] == session.get("user_id"):
+            flash("This is not your card", "error")
+            return False
+
+        cfg_rows = db.query(
+            "SELECT value FROM classes WHERE title = 'Favorite' AND value IN ('yes','no')"
+            )
+        configured = {r['value'] for r in cfg_rows} if cfg_rows else set()
+        if not ({'yes', 'no'} <= configured):
+            flash("Favorite values are not configured in classes table.", "error")
+            return False
+
+        fav_rows = db.query(
+            "SELECT id, value FROM item_classes WHERE item_id = ? AND title = 'Favorite' ORDER BY id",
+            [card_id]
+        )
+
+        if not fav_rows:
+            db.execute(
+                "INSERT INTO item_classes (item_id, title, value) VALUES (?, 'Favorite', 'yes')",
+                [card_id]
+            )
+        else:
+            # Keeps the first row, deletes any duplicates, then toggles first row's value
+            keep_id = fav_rows[0]['id']
+            keep_value = fav_rows[0]['value']
+
+            if len(fav_rows) > 1:
+                ids_to_delete = [str(r['id']) for r in fav_rows[1:]]
+                placeholders = ",".join("?" for _ in ids_to_delete)
+                params = [int(i) for i in ids_to_delete]
+                db.execute(f"DELETE FROM item_classes WHERE id IN ({placeholders})", params)
+
+            new_value = 'no' if keep_value == 'yes' else 'yes'
+            db.execute("UPDATE item_classes SET value = ? WHERE id = ?", [new_value, keep_id])
+
+        return True
+
+    except sqlite3.Error as e:
+        flash(f"Database error while toggling favorite: {e}", "error")
+        return False
+
+    except Exception as e:
+        flash(f"Unexpected error while toggling favorite: {e}", "error")
+        return False
