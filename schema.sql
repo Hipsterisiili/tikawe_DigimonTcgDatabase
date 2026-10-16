@@ -38,6 +38,16 @@ CREATE TABLE comments (
 
 CREATE INDEX idx_comments_receiver_id 
   ON comments(receiver_id); 
-  
-CREATE INDEX idx_comments_commenter_id 
-  ON comments(commenter_id);
+
+CREATE TABLE classes (
+    id INTEGER PRIMARY KEY,
+    title TEXT,
+    value TEXT
+);
+
+CREATE TABLE item_classes (
+    id INTEGER PRIMARY KEY,
+    item_id INTEGER REFERENCES private_digimon_cards,
+    title TEXT,
+    value TEXT
+);
