@@ -34,10 +34,10 @@ App contains a database containing 4 tables:
 
 - Somewhat secure password management
 - Global catalog
-    - *Everyone* can view it
-    - *Admin* can edit the card's information
-    - *Admin* can delete a card from catalog
-    - *Any logged in user* can directly add cards from this catalog to their personal collections
+    - **Everyone** can view it
+    - **Admin** can edit the card's information
+    - **Admin** can delete a card from catalog
+    - **Any logged in user** can directly add cards from this catalog to their personal collections
     - Cards may be viewed one set at a time
     - Only one card can exist with the same card_id
 - Personal catalog
