@@ -32,7 +32,8 @@ App contains a database containing 4 tables:
 
 ## Features
 
-- Somewhat secure password management
+- Somewhat secure user and password management
+    - The first user that is registered in the app becomes **admin**.
 - Global catalog
     - **Everyone** can view it
     - **Admin** can edit cards in it
