@@ -64,12 +64,14 @@ def full_card_list(page: int = 1):
     if page < 1:
         return redirect(url_for("full_card_list", page=1))
 
-    owner_id = None   # public
+    owner_id = None
     selected_set = request.args.get("set", "all")
     if selected_set != "all" and selected_set not in ALLOWED_SETS:
         selected_set = "all"
 
-    total = items.get_card_count(owner_id, card_set=selected_set)
+    total, err = items.get_card_count(owner_id, card_set=selected_set)
+    if err:
+        flash(err)
     total_pages = max(1, math.ceil(total / PER_PAGE))
 
     if page > total_pages:
@@ -78,8 +80,8 @@ def full_card_list(page: int = 1):
         return redirect(url_for("full_card_list", page=1, set=selected_set))
 
     offset = (page - 1) * PER_PAGE
-    card_list = items.get_card_list(owner_id, limit=PER_PAGE, offset=offset, card_set=selected_set)
-    latest_card = items.get_latest_card(owner_id)
+    card_list, err = items.get_card_list(owner_id, limit=PER_PAGE, offset=offset, card_set=selected_set)
+    latest_card, err = items.get_latest_card(owner_id)
 
     user = users.get_user_by_username(session.get("username"))
     try:
@@ -114,8 +116,12 @@ def personal_card_list():
 
     owner_id = session["user_id"]
 
-    card_amount = items.get_card_count(owner_id)
-    card_list = items.get_card_list(owner_id)
+    card_amount, err = items.get_card_count(owner_id)
+    if err:
+        flash(err)
+    card_list, err = items.get_card_list(owner_id)
+    if err:
+        flash(err)
     comment_list = comments.get_comment_list_using_receiver_name(session["username"])
 
     return render_template(
@@ -143,14 +149,17 @@ def user_collection(username):
     user_row = users.get_user_by_username(username)
     owner_id = int(user_row["id"])
 
-    try:
-        card_list = items.get_card_list(owner_id)
-        card_amount = items.get_card_count(owner_id)
-        latest_card = items.get_latest_card(owner_id)
-    except sqlite3.OperationalError:
-        card_amount = 0
-        card_list = []
-        latest_card = None
+    card_list, err = items.get_card_list(owner_id)
+    if err:
+        flash(err)
+
+    card_amount, err = items.get_card_count(owner_id)
+    if err:
+        flash(err)
+
+    latest_card, err = items.get_latest_card(owner_id)
+    if err:
+        flash(err)
 
     if ("username" in session and session["username"] == username):
         return render_template(

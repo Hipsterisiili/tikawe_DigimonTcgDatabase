@@ -1,5 +1,6 @@
 from curses import flash
 import re
+import sqlite3
 from flask import flash
 from constants import ALLOWED_RARITIES, ALLOWED_SETS
 import db
@@ -106,36 +107,48 @@ def check_card_elements(
     err = "\n".join(errors)
     return card_name, rarity, card_number, err
 
-def get_card_count(owner_id: Optional[int], card_set: str | None = None) -> int:
+def get_card_count(owner_id, card_set=None):
     """
-    Find out how many cards are in table and return the result as int.
+    Count and return amount of cards in table as int along with an error message.
+    In case of errors, returns 0 in place of amount.
+    Error_string is '' when OK, otherwise contains a message.
     If a set is given as a parameter, count only cards with a matching set
     If owner_id is None -> count public_digimon_cards.
     If owner_id is int -> count private_digimon_cards WHERE owner_id = ?
     """
-    if owner_id is None:
-        table = "public_digimon_cards"
-        if card_set and card_set != "all":
-            sql = f'SELECT COUNT(*) AS cnt FROM "{table}" WHERE card_number LIKE ?'
-            rows = db.query(sql, [f"{card_set}-%"])
+    try:
+        if owner_id is None:
+            table = "public_digimon_cards"
+
+            if card_set and card_set != "all":
+                sql = f'SELECT COUNT() AS cnt FROM "{table}" WHERE card_number LIKE ?'
+                rows = db.query(sql, [f"{card_set}-%"])
+            else:
+                sql = f'SELECT COUNT() AS cnt FROM "{table}"'
+                rows = db.query(sql)
+
         else:
-            sql = f'SELECT COUNT(*) AS cnt FROM "{table}"'
-            rows = db.query(sql)
-    else:
-        table = "private_digimon_cards"
-        if card_set and card_set != "all":
-            sql = f'SELECT COUNT(*) AS cnt FROM "{table}" WHERE owner_id = ? AND card_number LIKE ?'
-            rows = db.query(sql, [owner_id, f"{card_set}-%"])
-        else:
-            sql = f'SELECT COUNT(*) AS cnt FROM "{table}" WHERE owner_id = ?'
-            rows = db.query(sql, [owner_id])
+            table = "private_digimon_cards"
 
-    return int(rows[0]["cnt"]) if rows else 0
+            if card_set and card_set != "all":
+                sql = f'SELECT COUNT() AS cnt FROM "{table}" WHERE owner_id = ? AND card_number LIKE ?'
+                rows = db.query(sql, [owner_id, f"{card_set}-%"])
+            else:
+                sql = f'SELECT COUNT() AS cnt FROM "{table}" WHERE owner_id = ?'
+                rows = db.query(sql, [owner_id])
 
+        return (int(rows[0]["cnt"]) if rows else 0, "")
 
-def get_card_list(owner_id: Optional[int], limit: int = 100, offset: int = 0, card_set: str | None = None) -> list:
+    except sqlite3.Error:
+        return (0, "Database error: failed to count cards.")
+
+    except Exception:
+        return (0, "Unexpected error occurred while counting cards.")
+
+def get_card_list(owner_id, limit=100, offset=0, card_set=None):
     """
-    Return a list of cards as dicts from the requested table.
+    Return a list of cards as dicts from the requested table and error string.
+    Error_string is '' when OK, otherwise contains a message.
     If owner_id is None, returns contents of public table
     Otherwise returns contents pf private table filtered by owner_id.
     Each card is represented as a dictionary with keys: id, name, card_number, rarity.
@@ -144,14 +157,17 @@ def get_card_list(owner_id: Optional[int], limit: int = 100, offset: int = 0, ca
     try:
         if owner_id is None:
             table = "public_digimon_cards"
+
             if card_set and card_set != "all":
                 sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
                 rows = db.query(sql, [f"{card_set}-%", limit, offset])
             else:
                 sql = f'SELECT id, name, card_number, rarity FROM "{table}" ORDER BY id LIMIT ? OFFSET ?'
                 rows = db.query(sql, [limit, offset])
+
         else:
             table = "private_digimon_cards"
+
             if card_set and card_set != "all":
                 sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE owner_id = ? AND card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
                 rows = db.query(sql, [owner_id, f"{card_set}-%", limit, offset])
@@ -159,10 +175,14 @@ def get_card_list(owner_id: Optional[int], limit: int = 100, offset: int = 0, ca
                 sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?'
                 rows = db.query(sql, [owner_id, limit, offset])
 
-        return [dict(r) for r in rows] if rows else []
-    except Exception as e:
-        print("get_card_list error:", e)
-        return []
+        return ([dict(r) for r in rows] if rows else [], "")
+
+    except sqlite3.Error:
+        return ([], "Database error: failed to fetch cards.")
+
+    except Exception:
+        return ([], "Unexpected error occurred while fetching cards.")
+
     
 def get_card_number_from_table(owner_id: Optional[int]) -> int:
     """
@@ -183,7 +203,12 @@ def get_card_number_from_table(owner_id: Optional[int]) -> int:
     except Exception:
         return 0
 
-def get_latest_card(owner_id: Optional[int]) -> str | None:
+def get_latest_card(owner_id):
+    """
+    Return the name of the latest added card if any and an error string if there are errors.
+    If no latest card is found, NONE is returned in its place.
+    error_string is '' when OK, otherwise contains a message.
+    """
     try:
         if owner_id is None:
             sql = 'SELECT name FROM "public_digimon_cards" ORDER BY id DESC LIMIT 1'
@@ -191,9 +216,14 @@ def get_latest_card(owner_id: Optional[int]) -> str | None:
         else:
             sql = 'SELECT name FROM "private_digimon_cards" WHERE owner_id = ? ORDER BY id DESC LIMIT 1'
             rows = db.query(sql, [owner_id])
-        return rows[0]["name"] if rows else None
+
+        return (rows[0]["name"] if rows else None, "")
+
+    except sqlite3.Error:
+        return (None, "Database error: failed to fetch latest card.")
+
     except Exception:
-        return None
+        return (None, "Unexpected error occurred while fetching latest card.")
 
 
 def add_card(owner_id: Optional[int], name: str, card_number: str, rarity: str) -> None:
