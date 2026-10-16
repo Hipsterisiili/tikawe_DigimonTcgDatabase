@@ -24,6 +24,7 @@ def is_card_name_valid(name: str) -> bool:
     # Digimon Crime Response Team (121 characters)
     if len(collapsed) < 3 or len(collapsed) >130:
         flash("Card name must be between 3 and 130 characters long")
+        return False
     return True
 
 def sanitize_table_name(name: str) -> str:

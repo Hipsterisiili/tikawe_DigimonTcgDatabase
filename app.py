@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 
-# Will fix this redundancy  later.
+# Will fix this redundancy later.
 @app.errorhandler(403)
 def forbidden(error):
     """
@@ -479,15 +479,29 @@ def edit_card_submit():
         flash("Invalid id")
         return redirect("/full_card_list")
 
-    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity, card_set, suffix)
+    # Validate fields
+    card_name, rarity, card_number, err = items.check_card_elements(card_name, rarity or None, card_set, suffix)
     if err:
         flash(err)
-        return redirect(url_for("full_card_list"))
-
-    owner_id, err = items.table_for_target(target, session)
-    if err:
-        flash(err)
-        return redirect(url_for("login") if "Please log in" in err else "/")
+        # redirect back to the edit form, preserving submitted values so the form can prefill
+        return redirect(url_for(
+            "edit_card_form",
+            id=id,
+            target=target,
+            card_name=card_name,
+            rarity=rarity or "",
+            card_set=card_set or "",
+            card_number_suffix=suffix or ""
+        ))
+    
+    # Resolve owner_id (None means public)
+    owner_id, table_err = items.table_for_target(target, session)
+    if table_err:
+        flash(table_err)
+        if "Please log in" in table_err:
+            return redirect(url_for("login"))
+        # non-login table error -> return back to the edit form
+        return redirect(url_for("edit_card_form", id=id, target=target))
 
     # permission: if editing private card, ensure owner or admin
     if owner_id is not None:
