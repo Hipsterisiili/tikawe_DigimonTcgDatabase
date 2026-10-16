@@ -7,28 +7,28 @@ A database-backed Flask application for storing information about Digimon cards 
 The app stores cards from the Digimon Card Game. Each card has attributes (e.g. rarity, level, color). 
 App contains a database containing 4 tables:
 - Table containing user information `users`.
-    - id (INTEGER, primary key)
-    - username (TEXT, user's username)
-    - password_hash (TEXT, user's password securely hashed)
-    - created_at (DATETIME, the exact time when the user was registered)
-    - is_admin (INTEGER, 0 representing regular user, 1 representing admin level user)
+    - **id** (INTEGER, primary key)
+    - **username** (TEXT, user's username)
+    - **password_hash** (TEXT, user's password securely hashed)
+    - **created_at** (DATETIME, the exact time when the user was registered)
+    - **is_admin** (INTEGER, 0 representing regular user, 1 representing admin level user)
 - Public collection `public_digimon_cards`.
-    - id (INTEGER, primary key)
-    - name (TEXT, card's name)
-    - card_number (TEXT, The game's own identifier for indexing cards)
-    - rarity (TEXT, Whether the card is common, umcommon, rare, etc.)
+    - **id** (INTEGER, primary key)
+    - **name** (TEXT, card's name)
+    - ***card_number** (TEXT, The game's own identifier for indexing cards)
+    - **rarity** (TEXT, Whether the card is common, umcommon, rare, etc.)
 - Personal collections for each user in table `private_digimon_cards`.
-    - id (INTEGER, primary key)
-    - name (TEXT)
-    - card_number (TEXT)
-    - rarity (TEXT)
-    - owner_id (INTEGER, references users(id))
+    - **id** (INTEGER, primary key)
+    - **name** (TEXT)
+    - **card_number** (TEXT)
+    - **rarity** (TEXT)
+    - **owner_id** (INTEGER, references users(id))
 - Table `comments` containing comments left in collections by users.
-    - id (INTEGER, primary key)
-    - commenter_id (INT, references users(id), The comment's writer)
-    - receiverer_id (INT, references users(id, The comment's receiver))
-    - comment_text (TEXT, contents of the comment)
-    - created_at (DATETIME, the exact time when the comment was left)
+    - **id** (INTEGER, primary key)
+    - **commenter_id** (INT, references users(id), The comment's writer)
+    - **receiverer_id** (INT, references users(id, The comment's receiver))
+    - **comment_text** (TEXT, contents of the comment)
+    - **created_at** (DATETIME, the exact time when the comment was left)
 
 ## Features
 
