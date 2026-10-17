@@ -166,3 +166,6 @@ items.py:146:0: R0917: Too many positional arguments (6/5) (too-many-positional-
 ------------------------------------------------------------------
 Your code has been rated at 9.96/10
 ```
+
+The too many return statements error felt a bit too heavy to refactor during the final course day.
+Too many arguments error is not resolved to keep code easier to read and in my opinion 6 arguments is still manageable. 
