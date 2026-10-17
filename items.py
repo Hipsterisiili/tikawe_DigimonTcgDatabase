@@ -157,9 +157,6 @@ def get_card_count(owner_id, card_set=None):
     except sqlite3.Error:
         return (0, "Database error: failed to count cards.")
 
-    except Exception:
-        return (0, "Unexpected error occurred while counting cards.")
-
 
 def get_card_list(owner_id, limit=100, offset=0, card_set=None):
     """
@@ -210,9 +207,6 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None):
     except sqlite3.Error:
         return ([], "Database error: failed to fetch cards.")
 
-    except Exception:
-        return ([], "Unexpected error occurred while fetching cards.")
-
 def get_card_number_from_table(owner_id: int | None) -> int:
     """
     Return the number of cards for the given owner.
@@ -234,7 +228,7 @@ def get_card_number_from_table(owner_id: int | None) -> int:
         rows = db.query(sql, params)
         return int(rows[0]["count"]) if rows else 0
 
-    except Exception:
+    except sqlite3.Error:
         return 0
 
 
@@ -263,9 +257,6 @@ def get_latest_card(owner_id):
 
     except sqlite3.Error:
         return (None, "Database error: failed to fetch latest card.")
-
-    except Exception:
-        return (None, "Unexpected error occurred while fetching latest card.")
 
 
 
@@ -370,7 +361,7 @@ def find_card_by_id(id_int: int, owner_id: int | None):
                    "WHERE id = ? AND owner_id = ?" )
             params = [id_int, owner_id]
         rows = db.query(sql, params)
-    except Exception:
+    except sqlite3.Error:
         return None
     return rows[0] if rows else None
 
@@ -399,7 +390,7 @@ def find_card_id_by_card_number(card_number: str, owner_id: int | None) -> int:
                    "WHERE owner_id = ? AND card_number = ? LIMIT 1" )
             params = [owner_id, card_number]
         rows = db.query(sql, params)
-    except Exception:
+    except sqlite3.Error:
         return 0
     if not rows:
         return 0
@@ -461,8 +452,4 @@ def toggle_favorite_by_id(card_id: int, session):
 
     except sqlite3.Error as e:
         flash(f"Database error while toggling favorite: {e}", "error")
-        return False
-
-    except Exception as e:
-        flash(f"Unexpected error while toggling favorite: {e}", "error")
         return False
