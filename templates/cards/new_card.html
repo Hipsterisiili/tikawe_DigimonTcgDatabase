@@ -30,6 +30,9 @@ User specifies following info on the card:
     {% endif %} {% endwith %}
 
     <div class="container">
+        <!-- Element for useful redirects -->
+        <div class="sidebar">{% include 'redirect_box.html' %}</div>
+
         <!-- Form for adding a new card -->
         <form action="/send_card" method="post">
             <input

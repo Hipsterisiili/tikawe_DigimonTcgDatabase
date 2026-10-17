@@ -33,6 +33,9 @@ User alter the following info on the card:
     {% endif %} {% endwith %}
 
     <div class="container">
+        <!-- Element for useful redirects -->
+        <div class="sidebar">{% include 'redirect_box.html' %}</div>
+
         <!-- Form for editing an existing card -->
         <form action="/edit_card" method="post">
             <input
