@@ -15,7 +15,6 @@ app = Flask(__name__)
 
 app.secret_key = secrets.token_urlsafe(16)  # This gives you a 16-byte random URL-safe token
 
-# Will fix this redundancy later.
 @app.errorhandler(403)
 def forbidden(error):
     """
@@ -26,7 +25,7 @@ def forbidden(error):
 @app.errorhandler(404)
 def not_found(error):
     """
-    Handler for error 404
+    Handler for error 404.
     """
     return render_template("errors/404.html", error=error), 404
 
@@ -40,11 +39,25 @@ def check_csrf():
 
 def require_login():
     """
-    Helper function for checking if user is logged in
+    Helper function for checking if user is logged in.
     Aborts process if a method that requires login was called without logging in.
     """
     if "user_id" not in session:
         abort(403)
+
+def change_condition(card_id: int, condition: str) -> bool:
+    """
+    Method for changing a condition related to a card in personal collection.
+    The target card's id is taken as a parameter.
+    Rhe new condition is taken as a parameter.
+    Returns true if change was successful, otherwise false.
+    """
+    require_login()
+
+    change_successful = items.set_condition_by_id(card_id=card_id, condition = condition)
+    if not change_successful:
+        flash("Condition change unsuccessful, dont worry, it is just cardboard")
+    return change_successful
 
 @app.route("/")
 def index():
@@ -65,10 +78,10 @@ def full_card_list(page: int = 1):
     This page displays the contents of the puclic table.
     Visible to everyone even without logging in.
     Logged in user may:
-    - Add a card from public table to their own collection
+    - Add a card from public table to their own collection.
     Admin may:
-    - Edit cards in this table
-    - Delete cards from this table
+    - Edit cards in this table.
+    - Delete cards from this table.
     """
     if page < 1:
         return redirect(url_for("full_card_list", page=1))
@@ -123,9 +136,9 @@ def personal_card_list():
     This page displays the user's own collection.
     Only visible if logged in.
     User may:
-    - Add specific or random cards to their own collection
-    - Edit cards to their own collection
-    - Delete cards from their own collection
+    - Add specific or random cards to their own collection.
+    - Edit cards to their own collection.
+    - Delete cards from their own collection.
     """
     require_login()
 
@@ -158,8 +171,8 @@ def personal_card_list():
 def user_collection(username):
     """
     Function for finding an other user's collection (name given in url)
-    User can view and comment (if logged in) other user's collection
-    Returns 
+    User can view and comment (if logged in) other user's collection.
+    Returns:
     -If displaying logged in user's personal list: rendered personal_card_list.html
     -If displaying someone else's personal list: rendered user_collection.html
     """
@@ -530,6 +543,7 @@ def edit_card_submit():
     rarity = request.form.get("rarity") or None
     card_set = request.form.get("card_set", "").strip()
     suffix = request.form.get("card_number_suffix", "").strip()
+    condition = request.form.get("condition") or None
 
     ## Unlike when adding a card, the primary key id must be known when editing a card.
     try:
@@ -576,6 +590,10 @@ def edit_card_submit():
             abort(403)
 
     items.edit_card(id, owner_id, card_name, card_number, rarity)
+
+    # If a condition was got from form, change card's condition.
+    if condition:
+        change_condition(card_id = id, condition = condition)
 
     if owner_id is None:
         flash(f"{card_name} updated in public collection.")
@@ -633,6 +651,7 @@ def toggle_favorite():
     Method for favoriting or unfavoriting a card..
     The target card's id is receiver fromm a from as id.
     """
+    require_login()
     card_id = request.form.get("id", type=int)
     favorites_only = request.values.get("favorites_only", "false").lower() == "true"
 
