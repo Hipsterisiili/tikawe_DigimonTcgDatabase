@@ -114,7 +114,7 @@ def full_card_list(page: int = 1):
     user = users.get_user_by_username(session.get("username"))
     try:
         is_admin = int(user['is_admin'] or 0)
-    except Exception:
+    except (TypeError, KeyError, ValueError):
         is_admin = 0
 
     return render_template(
@@ -566,9 +566,9 @@ def edit_card_submit():
     suffix = request.form.get("card_number_suffix", "").strip()
     condition = request.form.get("condition") or None
 
-    ## Unlike when adding a card, the primary key id must be known when editing a card.
+    # Unlike when adding a card, the primary key id must be known when editing a card.
     try:
-        id = int(request.form.get("id"))
+        card_id = int(request.form.get("id"))
     except (TypeError, ValueError):
         flash("Invalid id")
         return redirect("/full_card_list")
@@ -582,7 +582,7 @@ def edit_card_submit():
         # redirect back to the edit form, preserving submitted values so the form can prefill
         return redirect(url_for(
             "edit_card_form",
-            id=id,
+            id=card_id,
             target=target,
             card_name=card_name,
             rarity=rarity or "",
@@ -597,7 +597,7 @@ def edit_card_submit():
         if "Please log in" in table_err:
             return redirect(url_for("login"))
         # non-login table error -> return back to the edit form
-        return redirect(url_for("edit_card_form", id=id, target=target))
+        return redirect(url_for("edit_card_form", id=card_id, target=target))
 
     # permission: if editing private card, ensure owner or admin
     if owner_id is not None:
@@ -605,16 +605,16 @@ def edit_card_submit():
         is_admin = False
         try:
             is_admin = bool(int(user_row['is_admin'] or 0))
-        except Exception:
+        except (TypeError, KeyError, ValueError):
             is_admin = False
         if not is_admin and owner_id != session.get("user_id"):
             abort(403)
 
-    items.edit_card(id, owner_id, card_name, card_number, rarity)
+    items.edit_card(card_id, owner_id, card_name, card_number, rarity)
 
     # If a condition was got from form, change card's condition.
     if condition:
-        change_condition(card_id = id, condition = condition)
+        change_condition(card_id = card_id, condition = condition)
 
     if owner_id is None:
         flash(f"{card_name} updated in public collection.")
@@ -653,7 +653,7 @@ def delete_card():
         is_admin = False
         try:
             is_admin = bool(int(user_row['is_admin'] or 0))
-        except Exception:
+        except (TypeError, KeyError, ValueError):
             is_admin = False
         if not is_admin and owner_id != session.get("user_id"):
             abort(403)

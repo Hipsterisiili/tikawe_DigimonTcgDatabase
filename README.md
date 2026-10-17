@@ -151,17 +151,18 @@ The application will run on port 5000.
 
 ## pylint report
 
-Running the topmost line in project root yields this pylint raport:
+Running
+```bash
+pylint app.py users.py items.py comments.py constants.py
+```
+in project root yields this pylint raport:
+```bash
 ************* Module app
-app.py:117:11: W0718: Catching too general exception Exception (broad-exception-caught)
 app.py:433:0: R0911: Too many return statements (9/6) (too-many-return-statements)
-app.py:571:8: W0622: Redefining built-in 'id' (redefined-builtin)
-app.py:608:15: W0718: Catching too general exception Exception (broad-exception-caught)
-app.py:656:15: W0718: Catching too general exception Exception (broad-exception-caught)
 ************* Module items
-items.py:73:15: W0718: Catching too general exception Exception (broad-exception-caught)
 items.py:146:0: R0913: Too many arguments (6/5) (too-many-arguments)
 items.py:146:0: R0917: Too many positional arguments (6/5) (too-many-positional-arguments)
 
 ------------------------------------------------------------------
-Your code has been rated at 9.89/10 (previous run: 0.00/10, +9.89)
+Your code has been rated at 9.96/10
+```

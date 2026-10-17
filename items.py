@@ -70,7 +70,7 @@ def table_for_target(target: str, session) -> tuple[int | None, str | None]:
             return None, "Please log in"
         try:
             return int(user["id"]), None
-        except Exception:
+        except (TypeError, KeyError, ValueError):
             return None, "Internal error: could not determine user id"
     if target == "global":
         return None, None
