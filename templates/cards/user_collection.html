@@ -85,7 +85,9 @@
             <div class="card-row">
                 <div class="card-info">
                     {{ card['card_number'] }}, {{ card['name'] }}, {{
-                    card['rarity'] }}
+                    card['rarity'] }}{% if card['condition'] %}
+                    <b>, {{ card['condition'] }}</b>
+                    {% endif %}
                 </div>
             </div>
             <hr />
