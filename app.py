@@ -170,8 +170,15 @@ def user_collection(username):
 
     user_row = users.get_user_by_username(username)
     owner_id = int(user_row["id"])
+    favorites_only = request.values.get("favorites_only", "false").lower() == "true"
 
-    card_list, err = items.get_card_list(owner_id)
+    card_list, err = items.get_card_list(
+            owner_id,
+            limit=100,
+            offset=0,
+            card_set=None,
+            favorites_only=favorites_only
+        )
     if err:
         flash(err)
 
@@ -194,8 +201,9 @@ def user_collection(username):
         owner=username,
         count=card_amount,
         card_list=card_list,
-        latest_card=latest_card
-    )
+        latest_card=latest_card,
+        favorites_only=favorites_only
+        )
 
 
 @app.route('/add_comment', methods=['POST'])

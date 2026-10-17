@@ -98,6 +98,7 @@ User may:
         <p>
             Amount of cards in your collection: {{ count }} {% if favorites_only
             %}
+            <!-- Button for showing favorites only or all cards -->
             <a
                 href="{{ url_for('personal_card_list', favorites_only='false') }}"
                 class="btn btn-favorite"

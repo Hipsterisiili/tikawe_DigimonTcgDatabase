@@ -52,18 +52,22 @@ ul.flashes {
     border: 1px solid #ffe8a1;
 }
 
-/* Links & buttons */
+/* Normal links */
 a {
     color: var(--accent);
     text-decoration: none;
 }
+
 a:hover {
     text-decoration: underline;
 }
 
+/* Button-like base styles */
+.btn,
 .button,
 button,
 input[type='submit'] {
+    display: inline-block;
     background: var(--accent);
     color: white;
     border: none;
@@ -71,20 +75,27 @@ input[type='submit'] {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
+    text-decoration: none;
 }
+
+/* Button hover effect */
+.btn:hover,
 .button:hover,
 button:hover,
 input[type='submit']:hover {
     filter: brightness(0.95);
+    text-decoration: none;
 }
+
+/* Specific button variants */
 .btn-edit {
     background: #3b82f6;
-    color: white;
 }
+
 .btn-delete {
     background: #ef4444;
-    color: white;
 }
+
 .btn-favorite {
     background: #ddc61a;
     color: white;
@@ -199,29 +210,37 @@ select {
 }
 
 .show-comments-btn {
-    cursor: pointer;
-    padding: 0.35rem 0.6rem;
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.45rem 0.9rem;
     border-radius: 6px;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    background: white;
+    cursor: pointer;
     font-weight: 600;
+    text-decoration: none;
+}
+
+.show-comments-btn:hover {
+    filter: brightness(0.95);
     text-decoration: none;
 }
 
 a.btn.btn-favorite {
     display: inline-block;
-    background-color: #ddc61a;
+    background: #ddc61a;
     color: white;
-    padding: 6px 12px;
     border: none;
-    border-radius: 10px;
-    text-decoration: none;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 a.btn.btn-favorite:hover {
-    background-color: #e0a800;
+    filter: brightness(0.95);
+    text-decoration: none;
 }
 
 /* comments panel hidden by default; shown when checkbox is checked */
