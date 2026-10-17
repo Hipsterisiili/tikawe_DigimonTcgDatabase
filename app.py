@@ -501,7 +501,6 @@ def edit_card_form():
         rarities=ALLOWED_RARITIES
     )
 
-
 @app.route("/edit_card", methods=["POST"])
 def edit_card_submit():
     """

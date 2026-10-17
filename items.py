@@ -36,21 +36,7 @@ def is_card_name_valid(name: str) -> bool:
         return False
     return True
 
-def sanitize_table_name(name: str) -> str | None:
-    """
-    Return a safe table name (same scheme used when creating per-user tables),
-    or None if invalid. 
-    Rules:
-     - Must be a str
-     - Contains only letters, digits and underscores
-     - Contains no leading digit.
-    """
-    if not isinstance(name, str):
-        return None
-    s = re.sub(r'\W', '_', name)   # convert non-word chars to underscores
-    return s if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', s) else None
-
-def sanitize_card_name(name: str) -> str:
+def _sanitize_card_name(name: str) -> str:
     """
     Sanitize the input string (assumes caller already validated or chooses to call it).
     Operations performed:
@@ -99,7 +85,7 @@ def check_card_elements(
     """
     errors = []
     if card_name and is_card_name_valid(card_name):
-        card_name = sanitize_card_name(card_name)
+        card_name = _sanitize_card_name(card_name)
     else:
         errors.append("No valid card name provided.")
     if rarity and rarity not in ALLOWED_RARITIES:
@@ -481,4 +467,105 @@ def toggle_favorite_by_id(card_id: int, session):
 
     except sqlite3.Error as e:
         flash(f"Database error while toggling favorite: {e}", "error")
+        return False
+
+def _card_belongs_to_user(card_id: int, session) -> bool:
+    """
+    Check if the card exists and belongs to the logged in user.
+    """
+    rows = db.query(
+        "SELECT owner_id FROM private_digimon_cards WHERE id = ?",
+        [card_id],
+    )
+
+    if not rows:
+        flash("Card not found.", "error")
+        return False
+
+    try:
+        if int(rows[0]["owner_id"]) != int(session.get("user_id")):
+            flash("This is not your card", "error")
+            return False
+    except (TypeError, ValueError):
+        flash("Internal error: invalid user id", "error")
+        return False
+    return True
+
+def _update_card_condition(card_id: int, new_value: str | None) -> bool:
+    """
+    Sets the requested condition to a card.
+    Card's id and the requested condition are given as parameters.
+    if no condition is given, sets condition to NM (Near Mint)
+    """
+    cfg_rows = db.query(
+        "SELECT value FROM classes WHERE title = 'Condition' ORDER BY id"
+    )
+    values = [row["value"] for row in cfg_rows] if cfg_rows else []
+
+    if not values:
+        flash("Condition values are not configured in classes table.", "error")
+        return False
+
+    if new_value is not None and new_value not in values:
+        flash("Invalid condition value.", "error")
+        return False
+
+    rows = db.query(
+        "SELECT id, value FROM item_classes "
+        "WHERE item_id = ? AND title = 'Condition' ORDER BY id",
+        [card_id],
+    )
+
+    if not rows:
+        value = new_value if new_value is not None else values[0]
+        db.execute(
+            "INSERT INTO item_classes (item_id, title, value) "
+            "VALUES (?, 'Condition', ?)",
+            [card_id, value],
+        )
+        return True
+
+    keep_id = rows[0]["id"]
+    value = new_value
+
+    if value is None:
+        try:
+            index = values.index(rows[0]["value"])
+            value = values[(index + 1) % len(values)]
+        except ValueError:
+            value = values[0]
+
+    if len(rows) > 1:
+        ids = [row["id"] for row in rows[1:]]
+        placeholders = ",".join("?" for _ in ids)
+        db.execute(
+            f"DELETE FROM item_classes WHERE id IN ({placeholders})",
+            ids,
+        )
+
+    db.execute(
+        "UPDATE item_classes SET value = ? WHERE id = ?",
+        [value, keep_id],
+    )
+    return True
+
+
+def set_condition_by_id(
+    card_id: int,
+    session,
+    new_value: str | None = None,
+) -> bool:
+    """
+    Set the condition for a private card to match the one given as parameter.
+    If no condition is given, defaults to Near Mint condition (NM)
+    Return True on success, False on failure.
+    """
+    try:
+        if not _card_belongs_to_user(card_id, session):
+            return False
+
+        return _update_card_condition(card_id, new_value)
+
+    except sqlite3.Error as error:
+        flash(f"Database error while changing condition: {error}", "error")
         return False
