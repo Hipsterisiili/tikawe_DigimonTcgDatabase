@@ -478,7 +478,7 @@ def send_card():
 
     if new_card_id is None:
         flash("Card creation failed, the card is not in database")
-        return
+        return redirect("/personal_card_list")
 
     # If condition was received, add condition to the card!
     if condition and condition != "None":
@@ -490,14 +490,14 @@ def send_card():
     if not id:
         if redirect_target=="public":
             return redirect("/full_card_list")
-        return redirect("/personal_card_list") 
-        
+        return redirect("/personal_card_list")
+
 
     # Redirect based on where card was added and where it was added from
     if redirect_target == "public":
         flash(card_name + " added to personal collection from public collection.")
         return redirect("/full_card_list")
-    elif owner_id is not None:
+    if owner_id is not None:
         flash(card_name + " added to personal collection.")
         return redirect("/personal_card_list")
     flash(card_name + " added to the public collection.")

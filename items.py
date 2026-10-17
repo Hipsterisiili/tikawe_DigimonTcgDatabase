@@ -229,7 +229,7 @@ def get_card_list(
 
     except sqlite3.Error:
         return ([], "Database error: failed to fetch cards.")
-    
+
 
 def get_card_number_from_table(owner_id: int | None) -> int:
     """
