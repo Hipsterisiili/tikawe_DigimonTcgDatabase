@@ -127,22 +127,31 @@ def get_card_count(owner_id, card_set=None):
             table = "public_digimon_cards"
 
             if card_set and card_set != "all":
-                sql = f'SELECT COUNT() AS cnt FROM "{table}" WHERE card_number LIKE ?'
-                rows = db.query(sql, [f"{card_set}-%"])
+                sql = (
+                    f'SELECT COUNT(*) AS cnt FROM "{table}" '
+                    "WHERE card_number LIKE ?"
+                )
+                params = [f"{card_set}-%"]
             else:
-                sql = f'SELECT COUNT() AS cnt FROM "{table}"'
-                rows = db.query(sql)
-
+                sql = f'SELECT COUNT(*) AS cnt FROM "{table}"'
+                params = []
         else:
             table = "private_digimon_cards"
 
             if card_set and card_set != "all":
-                sql = f'SELECT COUNT() AS cnt FROM "{table}" WHERE owner_id = ? AND card_number LIKE ?'
-                rows = db.query(sql, [owner_id, f"{card_set}-%"])
+                sql = (
+                    f'SELECT COUNT(*) AS cnt FROM "{table}" '
+                    "WHERE owner_id = ? AND card_number LIKE ?"
+                )
+                params = [owner_id, f"{card_set}-%"]
             else:
-                sql = f'SELECT COUNT() AS cnt FROM "{table}" WHERE owner_id = ?'
-                rows = db.query(sql, [owner_id])
+                sql = (
+                    f'SELECT COUNT(*) AS cnt FROM "{table}" '
+                    "WHERE owner_id = ?"
+                )
+                params = [owner_id]
 
+        rows = db.query(sql, params)
         return (int(rows[0]["cnt"]) if rows else 0, "")
 
     except sqlite3.Error:
@@ -150,6 +159,7 @@ def get_card_count(owner_id, card_set=None):
 
     except Exception:
         return (0, "Unexpected error occurred while counting cards.")
+
 
 def get_card_list(owner_id, limit=100, offset=0, card_set=None):
     """
@@ -165,22 +175,36 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None):
             table = "public_digimon_cards"
 
             if card_set and card_set != "all":
-                sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
-                rows = db.query(sql, [f"{card_set}-%", limit, offset])
+                sql = (
+                    f'SELECT id, name, card_number, rarity FROM "{table}" '
+                    "WHERE card_number LIKE ? "
+                    "ORDER BY id LIMIT ? OFFSET ?"
+                )
+                params = [f"{card_set}-%", limit, offset]
             else:
-                sql = f'SELECT id, name, card_number, rarity FROM "{table}" ORDER BY id LIMIT ? OFFSET ?'
-                rows = db.query(sql, [limit, offset])
-
+                sql = (
+                    f'SELECT id, name, card_number, rarity FROM "{table}" '
+                    "ORDER BY id LIMIT ? OFFSET ?"
+                )
+                params = [limit, offset]
         else:
             table = "private_digimon_cards"
 
             if card_set and card_set != "all":
-                sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE owner_id = ? AND card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?'
-                rows = db.query(sql, [owner_id, f"{card_set}-%", limit, offset])
+                sql = (
+                    f'SELECT id, name, card_number, rarity FROM "{table}" '
+                    "WHERE owner_id = ? AND card_number LIKE ? "
+                    "ORDER BY id LIMIT ? OFFSET ?"
+                )
+                params = [owner_id, f"{card_set}-%", limit, offset]
             else:
-                sql = f'SELECT id, name, card_number, rarity FROM "{table}" WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?'
-                rows = db.query(sql, [owner_id, limit, offset])
+                sql = (
+                    f'SELECT id, name, card_number, rarity FROM "{table}" '
+                    "WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?"
+                )
+                params = [owner_id, limit, offset]
 
+        rows = db.query(sql, params)
         return ([dict(r) for r in rows] if rows else [], "")
 
     except sqlite3.Error:
@@ -199,14 +223,20 @@ def get_card_number_from_table(owner_id: int | None) -> int:
     try:
         if owner_id is None:
             sql = 'SELECT COUNT(*) AS count FROM "public_digimon_cards"'
-            rows = db.query(sql)
+            params = []
         else:
-            sql = 'SELECT COUNT(*) AS count FROM "private_digimon_cards" WHERE owner_id = ?'
-            rows = db.query(sql, [owner_id])
+            sql = (
+                'SELECT COUNT(*) AS count FROM "private_digimon_cards" '
+                "WHERE owner_id = ?"
+            )
+            params = [owner_id]
 
+        rows = db.query(sql, params)
         return int(rows[0]["count"]) if rows else 0
+
     except Exception:
         return 0
+
 
 def get_latest_card(owner_id):
     """
@@ -216,12 +246,19 @@ def get_latest_card(owner_id):
     """
     try:
         if owner_id is None:
-            sql = 'SELECT name FROM "public_digimon_cards" ORDER BY id DESC LIMIT 1'
-            rows = db.query(sql)
+            sql = (
+                'SELECT name FROM "public_digimon_cards" '
+                "ORDER BY id DESC LIMIT 1"
+            )
+            params = []
         else:
-            sql = 'SELECT name FROM "private_digimon_cards" WHERE owner_id = ? ORDER BY id DESC LIMIT 1'
-            rows = db.query(sql, [owner_id])
+            sql = (
+                'SELECT name FROM "private_digimon_cards" '
+                "WHERE owner_id = ? ORDER BY id DESC LIMIT 1"
+            )
+            params = [owner_id]
 
+        rows = db.query(sql, params)
         return (rows[0]["name"] if rows else None, "")
 
     except sqlite3.Error:
@@ -229,6 +266,7 @@ def get_latest_card(owner_id):
 
     except Exception:
         return (None, "Unexpected error occurred while fetching latest card.")
+
 
 
 def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> None:
@@ -246,7 +284,8 @@ def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> 
             ')'
         )
         db.execute(
-            'INSERT INTO public_digimon_cards (name, card_number, rarity) VALUES (?, ?, ?)',
+            'INSERT INTO public_digimon_cards (name, card_number, rarity) '
+            'VALUES (?, ?, ?)',
             (name, card_number, rarity)
         )
     else:
@@ -261,7 +300,9 @@ def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> 
             ')'
         )
         db.execute(
-            'INSERT INTO private_digimon_cards (name, card_number, rarity, owner_id) VALUES (?, ?, ?, ?)',
+            'INSERT INTO private_digimon_cards ('
+            'name, card_number, rarity, owner_id)'
+            'VALUES (?, ?, ?, ?)',
             (name, card_number, rarity, owner_id)
         )
 
@@ -276,11 +317,16 @@ def edit_card(id_int: int, owner_id: int | None, name: str, card_number: str, ra
     (so user can't edit another user's card)
     """
     if owner_id is None:
-        db.execute('UPDATE public_digimon_cards SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
-                   (name, card_number, rarity, id_int))
+        sql = ( "UPDATE public_digimon_cards "
+               "SET name = ?, card_number = ?, rarity = ? "
+               "WHERE id = ?" )
+        params = [name, card_number, rarity, id_int]
     else:
-        db.execute('UPDATE private_digimon_cards SET name = ?, card_number = ?, rarity = ? WHERE id = ? AND owner_id = ?',
-                   (name, card_number, rarity, id_int, owner_id))
+        sql = ( "UPDATE private_digimon_cards "
+               "SET name = ?, card_number = ?, rarity = ? "
+               "WHERE id = ? AND owner_id = ?" )
+        params = [name, card_number, rarity, id_int, owner_id]
+    db.execute(sql, params)
 
 
 def delete_card(id_int: int, owner_id: int | None) -> None:
@@ -290,9 +336,15 @@ def delete_card(id_int: int, owner_id: int | None) -> None:
     If owner_id exists, deletes from private table row with id AND owner_id.
     """
     if owner_id is None:
-        db.execute('DELETE FROM public_digimon_cards WHERE id = ?', [id_int])
+        db.execute(
+            'DELETE FROM public_digimon_cards WHERE id = ?',
+            [id_int]
+        )
     else:
-        db.execute('DELETE FROM private_digimon_cards WHERE id = ?', [id_int])
+        db.execute(
+            'DELETE FROM private_digimon_cards WHERE id = ? AND owner_id = ?',
+            [id_int, owner_id]
+        )
 
 
 def find_card_by_id(id_int: int, owner_id: int | None):
@@ -409,10 +461,8 @@ def toggle_favorite_by_id(card_id: int, session):
 
     except sqlite3.Error as e:
         flash(f"Database error while toggling favorite: {e}", "error")
-        print("11111 AVAIN OLI: " + str(card_id))
         return False
 
     except Exception as e:
         flash(f"Unexpected error while toggling favorite: {e}", "error")
-        print("22222 AVAIN OLI: " + str(card_id))
         return False
