@@ -506,8 +506,6 @@ def _card_belongs_to_user(card_id: int, session) -> bool:
     """
     Check if the card exists and belongs to the logged in user.
     """
-    print("DEBUG ownership card_id:", repr(card_id), type(card_id))
-    print("DEBUG session user_id:", repr(session.get("user_id")))
 
     rows = db.query(
         "SELECT owner_id FROM private_digimon_cards WHERE id = ?",
@@ -532,7 +530,6 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
     Sets the requested condition to the requested card.
     If no condition is given (None or "None"), deletes the condition.
     """
-    print(f"UPDATING to {new_value!r}")
     if new_value == "None":
         new_value = None
 
@@ -543,7 +540,6 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
 
     if new_value is not None and new_value not in values:
         flash("Invalid condition value.", "error")
-        print("bad 1")
         return False
 
     rows = db.query(
@@ -559,13 +555,11 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
                 "WHERE item_id = ? AND title = 'Condition'",
                 [card_id],
             )
-        print("GOOD 2")
         return True
 
 
     if not values:
         flash("Condition values are not configured in classes table.", "error")
-        print("BAD 3")
         return False
 
     if not rows:
@@ -574,7 +568,6 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
             "VALUES (?, 'Condition', ?)",
             [card_id, new_value],
         )
-        print("GOOD 4")
         return True
 
     keep_id = rows[0]["id"]
@@ -591,7 +584,6 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
         "UPDATE item_classes SET value = ? WHERE id = ?",
         [new_value, keep_id],
     )
-    print("GOOD 5")
     return True
 
 def get_possible_conditions():
