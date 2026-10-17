@@ -24,7 +24,7 @@ def forbidden(error):
     return render_template("errors/403.html", error=error), 403
 
 @app.errorhandler(404)
-def forbidden(error):
+def not_found(error):
     """
     Handler for error 404
     """
@@ -249,6 +249,7 @@ def delete_comment():
         flash('Invalid comment id')
         return redirect(request.referrer or url_for('index'))
 
+    # Permission to delete comment is checked within method.
     comments.delete_comment(comment_id_int)
 
     return redirect(url_for('personal_card_list'))
