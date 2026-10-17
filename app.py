@@ -251,7 +251,7 @@ def delete_comment():
 
     # Permission to delete comment is checked within method.
     delete_succesful = comments.delete_comment(comment_id_int)
-    if(not delete_succesful):
+    if not delete_succesful:
         abort(403)
     return redirect(url_for('personal_card_list'))
 
@@ -599,6 +599,10 @@ def delete_card():
 
 @app.route("/toggle_favorite", methods=["POST"])
 def toggle_favorite():
+    """
+    Method for favoriting or unfavoriting a card..
+    The target card's id is receiver fromm a from as id.
+    """
     card_id = request.form.get("id", type=int)
     if card_id is None:
         flash("Missing card id.", "error")
