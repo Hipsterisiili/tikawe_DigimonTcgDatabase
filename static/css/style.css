@@ -209,6 +209,21 @@ select {
     text-decoration: none;
 }
 
+a.btn.btn-favorite {
+    display: inline-block;
+    background-color: #ddc61a;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a.btn.btn-favorite:hover {
+    background-color: #e0a800;
+}
+
 /* comments panel hidden by default; shown when checkbox is checked */
 .comments-panel {
     display: none;

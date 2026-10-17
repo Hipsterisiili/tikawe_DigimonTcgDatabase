@@ -17,11 +17,7 @@
                 <p>Logged in as: {{ session.username }}</p>
 
                 <p><a href="{{ url_for('logout') }}">Log out</a></p>
-                <p>
-                    <a href="/personal_card_list?favorites_only=true">
-                        Your private collection
-                    </a>
-                </p>
+                <p><a href="/personal_card_list">Your private collection</a></p>
                 {% else %}
                 <p>Not yet logged in</p>
                 <p><a href="{{ url_for('login') }}">Log in</a></p>

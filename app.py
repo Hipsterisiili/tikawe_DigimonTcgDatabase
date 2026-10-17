@@ -130,8 +130,7 @@ def personal_card_list():
     require_login()
 
     owner_id = session["user_id"]
-    favorites_only = bool(request.values.get("favorites_only"))
-
+    favorites_only = request.values.get("favorites_only", "false").lower() == "true"
     card_amount, err = items.get_card_count(owner_id)
     if err:
         flash(err)
