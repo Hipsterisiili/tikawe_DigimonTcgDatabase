@@ -85,6 +85,23 @@ User specifies following info on the card:
                     value="{{ default_suffix|e }}"
                 />
             </p>
+            {% if target == 'private'%}
+            <p>
+                Card's condition:
+                <br />
+                <select name="condition">
+                    {% for option in ['None', 'NM', 'LP', 'MP', 'HP', 'D'] %}
+                    <option value="{{ option }}" {% if option=='None' %}selected{% endif %}>
+                        {{ option }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <br />
+                <p style="font-size: 12px;">
+                    (NM = Near Mint, LP = Lightly Played, MP = Moderately Played, HP = Heavily Played, D = Damaged)
+                </p>
+            </p>
+            {%endif%}
 
             <input type="hidden" name="target" value="{{ target }}" />
             <p>
