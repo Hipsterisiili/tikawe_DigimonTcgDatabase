@@ -276,7 +276,7 @@ def get_latest_card(owner_id):
     except sqlite3.Error:
         return (None, "Database error: failed to fetch latest card.")
 
-def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> None:
+def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> bool:
     """
     Insert into public table if owner_id is None
     Insert into private table if owner_id is provided as parameter.
@@ -306,12 +306,23 @@ def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> 
             'FOREIGN KEY(owner_id) REFERENCES users(id)'
             ')'
         )
+
+        # enforce per-user card limit
+        card_amount, err = get_card_count(owner_id)
+        if err:
+            flash(err)
+            return False
+        if card_amount >= 100:
+            flash("User cannot have more than 100 cards in private collection!", "error")
+            return False
+
         db.execute(
             'INSERT INTO private_digimon_cards ('
             'name, card_number, rarity, owner_id)'
             'VALUES (?, ?, ?, ?)',
             (name, card_number, rarity, owner_id)
         )
+    return True
 
 
 def edit_card(id_int: int, owner_id: int | None, name: str, card_number: str, rarity: str) -> None:

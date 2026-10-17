@@ -454,19 +454,22 @@ def send_card():
         flash("A card with this id already exists in the public database")
         return redirect(url_for("new_card", target=target))
 
-    items.add_card(owner_id, card_name, card_number, rarity)
+    add_successful = items.add_card(owner_id, card_name, card_number, rarity)
+
+    if not add_successful:
+        if redirect_target=="public":
+            return redirect("/full_card_list")
+        return redirect("/personal_card_list") 
+        
 
     # Redirect based on where card was added and where it was added from
     if redirect_target == "public":
-        print("testing this")
         flash(card_name + " added to personal collection from public collection.")
         return redirect("/full_card_list")
     elif owner_id is not None:
-        print("First return")
         flash(card_name + " added to personal collection.")
         return redirect("/personal_card_list")
     flash(card_name + " added to the public collection.")
-    print("Second return")
     return redirect("/full_card_list")
 
 

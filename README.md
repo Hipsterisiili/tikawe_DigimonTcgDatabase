@@ -47,6 +47,7 @@ App contains a database containing 4 tables:
     - **Catalog's owner** can delete a card from catalog
     - **Everyone** can view it through user list
     - Possible to have multiple cards with same card_id
+    - User's catalog is limited to only 100 cards!
 - User catalog for browsing other users and their collections
     - **Everyone** can view it with no limitations
     - Contains a link to viewing each user's collection
