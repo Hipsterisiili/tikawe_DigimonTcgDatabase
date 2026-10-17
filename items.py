@@ -566,6 +566,21 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
     )
     return True
 
+def get_possible_conditions():
+    """
+    Finds and returns all possible card conditions from table classes.
+    """
+    rows = db.query(
+        """
+        SELECT value
+        FROM classes
+        WHERE title = ?
+        ORDER BY id
+        """,
+        ["Condition"],
+    )
+
+    return [row["value"] for row in rows] if rows else []
 
 def set_condition_by_id(
     card_id: int,

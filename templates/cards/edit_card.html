@@ -90,23 +90,24 @@ User alter the following info on the card:
                 />
             </p>
 
-            {% if target == 'private'%}
+            {% if target == 'private' %}
             <p>
                 Card's condition:
-                <br />
+                <br>
                 <select name="condition">
-                    {% for option in ['None', 'NM', 'LP', 'MP', 'HP', 'D'] %}
-                    <option value="{{ option }}" {% if option=='None' %}selected{% endif %}>
+                    <option value="None" selected></option>
+                    {% for option in card_conditions %}
+                    <option value="{{ option }}">
                         {{ option }}
                     </option>
                     {% endfor %}
                 </select>
-                <br />
-                <p style="font-size: 12px;">
-                (NM = Near Mint, LP = Lightly Played, MP = Moderately Played, HP = Heavily Played, D = Damaged)
-                </p>
             </p>
-            {%endif%}
+            
+            <p style="font-size: 12px;">
+                (NM = Near Mint, LP = Lightly Played, MP = Moderately Played, HP = Heavily Played, D = Damaged)
+            </p>
+            {% endif %}
 
             <input type="hidden" name="target" value="{{ target }}" />
             <p>

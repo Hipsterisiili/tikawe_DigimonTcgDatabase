@@ -412,6 +412,8 @@ def new_card():
     default_set = request.args.get("card_set", "BT1")
     default_suffix = request.args.get("card_number_suffix", "001")
 
+    card_conditions = items.get_possible_conditions()
+
     return render_template(
         "cards/new_card.html",
         target=target,
@@ -420,7 +422,8 @@ def new_card():
         current_set=default_set,
         default_rarity=default_rarity,
         default_name=default_name,
-        default_suffix=default_suffix
+        default_suffix=default_suffix,
+        card_conditions = card_conditions
     )
 
 @app.route("/send_card", methods=["POST"])
