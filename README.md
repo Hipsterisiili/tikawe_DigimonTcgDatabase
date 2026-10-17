@@ -59,7 +59,9 @@ Each row in item_classes associates a classification with a particular card. A c
     - **Catalog's owner** can edit cards in it
     - **Catalog's owner** can edit the card's information
     - **Catalog's owner** can delete a card from catalog
+    - **Catalog's owner** can favorite cards.
     - **Everyone** can view it through user list
+    - **Everyone** can view favorite cards only
     - Possible to have multiple cards with same card_id
     - User's catalog is limited to only 100 cards!
     - A condition can be assigned and wieved by **Catalog's owner** in card in personal collection
