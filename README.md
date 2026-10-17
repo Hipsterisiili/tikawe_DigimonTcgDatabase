@@ -29,6 +29,21 @@ App contains a database containing 4 tables:
     - **receiverer_id** (INT, references users(id, The comment's receiver))
     - **comment_text** (TEXT, contents of the comment)
     - **created_at** (DATETIME, the exact time when the comment was left)
+- Table `classes`, defining the available classifications that can be assigned to cards.
+    - **id** (INTEGER, primary key)
+    - **title** (TEXT, the classification category, in this case Condition or Favorite)
+    - **value** (TEXT, the available value within that category)
+        - Condition values include NM (Near Mint), LP (Lightly Played), MP (Moderately Played), HP (Heavily Played), and D (Damaged).
+        - Favorite values include yes and no.
+- Table `item_classes`, storing classifications assigned to individual cards in personal collections.
+
+    - **id** (INTEGER, primary key)
+    - **item_id** (INTEGER, references private_digimon_cards(id))
+    - **title** (TEXT, the classification category, such as Condition or Favorite)
+    - **value** (TEXT, the assigned value, such as NM or yes)
+
+Each row in item_classes associates a classification with a particular card. A card may have a condition and a favorite status. If a condition has not been assigned, no Condition row is required. To view table creation, read `schema.sql`. 
+
 
 ## Features
 
@@ -48,6 +63,8 @@ App contains a database containing 4 tables:
     - **Everyone** can view it through user list
     - Possible to have multiple cards with same card_id
     - User's catalog is limited to only 100 cards!
+    - A condition can be assigned and wieved by **Catalog's owner** in card in personal collection
+        -> (NM = Near Mint, LP = Lightly Played, MP = Moderately Played, HP = Heavily Played, D = Damaged)
 - User catalog:
     - **Everyone** can browse other users and their collections
     - Contains a link to viewing each user's collection
