@@ -91,21 +91,13 @@ Each row in item_classes associates a classification with a particular card. A c
 
 ## Planned features
 
-- Card id field should only accepts numbers even before submit is pressed. 
-- Adding a publicly visible comment to own collection. (not very relevant)
-- When multiple cards with same card_id are added, all values other than id (primary key) should be identical.
+- Adding a publicly visible comment to own collection. (After the course)
+- When multiple cards with same card_id are added, all values other than id (primary key) should be identical. (After the course)
 - Recognize and stack multiple instances of same card in personal collection. (After the course)
 - Images for cards (After the course)
 - Exporting a personal collection as CSV for use in other apps. (After the course)
 - Importing a collection as CSV from other apps. (After the course)
 - Drafting from a pre-built collection (After the course)
-
-## Known issues
-
-- Inputting invalid card name length results to error screen instead of an error message and redirect. Likely fixed by returning a possible error message along with name from items/is_card_name_valid.
-- No validation of characters in card names implemented yet.
-- Card id suffix can be any integer, should only take numbers between 1-999
-
 
 ## Minimal requirements
 
