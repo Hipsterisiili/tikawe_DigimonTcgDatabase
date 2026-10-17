@@ -613,9 +613,6 @@ def set_condition_by_id(
     Return True on success, False on failure.
     """
 
-    print("DEBUG card_id:", repr(card_id), type(card_id))
-    print("DEBUG new_value:", repr(new_value), type(new_value))
-
     try:
         if not _card_belongs_to_user(card_id, session):
             return False
