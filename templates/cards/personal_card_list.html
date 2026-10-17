@@ -137,6 +137,11 @@ User may:
                         value="{{ session.csrf_token }}"
                     />
                     <input type="hidden" name="id" value="{{ card['id'] }}" />
+                    <input
+                        type="hidden"
+                        name="favorites_only"
+                        value="{{ favorites_only }}"
+                    />
                     <button type="submit" class="btn btn-favorite">
                         Toggle favorite
                     </button>

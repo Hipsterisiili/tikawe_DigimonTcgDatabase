@@ -618,12 +618,14 @@ def toggle_favorite():
     The target card's id is receiver fromm a from as id.
     """
     card_id = request.form.get("id", type=int)
+    favorites_only = request.values.get("favorites_only", "false").lower() == "true"
+
     if card_id is None:
         flash("Missing card id.", "error")
         return redirect(url_for("personal_card_list"))
 
     items.toggle_favorite_by_id(card_id, session)
-    return redirect(url_for("personal_card_list"))
+    return redirect(url_for("personal_card_list", favorites_only=favorites_only))
 
 if __name__ == "__main__":
     app.run(debug=True)
