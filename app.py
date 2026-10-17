@@ -378,6 +378,8 @@ def new_card():
     """
     require_login()
     target = request.args.get("target", "global")
+    redirect_target = request.args.get("redirect_target", "")
+    print("1) REDIRTAR = " + redirect_target)
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
@@ -400,6 +402,7 @@ def new_card():
     return render_template(
         "cards/new_card.html",
         target=target,
+        redirect_target=redirect_target,
         sets=ALL_SETS,
         current_set=default_set,
         default_rarity=default_rarity,
@@ -423,6 +426,9 @@ def send_card():
     suffix = request.form.get("card_number_suffix", "").strip()
     rarity = request.form.get("rarity", "").strip() or None
     target = request.form.get("target", "global")
+    redirect_target = request.form.get("redirect_target", "")
+    print("2) REDIRTAR = " + redirect_target)
+
 
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix
@@ -450,10 +456,17 @@ def send_card():
 
     items.add_card(owner_id, card_name, card_number, rarity)
 
-    if owner_id is not None:
+    # Redirect based on where card was added and where it was added from
+    if redirect_target == "public":
+        print("testing this")
+        flash(card_name + " added to personal collection from public collection.")
+        return redirect("/full_card_list")
+    elif owner_id is not None:
+        print("First return")
         flash(card_name + " added to personal collection.")
         return redirect("/personal_card_list")
     flash(card_name + " added to the public collection.")
+    print("Second return")
     return redirect("/full_card_list")
 
 
