@@ -49,7 +49,7 @@ def change_condition(card_id: int, condition: str) -> bool:
     """
     Method for changing a condition related to a card in personal collection.
     The target card's id is taken as a parameter.
-    Rhe new condition is taken as a parameter.
+    The new condition is taken as a parameter.
     Returns true if change was successful, otherwise false.
     """
     require_login()
@@ -396,7 +396,6 @@ def new_card():
     require_login()
     target = request.args.get("target", "global")
     redirect_target = request.args.get("redirect_target", "")
-    print("1) REDIRTAR = " + redirect_target)
     if target == "private" and "username" not in session:
         flash("Please log in to add to your personal collection.")
         return redirect(url_for("login"))
@@ -447,8 +446,7 @@ def send_card():
     rarity = request.form.get("rarity", "").strip() or None
     target = request.form.get("target", "global")
     redirect_target = request.form.get("redirect_target", "")
-    print("2) REDIRTAR = " + redirect_target)
-
+    condition = request.form.get("condition", "")
 
     card_name, rarity, card_number, err = items.check_card_elements(
         card_name, rarity, card_set, suffix
@@ -474,9 +472,22 @@ def send_card():
         flash("A card with this id already exists in the public database")
         return redirect(url_for("new_card", target=target))
 
-    add_successful = items.add_card(owner_id, card_name, card_number, rarity)
+    new_card_id = items.add_card(
+    owner_id, card_name, card_number, rarity
+    )
 
-    if not add_successful:
+    if new_card_id is None:
+        flash("Card creation failed, the card is not in database")
+        return
+
+    # If condition was received, add condition to the card!
+    if condition and condition != "None":
+        change_condition(
+            card_id=new_card_id,
+            condition=condition,
+        )
+
+    if not id:
         if redirect_target=="public":
             return redirect("/full_card_list")
         return redirect("/personal_card_list") 

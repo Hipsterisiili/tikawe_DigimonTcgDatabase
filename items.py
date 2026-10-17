@@ -281,10 +281,15 @@ def get_latest_card(owner_id):
     except sqlite3.Error:
         return (None, "Database error: failed to fetch latest card.")
 
-def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> bool:
+def add_card(
+    owner_id: int | None,
+    name: str,
+    card_number: str,
+    rarity: str,
+) -> int | None:
     """
-    Insert into public table if owner_id is None
-    Insert into private table if owner_id is provided as parameter.
+    Insert a card into the public (if owner is none) or private collection.
+    Return the new card ID on success, or None on failure.
     """
     if owner_id is None:
         db.execute(
@@ -292,42 +297,53 @@ def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> 
             'id INTEGER PRIMARY KEY, '
             'name TEXT NOT NULL, '
             'card_number TEXT, '
-            "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR'))"
+            "rarity TEXT CHECK (rarity IS NULL OR rarity IN "
+            "('C','U','R','UR','SEC','P','SR'))"
             ')'
         )
+
         db.execute(
-            'INSERT INTO public_digimon_cards (name, card_number, rarity) '
-            'VALUES (?, ?, ?)',
-            (name, card_number, rarity)
+            'INSERT INTO public_digimon_cards '
+            '(name, card_number, rarity) VALUES (?, ?, ?)',
+            (name, card_number, rarity),
         )
+
     else:
         db.execute(
             'CREATE TABLE IF NOT EXISTS private_digimon_cards ('
             'id INTEGER PRIMARY KEY, '
             'name TEXT NOT NULL, '
             'card_number TEXT, '
-            "rarity TEXT CHECK (rarity IS NULL OR rarity IN ('C','U','R','UR','SEC','P','SR')), "
+            "rarity TEXT CHECK (rarity IS NULL OR rarity IN "
+            "('C','U','R','UR','SEC','P','SR')), "
             'owner_id INTEGER NOT NULL, '
             'FOREIGN KEY(owner_id) REFERENCES users(id)'
             ')'
         )
 
-        # enforce per-user card limit
+        # Enforce per-user card limit
         card_amount, err = get_card_count(owner_id)
+
         if err:
             flash(err)
-            return False
+            return None
+
         if card_amount >= 100:
-            flash("User cannot have more than 100 cards in private collection!", "error")
-            return False
+            flash(
+                "User cannot have more than 100 cards in private collection!",
+                "error",
+            )
+            return None
 
         db.execute(
-            'INSERT INTO private_digimon_cards ('
-            'name, card_number, rarity, owner_id)'
+            'INSERT INTO private_digimon_cards '
+            '(name, card_number, rarity, owner_id) '
             'VALUES (?, ?, ?, ?)',
-            (name, card_number, rarity, owner_id)
+            (name, card_number, rarity, owner_id),
         )
-    return True
+
+    # Return the ID of the row just inserted.
+    return db.last_insert_id()
 
 
 def edit_card(id_int: int, owner_id: int | None, name: str, card_number: str, rarity: str) -> None:
@@ -490,6 +506,9 @@ def _card_belongs_to_user(card_id: int, session) -> bool:
     """
     Check if the card exists and belongs to the logged in user.
     """
+    print("DEBUG ownership card_id:", repr(card_id), type(card_id))
+    print("DEBUG session user_id:", repr(session.get("user_id")))
+
     rows = db.query(
         "SELECT owner_id FROM private_digimon_cards WHERE id = ?",
         [card_id],
@@ -513,7 +532,7 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
     Sets the requested condition to the requested card.
     If no condition is given (None or "None"), deletes the condition.
     """
-    print("UPDATING to " + new_value)
+    print(f"UPDATING to {new_value!r}")
     if new_value == "None":
         new_value = None
 
@@ -601,6 +620,10 @@ def set_condition_by_id(
     If no condition is given, deletes condition of the card, if it exists
     Return True on success, False on failure.
     """
+
+    print("DEBUG card_id:", repr(card_id), type(card_id))
+    print("DEBUG new_value:", repr(new_value), type(new_value))
+
     try:
         if not _card_belongs_to_user(card_id, session):
             return False

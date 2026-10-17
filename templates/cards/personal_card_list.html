@@ -121,8 +121,8 @@ User may:
         <div class="card-row">
             <!-- Card displayed in format "card_number, name, rarity" -->
             <div class="card-info">
-                {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}{% if card['condition'] %}, {{ card['condition']
-                }}{% endif %}
+                {{ card['card_number'] }}, {{ card['name'] }}, {{ card['rarity'] }}{% if card['condition'] %}<b>, {{ card['condition']
+                }} </b> {% endif %}
             </div>
             <div class="card-actions">
                 <!-- Item for toggling favorite -->
