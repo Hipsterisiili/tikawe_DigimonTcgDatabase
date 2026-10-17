@@ -47,7 +47,8 @@ CREATE TABLE classes (
 
 CREATE TABLE item_classes (
     id INTEGER PRIMARY KEY,
-    item_id INTEGER REFERENCES private_digimon_cards,
+    item_id INTEGER REFERENCES private_digimon_cards(id)
+    ON DELETE CASCADE,
     title TEXT,
     value TEXT
 );
