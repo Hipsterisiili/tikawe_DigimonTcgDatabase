@@ -9,7 +9,7 @@ Methods for editing items in database
 import re
 import sqlite3
 from flask import flash
-from constants import ALLOWED_RARITIES, ALLOWED_SETS
+from constants import ALLOWED_RARITIES, ALLOWED_SETS, CARD_ORDER_SQL
 import db
 import users
 
@@ -143,8 +143,6 @@ def get_card_count(owner_id, card_set=None):
     except sqlite3.Error:
         return (0, "Database error: failed to count cards.")
 
-
-
 def get_card_list(
     owner_id,
     limit=100,
@@ -167,14 +165,17 @@ def get_card_list(
 
             if card_set and card_set != "all":
                 sql = (
-                    f'SELECT id, name, card_number, rarity FROM "{table}" '
-                    "WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?"
+                    f'SELECT id, name, card_number, rarity FROM "{table}" p '
+                    "WHERE card_number LIKE ? "
+                    f"ORDER BY {CARD_ORDER_SQL} "
+                    "LIMIT ? OFFSET ?"
                 )
                 params = [f"{card_set}-%", limit, offset]
             else:
                 sql = (
-                    f'SELECT id, name, card_number, rarity FROM "{table}" '
-                    "ORDER BY id LIMIT ? OFFSET ?"
+                    f'SELECT id, name, card_number, rarity FROM "{table}" p '
+                    f"ORDER BY {CARD_ORDER_SQL} "
+                    "LIMIT ? OFFSET ?"
                 )
                 params = [limit, offset]
 
@@ -186,10 +187,10 @@ def get_card_list(
             if conditions:
                 select_clause = (
                     "SELECT p.id, p.name, p.card_number, p.rarity, "
-                    "(SELECT value FROM item_classes ic "
-                    " WHERE ic.item_id = p.id AND ic.title = 'Condition' "
-                    " ORDER BY ic.id LIMIT 1) AS condition "
-                )
+                    "(SELECT ic.value FROM item_classes ic "
+                    "WHERE ic.item_id = p.id AND ic.title = 'Condition' "
+                    "ORDER BY ic.id LIMIT 1) AS condition "
+)
             else:
                 select_clause = (
                     "SELECT p.id, p.name, p.card_number, p.rarity "
@@ -216,7 +217,11 @@ def get_card_list(
                 )
 
             # Finalize ordering and paging
-            sql = base_sql + "ORDER BY p.id LIMIT ? OFFSET ?"
+            sql = (
+                base_sql
+                + f"ORDER BY {CARD_ORDER_SQL} "
+                "LIMIT ? OFFSET ?"
+            )
             params.extend([limit, offset])
 
         rows = db.query(sql, params)
