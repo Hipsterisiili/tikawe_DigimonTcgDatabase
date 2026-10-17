@@ -36,7 +36,6 @@ App contains a database containing 4 tables:
         - Condition values include NM (Near Mint), LP (Lightly Played), MP (Moderately Played), HP (Heavily Played), and D (Damaged).
         - Favorite values include yes and no.
 - Table `item_classes`, storing classifications assigned to individual cards in personal collections.
-
     - **id** (INTEGER, primary key)
     - **item_id** (INTEGER, references private_digimon_cards(id))
     - **title** (TEXT, the classification category, such as Condition or Favorite)
