@@ -510,47 +510,55 @@ def _card_belongs_to_user(card_id: int, session) -> bool:
 
 def _update_card_condition(card_id: int, new_value: str | None) -> bool:
     """
-    Sets the requested condition to a card.
-    Card's id and the requested condition are given as parameters.
-    if no condition is given, sets condition to NM (Near Mint)
+    Sets the requested condition to the requested card.
+    If no condition is given (None or "None"), deletes the condition.
     """
+    print("UPDATING to " + new_value)
+    if new_value == "None":
+        new_value = None
+
     cfg_rows = db.query(
         "SELECT value FROM classes WHERE title = 'Condition' ORDER BY id"
     )
     values = [row["value"] for row in cfg_rows] if cfg_rows else []
 
-    if not values:
-        flash("Condition values are not configured in classes table.", "error")
-        return False
-
     if new_value is not None and new_value not in values:
         flash("Invalid condition value.", "error")
+        print("bad 1")
         return False
 
     rows = db.query(
-        "SELECT id, value FROM item_classes "
+        "SELECT id FROM item_classes "
         "WHERE item_id = ? AND title = 'Condition' ORDER BY id",
         [card_id],
     )
 
+    if new_value is None:
+        if rows:
+            db.execute(
+                "DELETE FROM item_classes "
+                "WHERE item_id = ? AND title = 'Condition'",
+                [card_id],
+            )
+        print("GOOD 2")
+        return True
+
+
+    if not values:
+        flash("Condition values are not configured in classes table.", "error")
+        print("BAD 3")
+        return False
+
     if not rows:
-        value = new_value if new_value is not None else values[0]
         db.execute(
             "INSERT INTO item_classes (item_id, title, value) "
             "VALUES (?, 'Condition', ?)",
-            [card_id, value],
+            [card_id, new_value],
         )
+        print("GOOD 4")
         return True
 
     keep_id = rows[0]["id"]
-    value = new_value
-
-    if value is None:
-        try:
-            index = values.index(rows[0]["value"])
-            value = values[(index + 1) % len(values)]
-        except ValueError:
-            value = values[0]
 
     if len(rows) > 1:
         ids = [row["id"] for row in rows[1:]]
@@ -562,8 +570,9 @@ def _update_card_condition(card_id: int, new_value: str | None) -> bool:
 
     db.execute(
         "UPDATE item_classes SET value = ? WHERE id = ?",
-        [value, keep_id],
+        [new_value, keep_id],
     )
+    print("GOOD 5")
     return True
 
 def get_possible_conditions():
@@ -589,7 +598,7 @@ def set_condition_by_id(
 ) -> bool:
     """
     Set the condition for a private card to match the one given as parameter.
-    If no condition is given, defaults to Near Mint condition (NM)
+    If no condition is given, deletes condition of the card, if it exists
     Return True on success, False on failure.
     """
     try:

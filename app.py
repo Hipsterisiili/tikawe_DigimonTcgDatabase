@@ -54,7 +54,7 @@ def change_condition(card_id: int, condition: str) -> bool:
     """
     require_login()
 
-    change_successful = items.set_condition_by_id(card_id=card_id, condition = condition)
+    change_successful = items.set_condition_by_id(card_id, session, condition)
     if not change_successful:
         flash("Condition change unsuccessful, dont worry, it is just cardboard")
     return change_successful
@@ -152,6 +152,7 @@ def personal_card_list():
         limit=100,
         offset=0,
         card_set=None,
+        conditions=True,
         favorites_only=favorites_only
     )
     if err:
@@ -163,7 +164,8 @@ def personal_card_list():
         count=card_amount,
         card_list=card_list,
         comment_list=comment_list,
-        favorites_only=favorites_only
+        favorites_only=favorites_only,
+        conditions=True
     )
 
 
@@ -190,7 +192,8 @@ def user_collection(username):
             limit=100,
             offset=0,
             card_set=None,
-            favorites_only=favorites_only
+            favorites_only=favorites_only,
+            conditions=True
         )
     if err:
         flash(err)
@@ -215,7 +218,8 @@ def user_collection(username):
         count=card_amount,
         card_list=card_list,
         latest_card=latest_card,
-        favorites_only=favorites_only
+        favorites_only=favorites_only,
+        conditions=True
         )
 
 
@@ -521,6 +525,8 @@ def edit_card_form():
     parts = str(cn).rsplit("-", 1)
     card_set, suffix = (parts[0], parts[1]) if len(parts) == 2 else (parts[0], "")
 
+    card_conditions = items.get_possible_conditions()
+
     return render_template(
         "cards/edit_card.html",
         target=target,
@@ -530,7 +536,8 @@ def edit_card_form():
         card_set=card_set or "",
         card_number_suffix=suffix or "",
         sets=ALL_SETS,
-        rarities=ALLOWED_RARITIES
+        rarities=ALLOWED_RARITIES,
+        card_conditions = card_conditions
     )
 
 @app.route("/edit_card", methods=["POST"])
