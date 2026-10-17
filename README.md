@@ -152,7 +152,7 @@ The application will run on port 5000.
 ## pylint report
 
 Running the topmost line in project root yields this pylint raport:
-
+************* Module app
 app.py:117:11: W0718: Catching too general exception Exception (broad-exception-caught)
 app.py:433:0: R0911: Too many return statements (9/6) (too-many-return-statements)
 app.py:571:8: W0622: Redefining built-in 'id' (redefined-builtin)
