@@ -1,3 +1,6 @@
+"""
+Some constants for use in DigimonTcgDatabase backend
+"""
 BT = [f"BT{i}" for i in range(1, 27)]
 EX = [f"EX{i}" for i in range(1, 13)]
 ST = [f"ST{i}" for i in range(1, 26)]
