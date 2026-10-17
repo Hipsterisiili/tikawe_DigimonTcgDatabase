@@ -158,7 +158,7 @@ def get_card_count(owner_id, card_set=None):
         return (0, "Database error: failed to count cards.")
 
 
-def get_card_list(owner_id, limit=100, offset=0, card_set=None):
+def get_card_list(owner_id, limit=100, offset=0, card_set=None, favorites_only=False):
     """
     Return a list of cards as dicts from the requested table and error string.
     Error_string is '' when OK, otherwise contains a message.
@@ -169,6 +169,7 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None):
     """
     try:
         if owner_id is None:
+            #Public table
             table = "public_digimon_cards"
 
             if card_set and card_set != "all":
@@ -185,23 +186,51 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None):
                 )
                 params = [limit, offset]
         else:
+            # Private table
             table = "private_digimon_cards"
 
-            if card_set and card_set != "all":
+            if favorites_only:
+                # Show favorites only
                 sql = (
-                    f'SELECT id, name, card_number, rarity FROM "{table}" '
-                    "WHERE owner_id = ? AND card_number LIKE ? "
-                    "ORDER BY id LIMIT ? OFFSET ?"
+                    f'SELECT p.id, p.name, p.card_number, p.rarity '
+                    f'FROM "{table}" p '
+                    "WHERE p.owner_id = ? "
                 )
-                params = [owner_id, f"{card_set}-%", limit, offset]
+                params = [owner_id]
+
+                if card_set and card_set != "all":
+                    sql += "AND p.card_number LIKE ? "
+                    params.append(f"{card_set}-%")
+
+                sql += (
+                    "AND EXISTS ("
+                    "SELECT 1 FROM item_classes ic "
+                    "WHERE ic.item_id = p.id "
+                    "AND ic.title = 'Favorite' "
+                    "AND ic.value = 'yes'"
+                    ") "
+                    "ORDER BY p.id LIMIT ? OFFSET ?"
+                )
+                params.extend([limit, offset])
+
             else:
-                sql = (
-                    f'SELECT id, name, card_number, rarity FROM "{table}" '
-                    "WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?"
-                )
-                params = [owner_id, limit, offset]
+                # No favorites filter
+                if card_set and card_set != "all":
+                    sql = (
+                        f'SELECT id, name, card_number, rarity FROM "{table}" '
+                        "WHERE owner_id = ? AND card_number LIKE ? "
+                        "ORDER BY id LIMIT ? OFFSET ?"
+                    )
+                    params = [owner_id, f"{card_set}-%", limit, offset]
+                else:
+                    sql = (
+                        f'SELECT id, name, card_number, rarity FROM "{table}" '
+                        "WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?"
+                    )
+                    params = [owner_id, limit, offset]
 
         rows = db.query(sql, params)
+
         return ([dict(r) for r in rows] if rows else [], "")
 
     except sqlite3.Error:

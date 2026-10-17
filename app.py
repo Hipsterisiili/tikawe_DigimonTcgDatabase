@@ -130,11 +130,18 @@ def personal_card_list():
     require_login()
 
     owner_id = session["user_id"]
+    favorites_only = bool(request.values.get("favorites_only"))
 
     card_amount, err = items.get_card_count(owner_id)
     if err:
         flash(err)
-    card_list, err = items.get_card_list(owner_id)
+    card_list, err = items.get_card_list(
+        owner_id,
+        limit=100,
+        offset=0,
+        card_set=None,
+        favorites_only=favorites_only
+    )
     if err:
         flash(err)
     comment_list = comments.get_comment_list_using_receiver_name(session["username"])
@@ -143,7 +150,8 @@ def personal_card_list():
         "cards/personal_card_list.html",
         count=card_amount,
         card_list=card_list,
-        comment_list=comment_list
+        comment_list=comment_list,
+        favorites_only=favorites_only
     )
 
 
