@@ -250,8 +250,9 @@ def delete_comment():
         return redirect(request.referrer or url_for('index'))
 
     # Permission to delete comment is checked within method.
-    comments.delete_comment(comment_id_int)
-
+    delete_succesful = comments.delete_comment(comment_id_int)
+    if(not delete_succesful):
+        abort(403)
     return redirect(url_for('personal_card_list'))
 
 

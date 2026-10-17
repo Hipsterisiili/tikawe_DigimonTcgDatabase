@@ -1,3 +1,11 @@
+"""
+Helper functions related to cards in the database.
+Validations for table names and item values
+Methods for finding items from database
+Methods for adding items to database
+Methods for deleting items from database
+Methods for editing items in database
+"""
 import re
 import sqlite3
 from flask import flash
@@ -63,7 +71,8 @@ def sanitize_card_name(name: str) -> str:
 
 def table_for_target(target: str, session) -> tuple[int | None, str | None]:
     """
-    Return (owner_id, error_message). owner_id is None for public table, or an int user id for private.
+    Return (owner_id, error_message).
+    Owner_id is None for public table, or an int user id for private.
     error_message is None when OK.
     """
     if target == "private":
@@ -180,7 +189,6 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None):
     except Exception:
         return ([], "Unexpected error occurred while fetching cards.")
 
-    
 def get_card_number_from_table(owner_id: int | None) -> int:
     """
     Return the number of cards for the given owner.
@@ -264,7 +272,8 @@ def edit_card(id_int: int, owner_id: int | None, name: str, card_number: str, ra
     Card is located using the primary key id given as parameter.
     Takes the new name, card_number, and rarity as parameters.
     If owner_id is None, edits public table row with id
-    If owner_id exists, edits private table row with id AND owner_id (so user can't edit another user's card)
+    If owner_id exists, edits private table row with id AND owner_id
+    (so user can't edit another user's card)
     """
     if owner_id is None:
         db.execute('UPDATE public_digimon_cards SET name = ?, card_number = ?, rarity = ? WHERE id = ?',
@@ -299,11 +308,16 @@ def find_card_by_id(id_int: int, owner_id: int | None):
         return None
     try:
         if owner_id is None:
-            sql = 'SELECT id, name, card_number, rarity FROM public_digimon_cards WHERE id = ?'
-            rows = db.query(sql, [id_int])
+            sql = ( "SELECT id, name, card_number, rarity "
+                   "FROM public_digimon_cards "
+                   "WHERE id = ?" )
+            params = [id_int]
         else:
-            sql = 'SELECT id, name, card_number, rarity FROM private_digimon_cards WHERE id = ? AND owner_id = ?'
-            rows = db.query(sql, [id_int, owner_id])
+            sql = ( "SELECT id, name, card_number, rarity "
+                   "FROM private_digimon_cards "
+                   "WHERE id = ? AND owner_id = ?" )
+            params = [id_int, owner_id]
+        rows = db.query(sql, params)
     except Exception:
         return None
     return rows[0] if rows else None
@@ -325,9 +339,14 @@ def find_card_id_by_card_number(card_number: str, owner_id: int | None) -> int:
         return 0
     try:
         if owner_id is None:
-            rows = db.query('SELECT id FROM public_digimon_cards WHERE card_number = ? LIMIT 1', (card_number,))
+            sql = ( "SELECT id FROM public_digimon_cards "
+                   "WHERE card_number = ? LIMIT 1" )
+            params = [card_number]
         else:
-            rows = db.query('SELECT id FROM private_digimon_cards WHERE owner_id = ? AND card_number = ? LIMIT 1', (owner_id, card_number))
+            sql = ( "SELECT id FROM private_digimon_cards "
+                   "WHERE owner_id = ? AND card_number = ? LIMIT 1" )
+            params = [owner_id, card_number]
+        rows = db.query(sql, params)
     except Exception:
         return 0
     if not rows:
@@ -361,10 +380,11 @@ def toggle_favorite_by_id(card_id: int, session):
             flash("Favorite values are not configured in classes table.", "error")
             return False
 
-        fav_rows = db.query(
-            "SELECT id, value FROM item_classes WHERE item_id = ? AND title = 'Favorite' ORDER BY id",
-            [card_id]
-        )
+        sql = ( "SELECT id, value "
+               "FROM item_classes "
+               "WHERE item_id = ? AND title = 'Favorite' "
+               "ORDER BY id" )
+        fav_rows = db.query(sql, [card_id])
 
         if not fav_rows:
             db.execute(
