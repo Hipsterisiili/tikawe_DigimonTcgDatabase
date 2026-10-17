@@ -144,25 +144,31 @@ def get_card_count(owner_id, card_set=None):
         return (0, "Database error: failed to count cards.")
 
 
-def get_card_list(owner_id, limit=100, offset=0, card_set=None, favorites_only=False):
+
+def get_card_list(
+    owner_id,
+    limit=100,
+    offset=0,
+    card_set=None,
+    favorites_only=False,
+    conditions=False,
+):
     """
     Return a list of cards as dicts from the requested table and error string.
-    Error_string is '' when OK, otherwise contains a message.
-    If owner_id is None, returns contents of public table
-    Otherwise returns contents pf private table filtered by owner_id.
-    Each card is represented as a dictionary with keys: id, name, card_number, rarity.
-    Returns an empty list if the table does not exist or on error.
+    If favorites_only is True and owner_id is not None, return only cards
+    that have an item_classes row with title='Favorite' and value='yes'.
+    If conditions is True and owner_id is not None, include a 'condition'
+    column in each returned row (NULL if no condition set).
     """
     try:
         if owner_id is None:
-            #Public table
+            # Public table: Show entire contents, but chopped into 100 card pieces
             table = "public_digimon_cards"
 
             if card_set and card_set != "all":
                 sql = (
                     f'SELECT id, name, card_number, rarity FROM "{table}" '
-                    "WHERE card_number LIKE ? "
-                    "ORDER BY id LIMIT ? OFFSET ?"
+                    "WHERE card_number LIKE ? ORDER BY id LIMIT ? OFFSET ?"
                 )
                 params = [f"{card_set}-%", limit, offset]
             else:
@@ -171,56 +177,54 @@ def get_card_list(owner_id, limit=100, offset=0, card_set=None, favorites_only=F
                     "ORDER BY id LIMIT ? OFFSET ?"
                 )
                 params = [limit, offset]
+
         else:
-            # Private table
+            # Private table: optionally filter by favorites and include condition
             table = "private_digimon_cards"
 
-            if favorites_only:
-                # Show favorites only
-                sql = (
-                    f'SELECT p.id, p.name, p.card_number, p.rarity '
-                    f'FROM "{table}" p '
-                    "WHERE p.owner_id = ? "
+            # Choose a clause depending on whether condition is asked for or not
+            if conditions:
+                select_clause = (
+                    "SELECT p.id, p.name, p.card_number, p.rarity, "
+                    "(SELECT value FROM item_classes ic "
+                    " WHERE ic.item_id = p.id AND ic.title = 'Condition' "
+                    " ORDER BY ic.id LIMIT 1) AS condition "
                 )
-                params = [owner_id]
-
-                if card_set and card_set != "all":
-                    sql += "AND p.card_number LIKE ? "
-                    params.append(f"{card_set}-%")
-
-                sql += (
-                    "AND EXISTS ("
-                    "SELECT 1 FROM item_classes ic "
-                    "WHERE ic.item_id = p.id "
-                    "AND ic.title = 'Favorite' "
-                    "AND ic.value = 'yes'"
-                    ") "
-                    "ORDER BY p.id LIMIT ? OFFSET ?"
-                )
-                params.extend([limit, offset])
-
             else:
-                # No favorites filter
-                if card_set and card_set != "all":
-                    sql = (
-                        f'SELECT id, name, card_number, rarity FROM "{table}" '
-                        "WHERE owner_id = ? AND card_number LIKE ? "
-                        "ORDER BY id LIMIT ? OFFSET ?"
-                    )
-                    params = [owner_id, f"{card_set}-%", limit, offset]
-                else:
-                    sql = (
-                        f'SELECT id, name, card_number, rarity FROM "{table}" '
-                        "WHERE owner_id = ? ORDER BY id LIMIT ? OFFSET ?"
-                    )
-                    params = [owner_id, limit, offset]
+                select_clause = (
+                    "SELECT p.id, p.name, p.card_number, p.rarity "
+                )
+
+            base_sql = (
+                select_clause
+                + f'FROM "{table}" p WHERE p.owner_id = ? '
+            )
+            params = [owner_id]
+
+            # Filter by card_set if card_set given as parameter
+            if card_set and card_set != "all":
+                base_sql += "AND p.card_number LIKE ? "
+                params.append(f"{card_set}-%")
+
+            # Filter favorites if favorites_only
+            if favorites_only:
+                base_sql += (
+                    "AND EXISTS ("
+                    " SELECT 1 FROM item_classes ic2 "
+                    " WHERE ic2.item_id = p.id AND ic2.title = 'Favorite' "
+                    " AND ic2.value = 'yes') "
+                )
+
+            # Finalize ordering and paging
+            sql = base_sql + "ORDER BY p.id LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
 
         rows = db.query(sql, params)
-
         return ([dict(r) for r in rows] if rows else [], "")
 
     except sqlite3.Error:
         return ([], "Database error: failed to fetch cards.")
+    
 
 def get_card_number_from_table(owner_id: int | None) -> int:
     """
@@ -245,7 +249,6 @@ def get_card_number_from_table(owner_id: int | None) -> int:
 
     except sqlite3.Error:
         return 0
-
 
 def get_latest_card(owner_id):
     """
@@ -272,8 +275,6 @@ def get_latest_card(owner_id):
 
     except sqlite3.Error:
         return (None, "Database error: failed to fetch latest card.")
-
-
 
 def add_card(owner_id: int | None, name: str, card_number: str, rarity: str) -> None:
     """
