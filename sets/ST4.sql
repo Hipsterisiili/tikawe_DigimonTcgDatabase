@@ -1,0 +1,17 @@
+INSERT INTO public_digimon_cards (name, card_number, rarity) VALUES
+  ('Motimon', 'ST4-01', 'U'),
+  ('Floramon', 'ST4-02', 'C'),
+  ('Tentomon', 'ST4-03', 'U'),
+  ('Palmon', 'ST4-04', 'C'),
+  ('Kunemon', 'ST4-05', 'C'),
+  ('Togemon', 'ST4-06', 'C'),
+  ('Kuwagamon', 'ST4-07', 'C'),
+  ('Kabuterimon', 'ST4-08', 'U'),
+  ('Okuwamon', 'ST4-09', 'C'),
+  ('Lillymon', 'ST4-10', 'U'),
+  ('MegaKabuterimon', 'ST4-11', 'R'),
+  ('Rosemon', 'ST4-12', 'R'),
+  ('HerculesKabuterimon', 'ST4-13', 'SR'),
+  ('Izzy Izumi', 'ST4-14', 'R'),
+  ('Needle Spray', 'ST4-15', 'C'),
+  ('Electro Shocker', 'ST4-16', 'U');
