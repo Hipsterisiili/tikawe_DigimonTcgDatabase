@@ -1,4 +1,3 @@
-
 INSERT INTO public_digimon_cards (name, card_number, rarity)
 VALUES
     ('Poromon', 'BT3-001', 'U'),
