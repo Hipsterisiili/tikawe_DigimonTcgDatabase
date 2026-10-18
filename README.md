@@ -117,7 +117,7 @@ Generate the database for the application using the file schema.sql in the proje
 
 ### Optional:
 
-Generate a few cards to the public collection by running:
+Generate a few cards with varying values to the public collection by running:
 ```bash
 sqlite3 database.db < dummy_content_script.sql
 ```
