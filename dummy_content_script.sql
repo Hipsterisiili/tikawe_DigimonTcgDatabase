@@ -14,6 +14,7 @@ VALUES
     ('Cyberdramon', 'EX2-035', 'R'),
     ('Beelzemon', 'EX2-044', 'SR'),
     ('Gallantmon Crimson Mode', 'EX2-073', 'SEC'),
+    ('Protein', 'EX9-071', 'U'),
     ('Chaosdramon', 'EX12-0606', 'UR'),
 
     -- LM set
@@ -27,11 +28,13 @@ VALUES
     ('Gomamon', 'P-004', 'P'),
     ('Patamon', 'P-005', 'P'),
     ('Gatomon', 'P-006', 'P'),
+    ('Purple Memory Boost!', 'P-040', 'P'),
 
     -- RB cards
     ('Gurimon', 'RB1-001', 'C'),
     ('Puyoyomon', 'RB1-002', 'C'),
     ('Ruli Tsukiyono', 'RB1-034', 'R'),
+    ('Proximamon', 'RB1-036', 'SEC'),
 
     -- ST sets
     ('Koromon', 'ST1-01', 'U'),
