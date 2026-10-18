@@ -28,7 +28,7 @@ VALUES
     ('Patamon', 'P-005', 'P'),
     ('Gatomon', 'P-006', 'P'),
 
-    -- RB1 set
+    -- RB cards
     ('Gurimon', 'RB1-001', 'C'),
     ('Puyoyomon', 'RB1-002', 'C'),
     ('Ruli Tsukiyono', 'RB1-034', 'R'),
