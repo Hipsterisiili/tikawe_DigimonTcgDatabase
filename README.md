@@ -122,11 +122,13 @@ Generate a few cards with varying values to the public collection by running:
 sqlite3 database.db < dummy_content_script.sql
 ```
 
-The first 3 base sets (BT1, BT2 and BT3) can be added in the public collection ry running
+The contents of a few base sets (BT1 to BT3), starter deck Giga Green (ST4) and the first extra set (EX1) can be added in the public collection ry running foillowing lines in terminal.
 ```bash
 sqlite3 database.db < sets/BT1.sql
 sqlite3 database.db < sets/BT2.sql
 sqlite3 database.db < sets/BT3.sql
+sqlite3 database.db < sets/EX1.sql
+sqlite3 database.db < sets/ST4.sql
 ```
 
 ## Starting the application
